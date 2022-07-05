@@ -1,0 +1,149 @@
+$baseColor: rgb(230, 230, 230);
+$baseColorLighter: rgb(246,246,246);
+
+html, body {
+  padding: 0;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  height: 100%;
+  background-color: $baseColorLighter;
+}
+
+#__next{
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+header {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-column-start: 3;
+  justify-items: center;
+  align-items: center;
+  background-color: $baseColor;
+  height: 5vh;
+  font-size: 1.85vmin;
+
+  span:first-child{
+    grid-column-start: 2;
+  }
+
+  a{
+    border-radius: 0.5rem;
+    border: none;
+    background-color: inherit;
+    padding-block: 0.75vh;
+    padding-inline: 2.25vh;
+    font-size: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover{
+      background-color: white;
+      cursor: pointer;
+    }
+  }
+  
+}
+
+.overlay{
+  visibility: hidden;
+  position: fixed;
+  display: flex;
+  inset: 0;
+  top: 5vh;
+  background-color: rgba(131, 130, 130, 0.8);
+  z-index: 25;
+
+  &:target{
+    visibility: visible;
+  }
+
+  .popup{
+    background-color: red;
+    display: flex;
+    margin: auto;
+    border-radius: 0.5rem;
+    position: relative;
+    width: 30vw;
+    height: 50vh;
+    padding: 2vmin;
+
+    a{
+      padding: 10px;
+      position: absolute;
+      margin-left: auto;
+      margin-bottom: auto;
+      top: 2vmin;
+      right: 2vmin;
+      font-size: 1.85vmin;
+      line-height: 0.5;
+    }
+  }
+}
+
+footer{
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: $baseColor;
+  padding: 0.75%;
+
+  font-size: 3vh;
+
+  img{
+    border-radius: 50%;
+  }
+  
+  p{
+    font-size: 1.85vmin;
+  }
+
+  svg{
+    font-size: 3vmin;
+    padding-top: 0.5vh;
+  }
+  .author{
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 30vh;
+    gap:1vmin
+  }
+}
+
+.probaWrapper{
+  display: flex;
+  flex-direction: row;
+  height: 50%;
+}
+
+.proba{
+  flex:1;
+  background-color: green;
+  border-radius: 0.5rem;
+  margin: 1rem;
+  height: 100%;
+  transition: all 0.5s;
+  &:first-child{
+    background-color: red;
+  }
+  &:hover{
+    flex:5;
+    cursor: pointer;
+  }
+}
+
