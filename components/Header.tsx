@@ -1,17 +1,18 @@
-import React from "react";
+import React, { useRef, useId } from "react";
+import { useAuth } from "../contexts/AuthContext";
+import Popup from "./Popup";
+import UserDropDown from "./UserDropDown";
 
 const Header = () => {
+  const { isLoggedIn } = useAuth();
+
   return (
     <header>
       <span>DIPLOMSKI</span>
 
-      <a href="#popupTarget">Prijavi se</a>
-      <div id="popupTarget" className="overlay">
-        <div className="popup">
-          <div>hello pipl</div>
-          <a href="#">X</a>
-        </div>
-      </div>
+      {!isLoggedIn() && <Popup />}
+
+      {isLoggedIn() && <UserDropDown />}
     </header>
   );
 };

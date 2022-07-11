@@ -1,7 +1,8 @@
-$baseColor: rgb(230, 230, 230);
-$baseColorLighter: rgb(246,246,246);
+@import "./variables.module.scss";
+@import "./mixins.module.scss";
 
-html, body {
+html,
+body {
   padding: 0;
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
@@ -10,7 +11,7 @@ html, body {
   background-color: $baseColorLighter;
 }
 
-#__next{
+#__next {
   min-height: 100%;
   display: flex;
   flex-direction: column;
@@ -26,6 +27,7 @@ a {
 }
 
 header {
+  position: fixed;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-column-start: 3;
@@ -33,13 +35,14 @@ header {
   align-items: center;
   background-color: $baseColor;
   height: 5vh;
+  width: 100%;
   font-size: 1.85vmin;
 
-  span:first-child{
+  span:first-child {
     grid-column-start: 2;
   }
 
-  a{
+  a {
     border-radius: 0.5rem;
     border: none;
     background-color: inherit;
@@ -50,51 +53,14 @@ header {
     align-items: center;
     justify-content: center;
 
-    &:hover{
+    &:hover {
       background-color: white;
       cursor: pointer;
     }
   }
-  
 }
 
-.overlay{
-  visibility: hidden;
-  position: fixed;
-  display: flex;
-  inset: 0;
-  top: 5vh;
-  background-color: rgba(131, 130, 130, 0.8);
-  z-index: 25;
-
-  &:target{
-    visibility: visible;
-  }
-
-  .popup{
-    background-color: red;
-    display: flex;
-    margin: auto;
-    border-radius: 0.5rem;
-    position: relative;
-    width: 30vw;
-    height: 50vh;
-    padding: 2vmin;
-
-    a{
-      padding: 10px;
-      position: absolute;
-      margin-left: auto;
-      margin-bottom: auto;
-      top: 2vmin;
-      right: 2vmin;
-      font-size: 1.85vmin;
-      line-height: 0.5;
-    }
-  }
-}
-
-footer{
+footer {
   margin-top: auto;
   display: flex;
   justify-content: space-between;
@@ -104,46 +70,56 @@ footer{
 
   font-size: 3vh;
 
-  img{
+  img {
     border-radius: 50%;
   }
-  
-  p{
+
+  p {
     font-size: 1.85vmin;
   }
 
-  svg{
+  svg {
     font-size: 3vmin;
     padding-top: 0.5vh;
+    cursor: pointer;
   }
-  .author{
+  .author {
     display: flex;
     justify-content: space-evenly;
     align-items: center;
     width: 30vh;
-    gap:1vmin
+    gap: 1vmin;
   }
 }
 
-.probaWrapper{
-  display: flex;
-  flex-direction: row;
-  height: 50%;
+main {
+  min-height: 95vh;
+  width: auto;
+  margin-top: 5vh;
 }
 
-.proba{
-  flex:1;
+.probaWrapper {
+  display: flex;
+  flex-direction: row;
+  height: 80%;
+}
+
+.proba {
+  flex: 1;
   background-color: green;
   border-radius: 0.5rem;
   margin: 1rem;
   height: 100%;
   transition: all 0.5s;
-  &:first-child{
+  &:first-child {
     background-color: red;
   }
-  &:hover{
-    flex:5;
+  &:hover {
+    flex: 5;
     cursor: pointer;
   }
 }
 
+.basicSearch {
+  @include roundedInput(2rem, 80vw);
+}

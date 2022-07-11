@@ -1,7 +1,7 @@
+import Image from "next/image";
+import Link from "next/link";
 import React from "react";
-import Image from "../node_modules/next/image";
-import Link from "../node_modules/next/link";
-import { IconContext } from "../node_modules/react-icons/lib/esm/iconContext";
+
 import {
   TbBrandNextjs,
   TbBrandFirebase,
@@ -38,6 +38,7 @@ const Footer = () => {
             width="200px"
             height="200px"
             layout="responsive"
+            priority={true}
           />
         </div>
         <div style={{ flex: "1" }}>

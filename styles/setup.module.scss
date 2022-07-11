@@ -1,0 +1,32 @@
+@import "./variables.module.scss";
+@import "./mixins.module.scss";
+
+.setup {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  input {
+    @include roundedInput(1.5rem, 50%);
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 75%;
+    span {
+      margin-block: 2vmin;
+      width: 70%;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      div {
+        flex-direction: row;
+      }
+    }
+  }
+}

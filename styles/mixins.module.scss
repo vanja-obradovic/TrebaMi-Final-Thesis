@@ -1,0 +1,26 @@
+@import "./variables.module.scss";
+
+@mixin roundedInput($fontSize, $width) {
+  border-radius: 50px;
+  border: none;
+  font-size: $fontSize;
+  padding-inline: 2vmin;
+  width: $width;
+  &:focus {
+    outline-color: $accentColor;
+  }
+}
+
+@mixin button($baseColor, $hoverColor, $bpadding, $ipadding) {
+  border-radius: 0.5rem;
+  border: none;
+  background-color: $baseColor;
+  padding-block: $bpadding;
+  padding-inline: $ipadding;
+  font-size: inherit;
+
+  &:hover {
+    background-color: $hoverColor;
+    cursor: pointer;
+  }
+}

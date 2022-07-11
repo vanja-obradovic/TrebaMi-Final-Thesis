@@ -1,0 +1,147 @@
+@import "./variables.module.scss";
+@import "./mixins.module.scss";
+
+.overlay {
+  display: flex;
+  position: fixed;
+  inset: 0;
+  background-color: rgba(131, 130, 130, 0.8);
+  z-index: 25;
+
+  // &:target {
+  //   display: flex;
+  // }
+
+  .popupWrapper {
+    position: relative;
+    min-width: 45vw;
+    min-height: 40vh;
+    margin: auto;
+
+    .login {
+      background-color: $baseColorLighter;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: flex-end;
+      border-radius: 0.5rem;
+      padding: 2vmin;
+      transition: all 1.5s ease;
+
+      h2 {
+        margin-block: 1vmin;
+      }
+
+      a {
+        padding: 10px;
+        position: absolute;
+        margin-left: auto;
+        margin-bottom: auto;
+        top: 2vmin;
+        right: 2vmin;
+        font-size: 1.85vmin;
+        line-height: 0.5;
+      }
+
+      div {
+        width: 60%;
+        position: relative;
+      }
+
+      form {
+        width: 40%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        div {
+          min-width: 70%;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-evenly;
+
+          &:first-of-type {
+            margin-top: 2vmin;
+          }
+
+          &:last-of-type {
+            display: block;
+            text-align: center;
+            a {
+              all: unset;
+              color: $accentColor;
+              &:hover {
+                border-bottom: 1px solid $accentColor;
+                cursor: pointer;
+              }
+            }
+          }
+
+          margin-block: 1.25vmin;
+
+          input {
+            @include roundedInput(1.5rem, 100%);
+            min-width: 40%;
+          }
+        }
+
+        button {
+          @include button($baseColor, white, 1vmin, 2.5vmin);
+          position: relative;
+          margin-block: 2vmin;
+        }
+        .loading {
+          .btnText {
+            visibility: none;
+            opacity: 0;
+          }
+          &::before {
+            display: block;
+            content: "";
+            width: 2vmin;
+            height: 2vmin;
+            border-radius: 50%;
+            position: absolute;
+            inset: 0;
+            margin: auto;
+            border: 0.5vmin solid grey;
+            border-top-color: blue;
+            animation: spin 0.75s infinite ease;
+          }
+        }
+
+        @keyframes spin {
+          100% {
+            transform: rotate(360deg);
+          }
+          0% {
+            transform: rotate(0);
+          }
+        }
+      }
+    }
+  }
+  .signup {
+    @extend .login;
+    position: absolute;
+    inset: 0;
+    justify-content: flex-start !important;
+
+    form {
+      width: 50% !important;
+      div {
+        margin-block: 0.75vmin !important;
+      }
+      button {
+        margin-block: 1vmin !important;
+      }
+    }
+    & > div {
+      width: 50% !important;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  }
+}
