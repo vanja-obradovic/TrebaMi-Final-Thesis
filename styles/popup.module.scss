@@ -106,7 +106,7 @@
             inset: 0;
             margin: auto;
             border: 0.5vmin solid grey;
-            border-top-color: blue;
+            border-top-color: $accentColor;
             animation: spin 0.75s infinite ease;
           }
         }

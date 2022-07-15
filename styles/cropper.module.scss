@@ -1,14 +1,15 @@
 @import "./variables.module.scss";
 @import "./mixins.module.scss";
+
 .cropperPopUp {
   position: absolute;
   inset: 0;
   width: 40vw;
-  height: 75vh;
+  height: 65vh;
   margin: auto;
   display: grid;
   grid-template-rows: repeat(8, 1fr);
-  background-color: $baseColor;
+  background-color: $baseColorDarker;
   border-radius: 1rem;
   .cropperWrapper {
     position: relative !important;
@@ -26,7 +27,6 @@
       }
     }
   }
-
   div {
     p {
       font-size: 2vmin;

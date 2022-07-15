@@ -1,31 +1,105 @@
 @import "./variables.module.scss";
 @import "./mixins.module.scss";
 
-.setup {
+.setupWrapper {
+  display: flex;
+  flex-direction: column;
   width: 100%;
   height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  input {
-    @include roundedInput(1.5rem, 50%);
-  }
-
-  form {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 75%;
-    span {
-      margin-block: 2vmin;
-      width: 70%;
-      display: inline-flex;
+  > div {
+    &:first-child {
+      display: flex;
       justify-content: center;
       align-items: center;
+      font-size: larger;
+      margin-top: 2vmin;
+    }
+  }
+  .setup {
+    width: 95%;
+    height: 100%;
+    display: flex;
+    gap: 2vmin;
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+    input {
+      @include roundedInput(1.5rem, 70%);
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      flex: 2;
+      gap: 2vmin;
+      background-color: $baseColor;
+      min-height: 75%;
+      max-width: 80%;
+      border-radius: 2rem;
+      box-shadow: 0.5rem 0.5rem 5vmin 0.2vmin rgb(207, 213, 215);
       div {
+        label {
+          width: 70%;
+        }
+        min-width: 70%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        svg {
+          cursor: pointer;
+          width: 3vmin;
+          height: auto;
+        }
+      }
+      .imageUpload {
         flex-direction: row;
+        justify-content: center;
+        gap: 2vmin;
+      }
+
+      .option {
+        flex-direction: row;
+        min-width: auto;
+        width: fit-content;
+        gap: 2vmin;
+        div {
+          min-width: auto;
+          flex-direction: row;
+          label {
+            width: fit-content;
+          }
+          input {
+            width: fit-content;
+          }
+        }
+      }
+      select {
+        font-size: inherit;
+      }
+      button {
+        @include button($baseColorDarker, $baseColorLighter, 1vmin, 2vmin);
+        margin-top: 2vmin;
+      }
+    }
+    .imagePreview {
+      aspect-ratio: 1/1;
+      position: relative;
+      transform: scale(0.9);
+      flex: 1;
+      div {
+        position: absolute;
+        right: 1vmin;
+        top: 1vmin;
+        color: $baseColorLighter;
+        svg {
+          width: 4vmin;
+          height: auto;
+          &:hover {
+            cursor: pointer;
+          }
+        }
       }
     }
   }

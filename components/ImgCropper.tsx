@@ -5,7 +5,7 @@ import { TiTickOutline } from "react-icons/ti";
 import { MdOutlineCancel } from "react-icons/md";
 import getCroppedImg from "../util/imageCropper";
 
-const ImageCropper = ({ aspect, image, setCroppedImage, setFile }) => {
+const ImageCropper = ({ aspect, image, setCroppedImage, setFile, setURL }) => {
   const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
@@ -20,13 +20,15 @@ const ImageCropper = ({ aspect, image, setCroppedImage, setFile }) => {
   const showCroppedImage = useCallback(async () => {
     try {
       const croppedImage = await getCroppedImg(image, croppedAreaPixels);
+      setURL("");
+      window.URL.revokeObjectURL(image);
       console.log("donee", { croppedImage });
       setCroppedImage(croppedImage);
       setFile(null);
     } catch (e) {
       console.error(e);
     }
-  }, [croppedAreaPixels, image, setCroppedImage]);
+  }, [croppedAreaPixels, image, setCroppedImage, setFile]);
 
   return (
     <div className={styles.cropperPopUp}>
@@ -60,7 +62,12 @@ const ImageCropper = ({ aspect, image, setCroppedImage, setFile }) => {
         >
           <TiTickOutline />
         </button>
-        <button>
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            setFile(null);
+          }}
+        >
           <MdOutlineCancel />
         </button>
       </div>

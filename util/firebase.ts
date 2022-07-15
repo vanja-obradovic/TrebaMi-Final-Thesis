@@ -1,5 +1,6 @@
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
+import "firebase/compat/firestore";
 
 const fbConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -15,4 +16,5 @@ if (!firebase.apps.length) {
 }
 
 export const auth = firebase.auth();
+export const firestore = firebase.firestore();
 export default firebase;
