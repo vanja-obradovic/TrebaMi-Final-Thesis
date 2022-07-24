@@ -39,7 +39,7 @@ const Register = ({ setPopup, setRegister }) => {
       }
       await signup?.(email.current.value, password.current.value).then(
         (res) => {
-          if (res.additionalUserInfo.isNewUser) Router.push("/setup");
+          if (res.user.displayName === null) Router.push("/setup");
         }
       );
     } catch {

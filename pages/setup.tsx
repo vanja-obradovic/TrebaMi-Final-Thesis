@@ -9,16 +9,19 @@ import { MdOutlineCancel } from "react-icons/md";
 import { HiOutlineUpload } from "react-icons/hi";
 import { GrMapLocation } from "react-icons/gr";
 import { toast } from "react-toastify";
-import firebase, { firestore } from "../util/firebase";
+import app, { auth, firestore, storage } from "../util/firebase";
 
 const FirstLogin = () => {
   const { isLoggedIn, currUser } = useAuth();
   const router = useRouter();
+  const dbInstance = firestore.getFirestore(app);
+  const storageInstance = storage.getStorage(app);
 
   const id = useId();
 
   const [providerCheck, setProviderCheck] = useState(false);
   const [location, setLocation] = useState<GeolocationPosition>(null);
+  const [loading, setLoading] = useState(false);
 
   const name = useRef<HTMLInputElement>();
   const surname = useRef<HTMLInputElement>();
@@ -31,8 +34,58 @@ const FirstLogin = () => {
     else if (currUser?.displayName !== null) router.replace("/LogedIn");
   }, [isLoggedIn, router, currUser]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    firestore
+      .addDoc(firestore.collection(dbInstance, "/users"), {
+        name: name.current.value,
+        surname: surname.current.value,
+        number: number.current.value,
+        isProvider: providerCheck,
+        location: {
+          lat: location?.coords.latitude ?? null,
+          long: location?.coords.longitude ?? null,
+        },
+        category: category.current?.value ?? null,
+      })
+      .then(() => {
+        if (croppedImage) {
+          storage
+            .uploadBytes(
+              storage.ref(storageInstance, "image"),
+              croppedImage.file
+            )
+            .then(() => {
+              storage
+                .getDownloadURL(storage.ref(storageInstance, "image"))
+                .then((url) => {
+                  auth
+                    .updateProfile(currUser, {
+                      displayName:
+                        name.current.value + " " + surname.current.value,
+                      photoURL: url,
+                    })
+                    .then(() => {
+                      setLoading(false);
+                      router.replace("/");
+                    });
+                });
+            });
+        } else {
+          auth
+            .updateProfile(currUser, {
+              displayName: name.current.value + " " + surname.current.value,
+              photoURL:
+                "https://cdn.icon-icons.com/icons2/2406/PNG/512/user_account_icon_145918.png",
+            })
+            .then(() => {
+              setLoading(false);
+              router.replace("/");
+            });
+        }
+      })
+      .catch((e) => console.error("Error adding document: " + e));
   };
 
   const getCurrLocation = () => {
@@ -145,7 +198,12 @@ const FirstLogin = () => {
                 </div>
               </>
             )}
-            <button>Potvrdi</button>
+            <button
+              disabled={loading}
+              className={loading ? styles.loading : ""}
+            >
+              Potvrdi
+            </button>
           </form>
           {croppedImage && (
             <div className={styles.imagePreview}>

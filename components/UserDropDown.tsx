@@ -6,16 +6,20 @@ import styles from "../styles/userdd.module.scss";
 
 const UserDropDown = () => {
   const [dropDown, setDropDown] = useState(false);
-  const { signout } = useAuth();
+  const { signout, currUser } = useAuth();
 
   return (
     <div className={styles.dropDownWrapper}>
-      <HiOutlineUserCircle
-        className={styles.basicIcon}
-        onClick={() => {
-          setDropDown(!dropDown);
-        }}
-      />
+      {currUser?.photoURL ? (
+        <Image src={currUser.photoURL} width="50px" height={"50px"}></Image>
+      ) : (
+        <HiOutlineUserCircle
+          className={styles.basicIcon}
+          onClick={() => {
+            setDropDown(!dropDown);
+          }}
+        />
+      )}
 
       {dropDown && (
         <div className={styles.dropDown}>

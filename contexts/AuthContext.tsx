@@ -1,19 +1,13 @@
 import React from "react";
 import { useState, useEffect, useContext } from "react";
-import { auth } from "../util/firebase";
-import firebase from "firebase/compat";
-import Router, { useRouter } from "next/router";
+import app, { auth } from "../util/firebase";
+import { UserCredential, User } from "firebase/auth";
+import { useRouter } from "next/router";
 
 interface authContextInterface {
-  currUser: firebase.User;
-  signup: (
-    email: string,
-    password: string
-  ) => Promise<firebase.auth.UserCredential>;
-  login: (
-    email: string,
-    password: string
-  ) => Promise<firebase.auth.UserCredential>;
+  currUser: User;
+  signup: (email: string, password: string) => Promise<UserCredential>;
+  login: (email: string, password: string) => Promise<UserCredential>;
   isLoggedIn: () => boolean;
   signout: () => void;
 }
@@ -25,15 +19,16 @@ export function useAuth() {
 }
 
 export const AuthProvider = ({ children }) => {
-  const [currUser, setCurrUser] = useState<firebase.User>();
+  const [currUser, setCurrUser] = useState<User>();
   const router = useRouter();
+  const authInstance = auth.getAuth(app);
 
   function signup(email: string, password: string) {
-    return auth.createUserWithEmailAndPassword(email, password);
+    return auth.createUserWithEmailAndPassword(authInstance, email, password);
   }
 
   function login(email: string, password: string) {
-    return auth.signInWithEmailAndPassword(email, password);
+    return auth.signInWithEmailAndPassword(authInstance, email, password);
   }
 
   function isLoggedIn() {
@@ -41,12 +36,14 @@ export const AuthProvider = ({ children }) => {
   }
 
   function signout() {
-    auth.signOut();
+    authInstance.signOut();
     router.replace("/");
   }
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => setCurrUser(user));
+    const unsubscribe = authInstance.onAuthStateChanged((user) =>
+      setCurrUser(user)
+    );
 
     return unsubscribe;
   }, []);

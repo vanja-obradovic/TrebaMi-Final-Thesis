@@ -1,6 +1,12 @@
-import firebase from "firebase/compat/app";
-import "firebase/compat/auth";
-import "firebase/compat/firestore";
+import { initializeApp, getApps } from "firebase/app";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  updateProfile,
+} from "firebase/auth";
+import { ref, getDownloadURL, uploadBytes, getStorage } from "firebase/storage";
+import { getFirestore, collection, addDoc } from "firebase/firestore";
 
 const fbConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -11,10 +17,13 @@ const fbConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-if (!firebase.apps.length) {
-  firebase.initializeApp(fbConfig);
-}
-
-export const auth = firebase.auth();
-export const firestore = firebase.firestore();
-export default firebase;
+const app = !getApps().length ? initializeApp(fbConfig) : getApps()[0];
+export const auth = {
+  getAuth,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  updateProfile,
+};
+export const firestore = { getFirestore, collection, addDoc };
+export const storage = { getStorage, ref, getDownloadURL, uploadBytes };
+export default app;

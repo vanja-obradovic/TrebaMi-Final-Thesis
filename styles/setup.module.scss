@@ -81,6 +81,35 @@
       button {
         @include button($baseColorDarker, $baseColorLighter, 1vmin, 2vmin);
         margin-top: 2vmin;
+        position: relative;
+      }
+      .loading {
+        .btnText {
+          visibility: none;
+          opacity: 0;
+        }
+        &::before {
+          display: block;
+          content: "";
+          width: 2vmin;
+          height: 2vmin;
+          border-radius: 50%;
+          position: absolute;
+          inset: 0;
+          margin: auto;
+          border: 0.5vmin solid grey;
+          border-top-color: $accentColor;
+          animation: spin 0.75s infinite ease;
+        }
+      }
+
+      @keyframes spin {
+        100% {
+          transform: rotate(360deg);
+        }
+        0% {
+          transform: rotate(0);
+        }
       }
     }
     .imagePreview {

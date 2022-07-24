@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import Head from "next/head";
+import { Autocomplete, TextField } from "@mui/material";
 
 let placeholder: string = "Potreban/no mi je... ";
 let txt = ["kajmak", "slanina"];
@@ -27,6 +28,8 @@ const typePlaceholder = (start: string, text: string[]): void => {
   // }, Math.random() * 200 + 160);
 };
 
+const top100Films = ["abc", "edf", "ghj"];
+
 export default function Home() {
   useEffect(() => {
     typePlaceholder(placeholder, txt);
@@ -38,6 +41,13 @@ export default function Home() {
         <title>Diplomski</title>
         <meta name="description" content="Graduation project at ETF" />
       </Head>
+      {/* <Autocomplete
+        disablePortal
+        id="combo-box-demo"
+        options={top100Films}
+        sx={{ width: 300 }}
+        renderInput={(params) => <TextField {...params} label="Movie" />}
+      /> */}
       <div>
         <div className="probaWrapper">
           <div className="proba">p1</div>
