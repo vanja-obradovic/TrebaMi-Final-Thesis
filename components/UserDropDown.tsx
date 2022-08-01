@@ -1,38 +1,57 @@
-import Image from "next/image";
-import React, { useState } from "react";
-import { HiOutlineUserCircle } from "react-icons/hi";
+import { Avatar, Menu, MenuItem, Zoom } from "@mui/material";
+import { blue } from "@mui/material/colors";
+import Link from "next/link";
+import React, { MouseEvent, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import styles from "../styles/userdd.module.scss";
 
 const UserDropDown = () => {
-  const [dropDown, setDropDown] = useState(false);
   const { signout, currUser } = useAuth();
+  const [anchor, setAnchor] = useState<HTMLElement>();
+  const open = Boolean(anchor);
+
+  const handleClick = (e: MouseEvent<HTMLElement>) => {
+    setAnchor(e.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchor(null);
+  };
 
   return (
-    <div className={styles.dropDownWrapper}>
-      {currUser?.photoURL ? (
-        <Image src={currUser.photoURL} width="50px" height={"50px"}></Image>
-      ) : (
-        <HiOutlineUserCircle
-          className={styles.basicIcon}
-          onClick={() => {
-            setDropDown(!dropDown);
-          }}
-        />
-      )}
-
-      {dropDown && (
-        <div className={styles.dropDown}>
-          <span
-            onClick={() => {
-              signout();
-            }}
+    <>
+      {currUser?.displayName && (
+        <>
+          <Avatar
+            sx={{ bgcolor: blue[200] }}
+            alt={currUser?.displayName}
+            src={currUser?.photoURL}
+            onClick={handleClick}
+            className={styles.avatar}
           >
-            Logout
-          </span>
-        </div>
+            {currUser?.displayName.charAt(0)}
+          </Avatar>
+          <Menu
+            open={open}
+            anchorEl={anchor}
+            onClose={handleClose}
+            TransitionComponent={Zoom}
+            PaperProps={{ className: styles.dropDown }}
+          >
+            <MenuItem classes={{ gutters: styles.item }} onClick={handleClose}>
+              <Link href={`/userProfile`} locale={false}>
+                My profile
+              </Link>
+            </MenuItem>
+            <MenuItem classes={{ gutters: styles.item }} onClick={handleClose}>
+              Settings
+            </MenuItem>
+            <MenuItem onClick={signout} classes={{ gutters: styles.item }}>
+              Logout
+            </MenuItem>
+          </Menu>
+        </>
       )}
-    </div>
+    </>
   );
 };
 

@@ -7,7 +7,7 @@
   padding-inline: 2vmin;
   width: $width;
   &:focus {
-    outline-color: $accentColor;
+    outline-color: $accentColor !important;
   }
 }
 

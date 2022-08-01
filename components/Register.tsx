@@ -1,3 +1,4 @@
+import { TextField } from "@mui/material";
 import Router from "next/router";
 import React, { useId, useRef, useState } from "react";
 import { toast } from "react-toastify";
@@ -12,96 +13,105 @@ const Register = ({ setPopup, setRegister }) => {
   const password = useRef<HTMLInputElement>();
   const confirmPassword = useRef<HTMLInputElement>();
 
-  const passRegex = RegExp(
-    "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d*.!@#$%^&(){}\\[\\]:\";'<>,.?\\/~`_+-=|]{8,}$"
+  const passRegex = new RegExp(
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d*.!@#$%^&(){}\[\]:\";'<>,.?\/~`_+-=|]{8,}$/
   );
+  const emailRegex = new RegExp(
+    /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
+  );
+
   const toastId = useRef<Toast.Id>(null);
   const { signup } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<boolean[]>([false, false, false]);
 
   const handleSignup = async (e) => {
     e.preventDefault();
+    setErrors(() => {
+      errors[0] = errors[1] = errors[2] = false;
+      return [...errors];
+    });
+    console.log(errors);
+    setLoading(true);
 
-    try {
-      setLoading(true);
-      if (confirmPassword.current.value !== password.current.value) {
-        toast.error("Lozinke nisu iste!");
-        setLoading(false);
-        return;
-      } else if (!passRegex.test(password.current.value)) {
-        toastId.current =
-          toastId.current ??
-          toast.warn(
-            "Lozinka mora imati makar jedno veliko i malo slovo, jedan broj i specijalni karakter i imati minimalno 8 karaktera!"
-          );
-        setLoading(false);
-        return;
-      }
-      await signup?.(email.current.value, password.current.value).then(
-        (res) => {
-          if (res.user.displayName === null) Router.push("/setup");
-        }
-      );
-    } catch {
-      toast.error("Greska u registraciji!");
+    if (!emailRegex.test(email.current.value ?? "")) {
+      console.log(emailRegex.test(email.current.value));
+      toast.error("Uneta email adresa nije ispravna");
+      setErrors([true, errors[1], errors[2]]);
+      setLoading(false);
+      return;
+    } else if (!passRegex.test(password.current.value ?? "")) {
+      toastId.current =
+        toastId.current ??
+        toast.error(
+          "Lozinka mora imati makar jedno veliko i malo slovo, jedan broj i specijalni karakter i imati minimalno 8 karaktera!"
+        );
+      setErrors([errors[0], true, errors[2]]);
+      setLoading(false);
+      return;
+    } else if (confirmPassword.current.value !== password.current.value) {
+      toast.error("Lozinke nisu iste!");
+      setErrors([errors[0], true, true]);
+      setLoading(false);
+      return;
     }
+
+    await signup?.(email.current.value, password.current.value)
+      .then((res) => {
+        if (res.user.displayName === null) Router.push("/setup");
+      })
+      .catch((err) => {
+        toast.error("Greska u registraciji!");
+      });
     setLoading(false);
   };
 
   return (
     <div className={styles.signup}>
-      <form onSubmit={handleSignup}>
+      <form onSubmit={handleSignup} noValidate>
         <h2>Registruj se</h2>
-        <div>
-          <label htmlFor={`${id}-email`}>Email</label>
-          <input
-            type="email"
-            id={`${id}-email`}
-            ref={email}
-            required
-            onInvalid={(e) =>
-              e.currentTarget.setCustomValidity("Pogresan format email adrese!")
-            }
-            onInput={(e) => e.currentTarget.setCustomValidity("")}
-          />
-        </div>
-        <div>
-          <label htmlFor={`${id}-password`}>Password</label>
-          <input
-            type="password"
-            name="passR"
-            id={`${id}-password`}
-            ref={password}
-            required
-            onInvalid={(e) => {
-              e.currentTarget.setCustomValidity(
-                "Lozinka nije u adekvatnom formatu!"
-              );
-              toastId.current =
-                toastId.current ??
-                toast.warn(
-                  "Lozinka mora imati makar jedno veliko i malo slovo, jedan broj i specijalni karakter i imati minimalno 8 karaktera!"
-                );
-            }}
-            onInput={(e) => e.currentTarget.setCustomValidity("")}
-          />
-        </div>
-        <div>
-          <label htmlFor={`${id}-confirmPassword`}>Confirm Password</label>
-          <input
-            type="password"
-            name="confirmPassR"
-            id={`${id}-confirmPassword`}
-            ref={confirmPassword}
-            required
-            onInvalid={(e) => {
-              e.currentTarget.setCustomValidity(
-                "Lozinka nije u adekvatnom formatu!"
-              );
-            }}
-            onInput={(e) => e.currentTarget.setCustomValidity("")}
-          />
-        </div>
+
+        <TextField
+          type="email"
+          id={`${id}-email`}
+          inputRef={email}
+          required
+          label="Email"
+          error={errors[0]}
+          helperText={errors[0] ? "Ovo polje je obavezno" : ""}
+          size="small"
+          InputProps={{ className: styles.inputStyle }}
+          InputLabelProps={{ className: styles.inputStyle }}
+          autoFocus
+        />
+
+        <TextField
+          type="password"
+          name="pass"
+          id={`${id}-password`}
+          inputRef={password}
+          required
+          label="Password"
+          error={errors[1]}
+          helperText={errors[1] ? "Ovo polje je obavezno" : ""}
+          size="small"
+          InputProps={{ className: styles.inputStyle }}
+          InputLabelProps={{ className: styles.inputStyle }}
+        />
+
+        <TextField
+          type="password"
+          name="confirmPass"
+          id={`${id}-confirmPassword`}
+          inputRef={confirmPassword}
+          required
+          label="Confirm Password"
+          error={errors[2]}
+          helperText={errors[2] ? "Ovo polje je obavezno" : ""}
+          size="small"
+          InputProps={{ className: styles.inputStyle }}
+          InputLabelProps={{ className: styles.inputStyle }}
+        />
 
         <button
           disabled={loading}

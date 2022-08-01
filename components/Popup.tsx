@@ -1,3 +1,4 @@
+import { Container } from "@mui/material";
 import React from "react";
 import { useState } from "react";
 import styles from "../styles/popup.module.scss";
@@ -13,12 +14,16 @@ const Popup = () => {
       <a onClick={() => setPopup(true)}>Prijavi se</a>
       {popUp && (
         <div id="popupTarget" className={styles.overlay}>
-          <div className={styles.popupWrapper}>
-            <Login setPopup={setPopup} setRegister={setRegister} />
+          <Container maxWidth="md" className={styles.popupWrapper}>
+            {/* <div className={styles.popupWrapper}> */}
+            {!register && (
+              <Login setPopup={setPopup} setRegister={setRegister} />
+            )}
             {register && (
               <Register setPopup={setPopup} setRegister={setRegister} />
             )}
-          </div>
+            {/* </div> */}
+          </Container>
         </div>
       )}
     </>

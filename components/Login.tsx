@@ -4,6 +4,8 @@ import React, { useId, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { useAuth } from "../contexts/AuthContext";
 import styles from "../styles/popup.module.scss";
+import { TextField } from "@mui/material";
+import { Box } from "@mui/system";
 
 const Login = ({ setPopup, setRegister }) => {
   const id = useId();
@@ -39,35 +41,32 @@ const Login = ({ setPopup, setRegister }) => {
           objectFit="cover"
         ></Image>
       </div>
-      <form onSubmit={handleLogin}>
+      <Box component="form" onSubmit={handleLogin}>
         <h2>Prijavi se</h2>
-        <div>
-          <label htmlFor={`${id}-email`}>Email</label>
-          <input
-            type="email"
-            id={`${id}-email`}
-            ref={email}
-            required
-            onInvalid={(e) =>
-              e.currentTarget.setCustomValidity("Pogresan format email adrese!")
-            }
-            onInput={(e) => e.currentTarget.setCustomValidity("")}
-          />
-        </div>
-        <div>
-          <label htmlFor={`${id}-password`}>Password</label>
-          <input
-            type="password"
-            name="pass"
-            id={`${id}-password`}
-            ref={password}
-            required
-            onInvalid={(e) =>
-              e.currentTarget.setCustomValidity("Ovo polje je obavezno!")
-            }
-            onInput={(e) => e.currentTarget.setCustomValidity("")}
-          />
-        </div>
+        <TextField
+          type="email"
+          id={`${id}-email`}
+          inputRef={email}
+          required
+          label="Email"
+          variant="outlined"
+          size="small"
+          InputProps={{ className: styles.inputStyle }}
+          InputLabelProps={{ className: styles.inputStyle }}
+          autoFocus
+        />
+        <TextField
+          type="password"
+          name="pass"
+          id={`${id}-password`}
+          inputRef={password}
+          required
+          label="Password"
+          variant="outlined"
+          size="small"
+          InputProps={{ className: styles.inputStyle }}
+          InputLabelProps={{ className: styles.inputStyle }}
+        />
 
         <button disabled={loading} className={loading ? styles.loading : ""}>
           <span className={styles.btnText}>Potvrdi</span>
@@ -77,7 +76,7 @@ const Login = ({ setPopup, setRegister }) => {
           <br /> Regstrujte se <a onClick={() => setRegister(true)}>ovde</a>
           {"."}
         </div>
-      </form>
+      </Box>
       <a
         onClick={() => {
           setPopup(false);

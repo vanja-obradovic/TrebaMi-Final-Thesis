@@ -10,8 +10,10 @@ import { HiOutlineUpload } from "react-icons/hi";
 import { GrMapLocation } from "react-icons/gr";
 import { toast } from "react-toastify";
 import app, { auth, firestore, storage } from "../util/firebase";
+import { format } from "date-fns";
+import { LinearProgress } from "@mui/material";
 
-const FirstLogin = () => {
+const Setup = () => {
   const { isLoggedIn, currUser } = useAuth();
   const router = useRouter();
   const dbInstance = firestore.getFirestore(app);
@@ -22,6 +24,7 @@ const FirstLogin = () => {
   const [providerCheck, setProviderCheck] = useState(false);
   const [location, setLocation] = useState<GeolocationPosition>(null);
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   const name = useRef<HTMLInputElement>();
   const surname = useRef<HTMLInputElement>();
@@ -38,9 +41,13 @@ const FirstLogin = () => {
     e.preventDefault();
     setLoading(true);
     firestore
-      .addDoc(firestore.collection(dbInstance, "/users"), {
-        name: name.current.value,
-        surname: surname.current.value,
+      .setDoc(firestore.doc(dbInstance, `users`, `${currUser.uid}`), {
+        name:
+          name.current.value.charAt(0).toUpperCase() +
+          name.current.value.slice(1),
+        surname:
+          surname.current.value.charAt(0).toUpperCase() +
+          surname.current.value.slice(1),
         number: number.current.value,
         isProvider: providerCheck,
         location: {
@@ -51,33 +58,57 @@ const FirstLogin = () => {
       })
       .then(() => {
         if (croppedImage) {
-          storage
-            .uploadBytes(
-              storage.ref(storageInstance, "image"),
-              croppedImage.file
-            )
-            .then(() => {
-              storage
-                .getDownloadURL(storage.ref(storageInstance, "image"))
-                .then((url) => {
-                  auth
-                    .updateProfile(currUser, {
-                      displayName:
-                        name.current.value + " " + surname.current.value,
-                      photoURL: url,
-                    })
-                    .then(() => {
-                      setLoading(false);
-                      router.replace("/");
-                    });
-                });
-            });
+          const ref = storage.ref(
+            storageInstance,
+            `avatars/${currUser.uid}/${format(new Date(), "ddMMyyyy_HHmmss")}.${
+              croppedImage.fileType
+            }`
+          );
+
+          const uploadTask = storage.uploadBytesResumable(
+            ref,
+            croppedImage.file
+          );
+
+          uploadTask.on(
+            "state_changed",
+            (snapshot) => {
+              const progress =
+                (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              setProgress(progress);
+            },
+            (error) => {
+              console.log(`Error while uploading, message: ${error.message}`);
+            },
+            () => {
+              storage.getDownloadURL(ref).then((url) => {
+                auth
+                  .updateProfile(currUser, {
+                    displayName:
+                      name.current.value.charAt(0).toUpperCase() +
+                      name.current.value.slice(1) +
+                      " " +
+                      surname.current.value.charAt(0).toUpperCase() +
+                      surname.current.value.slice(1),
+                    photoURL: url,
+                  })
+                  .then(() => {
+                    setLoading(false);
+                    window.URL.revokeObjectURL(croppedImage?.url);
+                    router.replace("/");
+                  });
+              });
+            }
+          );
         } else {
           auth
             .updateProfile(currUser, {
-              displayName: name.current.value + " " + surname.current.value,
-              photoURL:
-                "https://cdn.icon-icons.com/icons2/2406/PNG/512/user_account_icon_145918.png",
+              displayName:
+                name.current.value.charAt(0).toUpperCase() +
+                name.current.value.slice(1) +
+                " " +
+                surname.current.value.charAt(0).toUpperCase() +
+                surname.current.value.slice(1),
             })
             .then(() => {
               setLoading(false);
@@ -212,10 +243,22 @@ const FirstLogin = () => {
                 <MdOutlineCancel
                   onClick={() => {
                     setCroppedImage(null);
-                    window.URL.revokeObjectURL(croppedImage.url); //obavezno da se ne zatrpava browser
+                    window.URL.revokeObjectURL(croppedImage.url);
                   }}
                 />
               </div>
+              {loading && (
+                <div className={styles.progressWrapper}>
+                  <LinearProgress
+                    variant="determinate"
+                    value={progress}
+                    classes={{
+                      root: styles.progressContainer,
+                      bar: styles.progress,
+                    }}
+                  />
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -233,4 +276,4 @@ const FirstLogin = () => {
   );
 };
 
-export default FirstLogin;
+export default Setup;

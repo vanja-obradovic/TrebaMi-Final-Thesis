@@ -11,28 +11,16 @@
   }
 }
 
-.dropDownWrapper {
-  position: relative;
-  .dropDown {
-    background-color: $baseColor;
-    border-radius: 0.5rem;
-    position: absolute;
-    padding-inline: 1.5vmin;
-    padding-block: 1vmin;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    align-items: center;
-  }
-  span {
-    vertical-align: middle;
-    border-radius: 0.5rem;
-    padding-inline: 1.5vmin;
-    padding-block: 0.5vmin;
-    &:hover {
-      color: $accentColor;
-      background-color: $baseColorLighter;
-      cursor: pointer;
-    }
-  }
+.dropDown {
+  border-radius: 1rem !important;
+  padding-inline: 1.25vmin;
+  padding-block: 0.75vmin;
+}
+
+.avatar {
+  cursor: pointer;
+}
+
+.item {
+  border-radius: 1rem !important;
 }

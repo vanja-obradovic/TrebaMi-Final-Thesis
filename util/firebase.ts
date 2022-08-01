@@ -5,8 +5,24 @@ import {
   createUserWithEmailAndPassword,
   updateProfile,
 } from "firebase/auth";
-import { ref, getDownloadURL, uploadBytes, getStorage } from "firebase/storage";
-import { getFirestore, collection, addDoc } from "firebase/firestore";
+import {
+  ref,
+  getDownloadURL,
+  uploadBytes,
+  getStorage,
+  uploadBytesResumable,
+} from "firebase/storage";
+import {
+  getFirestore,
+  collection,
+  doc,
+  addDoc,
+  setDoc,
+  serverTimestamp,
+  where,
+  getDoc,
+  query,
+} from "firebase/firestore";
 
 const fbConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -17,6 +33,14 @@ const fbConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
+export const getUser = async (uid: string) => {
+  const usersRef = doc(getFirestore(app), `/users/${uid}`);
+  const userDoc = getDoc(usersRef).then((res) => {
+    return res;
+  });
+  return userDoc;
+};
+
 const app = !getApps().length ? initializeApp(fbConfig) : getApps()[0];
 export const auth = {
   getAuth,
@@ -24,6 +48,19 @@ export const auth = {
   createUserWithEmailAndPassword,
   updateProfile,
 };
-export const firestore = { getFirestore, collection, addDoc };
-export const storage = { getStorage, ref, getDownloadURL, uploadBytes };
+export const firestore = {
+  getFirestore,
+  collection,
+  addDoc,
+  serverTimestamp,
+  setDoc,
+  doc,
+};
+export const storage = {
+  getStorage,
+  ref,
+  getDownloadURL,
+  uploadBytes,
+  uploadBytesResumable,
+};
 export default app;

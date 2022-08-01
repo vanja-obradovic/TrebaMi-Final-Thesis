@@ -1,6 +1,7 @@
 export interface ImageFileUrl {
   file: Blob;
   url: string;
+  fileType: string;
 }
 
 export const createImage = (url) =>
@@ -91,7 +92,7 @@ export default async function getCroppedImg(
   // As a blob
   return new Promise<ImageFileUrl>((resolve, reject) => {
     canvas.toBlob((file) => {
-      resolve({ file: file, url: URL.createObjectURL(file) });
+      resolve({ file: file, url: URL.createObjectURL(file), fileType: "jpeg" });
     }, "image/jpeg");
   });
 }
