@@ -6,7 +6,7 @@
   position: fixed;
   inset: 0;
   background-color: rgba(131, 130, 130, 0.8);
-  z-index: 25;
+  z-index: 150;
 
   // &:target {
   //   display: flex;
@@ -14,7 +14,7 @@
 
   .popupWrapper {
     position: relative;
-    // min-width: 70vw;
+    // max-width: 70vw;
     margin: auto;
 
     .login {

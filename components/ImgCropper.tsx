@@ -57,18 +57,18 @@ const ImageCropper = ({ aspect, image, setCroppedImage, setFile, setURL }) => {
         <button
           onClick={(e) => {
             e.preventDefault();
-            showCroppedImage();
-          }}
-        >
-          <TiTickOutline />
-        </button>
-        <button
-          onClick={(e) => {
-            e.preventDefault();
             setFile(null);
           }}
         >
           <MdOutlineCancel />
+        </button>
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            showCroppedImage();
+          }}
+        >
+          <TiTickOutline />
         </button>
       </div>
     </div>

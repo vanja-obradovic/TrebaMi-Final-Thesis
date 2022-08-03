@@ -32,7 +32,8 @@ export const AuthProvider = ({ children }) => {
   }
 
   function isLoggedIn() {
-    return currUser !== null ? true : false;
+    if (currUser === null) return false;
+    else if (currUser !== undefined) return true;
   }
 
   function signout() {
@@ -46,7 +47,7 @@ export const AuthProvider = ({ children }) => {
     );
 
     return unsubscribe;
-  }, []);
+  }, [authInstance]);
 
   const value = {
     currUser,

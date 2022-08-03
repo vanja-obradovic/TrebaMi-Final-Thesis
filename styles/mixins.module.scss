@@ -24,3 +24,73 @@
     cursor: pointer;
   }
 }
+
+@mixin confirmAndCancelButtons($width: 30%, $height: 60%, $svgWidth: 5vmin) {
+  @include button($baseColor, $baseColorLighter, 0.5vmin, 1vmin);
+
+  &:disabled {
+    background-color: -internal-light-dark(
+      rgba(239, 239, 239, 0.3),
+      rgba(19, 1, 1, 0.3)
+    ) !important;
+    cursor: initial !important;
+    box-shadow: none !important;
+    svg {
+      color: $baseColorDarker !important;
+    }
+    border-color: $baseColorDarker !important;
+  }
+  &:disabled:hover,
+  &:disabled:focus {
+    box-shadow: none !important;
+  }
+
+  &:hover {
+    background-color: $baseColor !important;
+  }
+
+  width: $width;
+  height: $height;
+  transition: 0.4s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: $svgWidth;
+    height: auto;
+    transition: 0.3s;
+  }
+
+  &:last-of-type {
+    border: 0.3vmin solid rgb(84, 172, 84);
+
+    svg {
+      color: rgb(84, 172, 84);
+    }
+
+    &:hover,
+    &:focus {
+      box-shadow: inset 0 -4rem 0 0 adjust-hue($color: #54ac54, $degrees: 10);
+      svg {
+        color: $baseColor;
+      }
+    }
+  }
+
+  &:first-of-type {
+    border: 0.3vmin solid #db5252;
+
+    svg {
+      color: #db5252;
+    }
+
+    &:hover,
+    &:focus {
+      box-shadow: inset 0 -4rem 0 0 adjust-hue($color: #db5252, $degrees: 10);
+      svg {
+        color: $baseColor;
+      }
+    }
+  }
+}

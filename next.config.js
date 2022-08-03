@@ -6,6 +6,7 @@ const nextConfig = {
       "scontent.fbeg4-1.fna.fbcdn.net",
       "cdn.icon-icons.com",
       "firebasestorage.googleapis.com",
+      "picsum.photos",
     ],
   },
 };

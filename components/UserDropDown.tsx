@@ -1,7 +1,7 @@
 import { Avatar, Menu, MenuItem, Zoom } from "@mui/material";
 import { blue } from "@mui/material/colors";
 import Link from "next/link";
-import React, { MouseEvent, useState } from "react";
+import React, { MouseEvent, useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import styles from "../styles/userdd.module.scss";
 
@@ -43,7 +43,9 @@ const UserDropDown = () => {
               </Link>
             </MenuItem>
             <MenuItem classes={{ gutters: styles.item }} onClick={handleClose}>
-              Settings
+              <Link href={`/settings`} locale={false}>
+                Settings
+              </Link>
             </MenuItem>
             <MenuItem onClick={signout} classes={{ gutters: styles.item }}>
               Logout

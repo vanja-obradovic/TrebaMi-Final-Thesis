@@ -11,7 +11,9 @@ const Popup = () => {
 
   return (
     <>
-      <a onClick={() => setPopup(true)}>Prijavi se</a>
+      <a onClick={() => setPopup(true)} id="loginPopup">
+        Prijavi se
+      </a>
       {popUp && (
         <div id="popupTarget" className={styles.overlay}>
           <Container maxWidth="md" className={styles.popupWrapper}>

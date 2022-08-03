@@ -12,6 +12,7 @@ import { toast } from "react-toastify";
 import app, { auth, firestore, storage } from "../util/firebase";
 import { format } from "date-fns";
 import { LinearProgress } from "@mui/material";
+import AuthCheck from "../components/AuthCheck";
 
 const Setup = () => {
   const { isLoggedIn, currUser } = useAuth();
@@ -33,8 +34,9 @@ const Setup = () => {
   const category = useRef<HTMLSelectElement>();
 
   useEffect(() => {
-    if (!isLoggedIn()) router.replace("/");
-    else if (currUser?.displayName !== null) router.replace("/LogedIn");
+    if (currUser !== undefined)
+      if (!isLoggedIn()) router.replace("/");
+      else if (currUser?.displayName !== null) router.replace("/LogedIn");
   }, [isLoggedIn, router, currUser]);
 
   const handleSubmit = async (e) => {
@@ -49,6 +51,9 @@ const Setup = () => {
           surname.current.value.charAt(0).toUpperCase() +
           surname.current.value.slice(1),
         number: number.current.value,
+        rating: null,
+        reputation: null,
+        membership: "silver",
         isProvider: providerCheck,
         location: {
           lat: location?.coords.latitude ?? null,

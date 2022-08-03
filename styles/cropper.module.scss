@@ -11,6 +11,7 @@
   grid-template-rows: repeat(8, 1fr);
   background-color: $baseColorDarker;
   border-radius: 1rem;
+  z-index: 5000;
   .cropperWrapper {
     position: relative !important;
     grid-row: span 6;
@@ -50,7 +51,7 @@
           transition: 0.3s;
         }
 
-        &:first-of-type {
+        &:last-of-type {
           border: 0.3vmin solid rgb(84, 172, 84);
 
           svg {
@@ -67,7 +68,7 @@
           }
         }
 
-        &:last-of-type {
+        &:first-of-type {
           border: 0.3vmin solid #db5252;
 
           svg {

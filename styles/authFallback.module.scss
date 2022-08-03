@@ -1,0 +1,28 @@
+@import "../styles/variables.module.scss";
+
+.messageWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2vmin;
+  height: 100%;
+  gap: 1vmin;
+  .message {
+    max-width: 85vw;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    row-gap: 2vmin;
+    background-color: $baseColor;
+    border-radius: 2vmin;
+    padding: 5vmin;
+    .image {
+      img {
+        max-width: inherit;
+      }
+      object-fit: contain;
+      display: flex;
+      max-width: 100%;
+    }
+  }
+}

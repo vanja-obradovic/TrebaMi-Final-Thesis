@@ -4,6 +4,10 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   updateProfile,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+  updatePassword,
+  updateEmail,
 } from "firebase/auth";
 import {
   ref,
@@ -11,6 +15,7 @@ import {
   uploadBytes,
   getStorage,
   uploadBytesResumable,
+  deleteObject,
 } from "firebase/storage";
 import {
   getFirestore,
@@ -22,6 +27,7 @@ import {
   where,
   getDoc,
   query,
+  updateDoc,
 } from "firebase/firestore";
 
 const fbConfig = {
@@ -47,6 +53,10 @@ export const auth = {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   updateProfile,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+  updatePassword,
+  updateEmail,
 };
 export const firestore = {
   getFirestore,
@@ -55,6 +65,9 @@ export const firestore = {
   serverTimestamp,
   setDoc,
   doc,
+  updateDoc,
+  where,
+  query,
 };
 export const storage = {
   getStorage,
@@ -62,5 +75,6 @@ export const storage = {
   getDownloadURL,
   uploadBytes,
   uploadBytesResumable,
+  deleteObject,
 };
 export default app;
