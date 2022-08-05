@@ -26,8 +26,10 @@ import {
   serverTimestamp,
   where,
   getDoc,
+  getDocs,
   query,
   updateDoc,
+  GeoPoint,
 } from "firebase/firestore";
 
 const fbConfig = {
@@ -45,6 +47,14 @@ export const getUser = async (uid: string) => {
     return res;
   });
   return userDoc;
+};
+
+export const getUserAds = async (uid: string) => {
+  const adsRef = collection(getFirestore(app), `/users/${uid}/ads`);
+  const userAds = getDocs(adsRef).then((res) => {
+    return res;
+  });
+  return userAds;
 };
 
 const app = !getApps().length ? initializeApp(fbConfig) : getApps()[0];
@@ -68,6 +78,7 @@ export const firestore = {
   updateDoc,
   where,
   query,
+  GeoPoint,
 };
 export const storage = {
   getStorage,

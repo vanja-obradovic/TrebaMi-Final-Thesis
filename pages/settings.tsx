@@ -33,6 +33,8 @@ import { format } from "date-fns";
 import useId from "@mui/utils/useId";
 import { toast } from "react-toastify";
 import { useRouter } from "next/router";
+import Map from "../components/Map";
+import Image from "next/image";
 
 const Settings = () => {
   const dbInstance = firestore.getFirestore(app);
@@ -61,6 +63,7 @@ const Settings = () => {
   const confirmPassword = useRef<HTMLInputElement>();
   const emailDialogPassword = useRef<HTMLInputElement>();
   const catDialogPassword = useRef<HTMLInputElement>();
+  const [markerCoords, setMarkerCoords] = useState<{ lng; lat }>();
   const passRegex = new RegExp(
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d*.!@#$%^&(){}\[\]:\";'<>,.?\/~`_+-=|]{8,}$/
   );
@@ -296,6 +299,25 @@ const Settings = () => {
         });
     }
   };
+
+  const [mapDialog, setMapDialog] = useState(false);
+
+  const openMapDialog = () => {
+    setMapDialog(true);
+    setMarkerCoords(null);
+  };
+
+  const closeMapDialog = (update?: boolean) => {
+    if (update === true) {
+      if (markerCoords) {
+        toast.success(markerCoords.lng + "" + markerCoords.lat);
+        setMapDialog(false);
+      } else {
+        toast.error("Location not set!");
+      }
+    } else setMapDialog(false);
+  };
+
   return (
     <AuthCheck>
       <Container component="div" maxWidth="xl" className={styles.wrapper}>
@@ -386,64 +408,91 @@ const Settings = () => {
                   >
                     Change basic information
                   </AccordionSummary>
-                  <AccordionDetails className={styles.passwordDetails}>
-                    <TextField
-                      variant="outlined"
-                      label="Name"
-                      required
-                      inputRef={name}
-                      size="small"
-                      InputLabelProps={{
-                        shrink: true,
-                        className: styles.inputStyle,
-                      }}
-                      InputProps={{ className: styles.inputStyle }}
-                      defaultValue={userProfile?.name}
-                    ></TextField>
-                    <TextField
-                      variant="outlined"
-                      label="Surname"
-                      required
-                      inputRef={surname}
-                      size="small"
-                      defaultValue={userProfile?.surname}
-                      InputLabelProps={{
-                        shrink: true,
-                        className: styles.inputStyle,
-                      }}
-                      InputProps={{ className: styles.inputStyle }}
-                    ></TextField>
-
-                    <TextField
-                      variant="outlined"
-                      label="Number"
-                      required
-                      size="small"
-                      inputRef={number}
-                      InputLabelProps={{
-                        shrink: true,
-                        className: styles.inputStyle,
-                      }}
-                      InputProps={{ className: styles.inputStyle }}
-                      defaultValue={userProfile?.number}
-                    ></TextField>
-                    {userProfile?.isProvider && (
+                  <AccordionDetails className={styles.passwordDetailsWrapper}>
+                    <div className={styles.passwordDetails}>
                       <TextField
                         variant="outlined"
-                        label="Location"
+                        label="Name"
+                        required
+                        inputRef={name}
                         size="small"
                         InputLabelProps={{
                           shrink: true,
                           className: styles.inputStyle,
                         }}
                         InputProps={{ className: styles.inputStyle }}
-                        defaultValue={
-                          userProfile?.location.lat
-                            ? `${userProfile?.location.lat}, ${userProfile.location.long}`
-                            : ""
-                        }
+                        defaultValue={userProfile?.name}
                       ></TextField>
-                    )}
+                      <TextField
+                        variant="outlined"
+                        label="Surname"
+                        required
+                        inputRef={surname}
+                        size="small"
+                        defaultValue={userProfile?.surname}
+                        InputLabelProps={{
+                          shrink: true,
+                          className: styles.inputStyle,
+                        }}
+                        InputProps={{ className: styles.inputStyle }}
+                      ></TextField>
+
+                      <TextField
+                        variant="outlined"
+                        label="Number"
+                        required
+                        size="small"
+                        inputRef={number}
+                        InputLabelProps={{
+                          shrink: true,
+                          className: styles.inputStyle,
+                        }}
+                        InputProps={{ className: styles.inputStyle }}
+                        defaultValue={userProfile?.number}
+                      ></TextField>
+                      {userProfile?.isProvider && (
+                        <>
+                          <button onClick={() => openMapDialog()}>
+                            Edit location
+                          </button>
+                          <Dialog
+                            open={mapDialog}
+                            onClose={() => closeMapDialog(false)}
+                            classes={{ paper: styles.dialog }}
+                          >
+                            <DialogTitle>Edit location</DialogTitle>
+                            <DialogContent>
+                              <DialogContentText>
+                                Location can be set either by geolocation (must
+                                be allowed) or by manually setting a marker on
+                                the map.
+                              </DialogContentText>
+                              <Map
+                                locationMarker={true}
+                                setMarkerCoords={setMarkerCoords}
+                                popup={
+                                  <Image src={"/loginPic.webp"} layout="fill" />
+                                }
+                                markerCords={userProfile?.location}
+                              ></Map>
+                            </DialogContent>
+                            <DialogActions
+                              classes={{ root: styles.dialogActions }}
+                            >
+                              <button onClick={() => closeMapDialog(false)}>
+                                Cancel
+                              </button>
+                              {dialogLoading && (
+                                <CircularProgress size="4.5vmin" />
+                              )}
+                              <button onClick={() => closeMapDialog(true)}>
+                                Confirm
+                              </button>
+                            </DialogActions>
+                          </Dialog>
+                        </>
+                      )}
+                    </div>
                     <button
                       className={styles.confirmButton}
                       onClick={updateUserData}
@@ -462,43 +511,45 @@ const Settings = () => {
                   >
                     Change password
                   </AccordionSummary>
-                  <AccordionDetails className={styles.passwordDetails}>
-                    <TextField
-                      variant="outlined"
-                      label="Old password"
-                      inputRef={oldPassword}
-                      required
-                      size="small"
-                      InputLabelProps={{
-                        className: styles.inputStyle,
-                      }}
-                      InputProps={{ className: styles.inputStyle }}
-                      type="password"
-                    ></TextField>
-                    <TextField
-                      variant="outlined"
-                      label="New password"
-                      inputRef={newPassword}
-                      required
-                      size="small"
-                      InputLabelProps={{
-                        className: styles.inputStyle,
-                      }}
-                      InputProps={{ className: styles.inputStyle }}
-                      type="password"
-                    ></TextField>
-                    <TextField
-                      variant="outlined"
-                      label="Confirm password"
-                      inputRef={confirmPassword}
-                      required
-                      size="small"
-                      InputLabelProps={{
-                        className: styles.inputStyle,
-                      }}
-                      InputProps={{ className: styles.inputStyle }}
-                      type="password"
-                    ></TextField>
+                  <AccordionDetails className={styles.passwordDetailsWrapper}>
+                    <div className={styles.passwordDetails}>
+                      <TextField
+                        variant="outlined"
+                        label="Old password"
+                        inputRef={oldPassword}
+                        required
+                        size="small"
+                        InputLabelProps={{
+                          className: styles.inputStyle,
+                        }}
+                        InputProps={{ className: styles.inputStyle }}
+                        type="password"
+                      ></TextField>
+                      <TextField
+                        variant="outlined"
+                        label="New password"
+                        inputRef={newPassword}
+                        required
+                        size="small"
+                        InputLabelProps={{
+                          className: styles.inputStyle,
+                        }}
+                        InputProps={{ className: styles.inputStyle }}
+                        type="password"
+                      ></TextField>
+                      <TextField
+                        variant="outlined"
+                        label="Confirm password"
+                        inputRef={confirmPassword}
+                        required
+                        size="small"
+                        InputLabelProps={{
+                          className: styles.inputStyle,
+                        }}
+                        InputProps={{ className: styles.inputStyle }}
+                        type="password"
+                      ></TextField>
+                    </div>
                     <button
                       className={styles.confirmButton}
                       onClick={updateUserPassword}

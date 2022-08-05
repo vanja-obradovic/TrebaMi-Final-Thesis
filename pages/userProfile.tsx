@@ -1,9 +1,9 @@
 import { Box, Container } from "@mui/system";
-import { DocumentData } from "firebase/firestore";
+import { DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import AuthCheck from "../components/AuthCheck";
 import { useAuth } from "../contexts/AuthContext";
-import { getUser } from "../util/firebase";
+import { getUser, getUserAds } from "../util/firebase";
 import styles from "../styles/userProfile.module.scss";
 import { Avatar, Paper } from "@mui/material";
 import { FiSettings } from "react-icons/fi";
@@ -13,12 +13,17 @@ const UserDashboard = () => {
   const { currUser } = useAuth();
 
   const [userProfile, setUserProfile] = useState<DocumentData>();
+  const [userAds, setUserAds] =
+    useState<QueryDocumentSnapshot<DocumentData>[]>();
 
   useEffect(() => {
     const getUserDoc = async () => {
       const userDoc = await getUser(currUser?.uid);
       setUserProfile(userDoc.data());
+      const userAds = await getUserAds(currUser?.uid);
+      setUserAds(userAds.docs);
     };
+
     getUserDoc();
   }, [currUser?.uid]);
 
@@ -73,7 +78,9 @@ const UserDashboard = () => {
         </Box>
         <Box className={styles.economy}>
           <Paper elevation={4} className={styles.paper}>
-            Economy
+            {userAds?.map((doc, index) => {
+              return <div key={index}>{JSON.stringify(doc.data())}</div>;
+            })}
           </Paper>
         </Box>
       </Container>

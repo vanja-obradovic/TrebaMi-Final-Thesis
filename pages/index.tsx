@@ -1,40 +1,23 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import Head from "next/head";
-import { Autocomplete, TextField } from "@mui/material";
 
-let placeholder: string = "Potreban/no mi je... ";
-let txt = ["kajmak", "slanina"];
-let i = 0;
-
-const typePlaceholder = (start: string, text: string[]): void => {
-  let arr = text[0].split("");
-
-  placeholder = document
-    .getElementById("basicSearch")
-    .getAttribute("placeholder");
-  placeholder += arr[i];
-
-  // setTimeout(() => {
-  //   document
-  //     .getElementById("basicSearch")
-  //     .setAttribute("placeholder", placeholder);
-  //   i++;
-  //   if (i >= arr.length) {
-  //     text.push(text.shift());
-  //     i = 0;
-  //     document.getElementById("basicSearch").setAttribute("placeholder", start);
-  //   }
-  //   typePlaceholder(start, text);
-  // }, Math.random() * 200 + 160);
-};
+// setTimeout(() => {
+//   document
+//     .getElementById("basicSearch")
+//     .setAttribute("placeholder", placeholder);
+//   i++;
+//   if (i >= arr.length) {
+//     text.push(text.shift());
+//     i = 0;
+//     document.getElementById("basicSearch").setAttribute("placeholder", start);
+//   }
+//   typePlaceholder(start, text);
+// }, Math.random() * 200 + 160);
+// };
 
 const top100Films = ["abc", "edf", "ghj"];
 
 export default function Home() {
-  useEffect(() => {
-    typePlaceholder(placeholder, txt);
-  }, []);
-
   return (
     <>
       <Head>
@@ -55,12 +38,7 @@ export default function Home() {
         </div>
         <div style={{ alignSelf: "center" }}>
           <div>
-            <input
-              type="text"
-              id="basicSearch"
-              placeholder={placeholder}
-              className="basicSearch"
-            />
+            <input type="text" id="basicSearch" className="basicSearch" />
           </div>
           <div>TREBA MI:</div>
         </div>

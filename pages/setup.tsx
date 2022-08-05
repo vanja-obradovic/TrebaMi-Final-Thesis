@@ -55,10 +55,10 @@ const Setup = () => {
         reputation: null,
         membership: "silver",
         isProvider: providerCheck,
-        location: {
-          lat: location?.coords.latitude ?? null,
-          long: location?.coords.longitude ?? null,
-        },
+        location: new firestore.GeoPoint(
+          location?.coords.latitude ?? null,
+          location?.coords.longitude ?? null
+        ),
         category: category.current?.value ?? null,
       })
       .then(() => {
