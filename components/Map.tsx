@@ -1,8 +1,11 @@
+
+
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import styles from "../styles/map.module.scss";
 import * as ReactDOM from "react-dom";
 import { GeoPoint } from "@firebase/firestore";
+import {CameraOptions} from "@tomtom-international/web-sdk-maps"
 
 interface mapProps {
   locationMarker: boolean;
@@ -17,6 +20,9 @@ const Map = (props: mapProps) => {
   const mapElement = useRef();
   const [map, setMap] = useState<tt.Map>();
   const marker = useRef<tt.Marker>();
+
+  const el = document.createElement("div");
+  el.innerHTML="hello"
 
   const popupDiv = document.createElement("div");
   popupDiv.className = styles.popup;
@@ -53,6 +59,7 @@ const Map = (props: mapProps) => {
       if (locationMarker)
         mapObject
           .on("dblclick", (e) => {
+            e.preventDefault()
             setMarkerCoords({ lng: e.lngLat.lng, lat: e.lngLat.lat });
             marker.current?.remove();
             marker.current = new tt.Marker({
@@ -90,6 +97,7 @@ const Map = (props: mapProps) => {
                   new tt.Popup().setDOMContent(popupDiv).addTo(mapObject)
                 )
                 .togglePopup();
+              mapObject.jumpTo({ center: {lat:44.8130537, lng:20.4674131}, zoom: 15 });
             }
           });
       setMap(mapObject);

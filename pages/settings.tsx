@@ -24,6 +24,11 @@ import {
   DialogActions,
   DialogTitle,
   CircularProgress,
+  Stack,
+  Card,
+  CardActionArea,
+  CardContent,
+  CardHeader,
 } from "@mui/material";
 import { ImageFileUrl } from "../util/imageCropper";
 import ImageCropper from "../components/ImgCropper";
@@ -38,16 +43,17 @@ import Image from "next/image";
 
 const Settings = () => {
   const dbInstance = firestore.getFirestore(app);
+  const storageInstance = storage.getStorage(app);
   const router = useRouter();
 
   const { currUser, signout } = useAuth();
-  const storageInstance = storage.getStorage(app);
 
   const [progress, setProgress] = useState(0);
   const [loading, setLoading] = useState(false);
   const [dialogLoading, setDialogLoading] = useState(false);
   const [emailChange, setEmailChange] = useState(false);
   const [catChange, setCatChange] = useState(false);
+  const [membership, setMembership] = useState("");
 
   const selectId = useId();
 
@@ -318,6 +324,35 @@ const Settings = () => {
     } else setMapDialog(false);
   };
 
+  const [membershipDialogOpen, setMembershipDialogOpen] = useState(false);
+
+  const openMembershipDialog = () => {
+    setMembership(userProfile.membership);
+    setMembershipDialogOpen(true);
+  };
+
+  const closeMembershipDialog = (update?: boolean) => {
+    if (update === true) {
+      const docRef = firestore.doc(dbInstance, `users`, `${currUser?.uid}`);
+      firestore
+        .updateDoc(docRef, {
+          membership: membership,
+        })
+        .then(async () => {
+          toast.success("Update successful!");
+          setMembershipDialogOpen(false);
+          const userDoc = await getUser(currUser?.uid);
+          setUserProfile(userDoc.data());
+        })
+        .catch(() => {
+          toast.error("Error while updating, please try again.");
+        });
+    } else {
+      setMembershipDialogOpen(false);
+      setMembership(userProfile?.membership);
+    }
+  };
+
   return (
     <AuthCheck>
       <Container component="div" maxWidth="xl" className={styles.wrapper}>
@@ -325,19 +360,120 @@ const Settings = () => {
           <Paper elevation={4} className={styles.paper}>
             <Box className={styles.avatarWrapper}>
               Membership
-              <span
-                style={
-                  userProfile?.membership === "silver"
-                    ? { border: "solid silver 2px" }
-                    : userProfile?.membership === "gold"
-                    ? { border: "solid gold 2px" }
-                    : {
-                        border: "solid #1caffd 2px",
-                      }
-                }
+              <Tooltip title="Change membership" arrow placement="left">
+                <span
+                  style={
+                    userProfile?.membership === "silver"
+                      ? { border: "solid silver 2px" }
+                      : userProfile?.membership === "gold"
+                      ? { border: "solid gold 2px" }
+                      : {
+                          border: "solid #1caffd 2px",
+                        }
+                  }
+                  onClick={openMembershipDialog}
+                >
+                  {userProfile?.membership}
+                </span>
+              </Tooltip>
+              <Dialog
+                open={membershipDialogOpen}
+                onClose={() => closeMembershipDialog(false)}
+                classes={{ paper: styles.dialog }}
               >
-                {userProfile?.membership}
-              </span>
+                <DialogTitle>Change membership</DialogTitle>
+                <DialogContentText>
+                  {membership === "silver" && (
+                    <div>
+                      <div>Silver plan:</div>
+                      <div className={styles.membershipDetails}>
+                        <ul>
+                          <li>2 ads</li>
+                        </ul>
+                      </div>
+                    </div>
+                  )}
+                  {membership === "gold" && (
+                    <div>
+                      <div>Gold plan:</div>
+                      <div className={styles.membershipDetails}>
+                        <ul>
+                          <li>5 ads</li>
+                          <li>1 free ad promotion per month</li>
+                          <li>200 bonus rep per month</li>
+                        </ul>
+                      </div>
+                    </div>
+                  )}
+                  {membership === "diamond" && (
+                    <div>
+                      <div>Diamond plan:</div>
+                      <div className={styles.membershipDetails}>
+                        <ul>
+                          <li>10 ads</li>
+                          <li>3 free ad promotion per month</li>
+                          <li>500 bonus rep per month</li>
+                        </ul>
+                      </div>
+                    </div>
+                  )}
+                </DialogContentText>
+                <DialogContent>
+                  <Stack direction="row" className={styles.cardStack}>
+                    <Card
+                      variant="outlined"
+                      className={
+                        userProfile?.membership === "silver"
+                          ? styles.card
+                          : styles.focusedCard
+                      }
+                      onClick={() => setMembership("silver")}
+                    >
+                      <CardActionArea>
+                        <CardHeader title="Silver"></CardHeader>
+                        <CardContent>0 rsd/mo</CardContent>
+                      </CardActionArea>
+                    </Card>
+                    <Card
+                      variant="outlined"
+                      className={
+                        userProfile?.membership === "gold"
+                          ? styles.card
+                          : styles.focusedCard
+                      }
+                      onClick={() => setMembership("gold")}
+                    >
+                      <CardActionArea>
+                        <CardHeader title="Gold"></CardHeader>
+                        <CardContent>500 rsd/mo</CardContent>
+                      </CardActionArea>
+                    </Card>
+                    <Card
+                      variant="outlined"
+                      className={
+                        userProfile?.membership === "diamond"
+                          ? styles.card
+                          : styles.focusedCard
+                      }
+                      onClick={() => setMembership("diamond")}
+                    >
+                      <CardActionArea>
+                        <CardHeader title="Diamond"></CardHeader>
+                        <CardContent>1000 rsd/mo</CardContent>
+                      </CardActionArea>
+                    </Card>
+                  </Stack>
+                </DialogContent>
+                <DialogActions classes={{ root: styles.dialogActions }}>
+                  <button onClick={() => closeMembershipDialog(false)}>
+                    Cancel
+                  </button>
+                  {dialogLoading && <CircularProgress size="4.5vmin" />}
+                  <button onClick={() => closeMembershipDialog(true)}>
+                    Confirm
+                  </button>
+                </DialogActions>
+              </Dialog>
               {!croppedImage ? (
                 <Tooltip title="Upload photo" arrow placement="top">
                   <Avatar

@@ -1,8 +1,8 @@
 @import "../styles/variables.module.scss";
 
 .wrapper {
-  height: 100%;
-  display: flex;
+  min-height: inherit;
+  display: flex !important;
   justify-content: center;
   align-items: center;
   gap: 3vmin;

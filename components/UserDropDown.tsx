@@ -38,12 +38,12 @@ const UserDropDown = () => {
             PaperProps={{ className: styles.dropDown }}
           >
             <MenuItem classes={{ gutters: styles.item }} onClick={handleClose}>
-              <Link href={`/userProfile`} locale={false}>
+              <Link href={`/userProfile`} locale={false} prefetch>
                 My profile
               </Link>
             </MenuItem>
             <MenuItem classes={{ gutters: styles.item }} onClick={handleClose}>
-              <Link href={`/settings`} locale={false}>
+              <Link href={`/settings`} locale={false} prefetch>
                 Settings
               </Link>
             </MenuItem>
