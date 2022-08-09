@@ -1,0 +1,12 @@
+@import "../styles/mixins.module.scss";
+.dialog {
+  border-radius: 2rem;
+  padding: 1vmin 2vmin;
+  text-align: center;
+}
+.dialogActions {
+  button {
+    @include confirmAndCancelButtons();
+  }
+  justify-content: space-around;
+}

@@ -49,6 +49,7 @@
     background-color: $baseColor !important;
   }
 
+  min-width: fit-content;
   width: $width;
   height: $height;
   transition: 0.4s;

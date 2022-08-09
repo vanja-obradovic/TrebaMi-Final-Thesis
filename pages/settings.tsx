@@ -40,6 +40,7 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/router";
 import Map from "../components/Map";
 import Image from "next/image";
+import CustomDialog from "../components/CustomDialog";
 
 const Settings = () => {
   const dbInstance = firestore.getFirestore(app);
@@ -247,8 +248,10 @@ const Settings = () => {
               setEmailDialogOpen(false);
               currUser.reload();
             })
-            .catch(() => {
-              toast.error("Error while updating, please try again.");
+            .catch((err) => {
+              if (err.code == "auth/email-already-in-use") {
+                toast.error("Email address already in use!");
+              } else toast.error("Error while updating, please try again.");
             });
         })
         .catch(() => {
@@ -334,6 +337,7 @@ const Settings = () => {
   const closeMembershipDialog = (update?: boolean) => {
     if (update === true) {
       const docRef = firestore.doc(dbInstance, `users`, `${currUser?.uid}`);
+      setDialogLoading(true);
       firestore
         .updateDoc(docRef, {
           membership: membership,
@@ -346,6 +350,9 @@ const Settings = () => {
         })
         .catch(() => {
           toast.error("Error while updating, please try again.");
+        })
+        .finally(() => {
+          setDialogLoading(false);
         });
     } else {
       setMembershipDialogOpen(false);
@@ -376,7 +383,7 @@ const Settings = () => {
                   {userProfile?.membership}
                 </span>
               </Tooltip>
-              <Dialog
+              {/* <Dialog
                 open={membershipDialogOpen}
                 onClose={() => closeMembershipDialog(false)}
                 classes={{ paper: styles.dialog }}
@@ -473,7 +480,96 @@ const Settings = () => {
                     Confirm
                   </button>
                 </DialogActions>
-              </Dialog>
+              </Dialog> */}
+              <CustomDialog
+                dialogOpen={membershipDialogOpen}
+                dialogClose={closeMembershipDialog}
+                dialogLoading={dialogLoading}
+                title="Change membership"
+                nativeContentText={
+                  <DialogContentText>
+                    {membership === "silver" && (
+                      <div>
+                        <div>Silver plan:</div>
+                        <div className={styles.membershipDetails}>
+                          <ul>
+                            <li>2 ads</li>
+                          </ul>
+                        </div>
+                      </div>
+                    )}
+                    {membership === "gold" && (
+                      <div>
+                        <div>Gold plan:</div>
+                        <div className={styles.membershipDetails}>
+                          <ul>
+                            <li>5 ads</li>
+                            <li>1 free ad promotion per month</li>
+                            <li>200 bonus rep per month</li>
+                          </ul>
+                        </div>
+                      </div>
+                    )}
+                    {membership === "diamond" && (
+                      <div>
+                        <div>Diamond plan:</div>
+                        <div className={styles.membershipDetails}>
+                          <ul>
+                            <li>10 ads</li>
+                            <li>3 free ad promotion per month</li>
+                            <li>500 bonus rep per month</li>
+                          </ul>
+                        </div>
+                      </div>
+                    )}
+                  </DialogContentText>
+                }
+              >
+                <Stack direction="row" className={styles.cardStack}>
+                  <Card
+                    variant="outlined"
+                    className={
+                      userProfile?.membership === "silver"
+                        ? styles.card
+                        : styles.focusedCard
+                    }
+                    onClick={() => setMembership("silver")}
+                  >
+                    <CardActionArea>
+                      <CardHeader title="Silver"></CardHeader>
+                      <CardContent>0 rsd/mo</CardContent>
+                    </CardActionArea>
+                  </Card>
+                  <Card
+                    variant="outlined"
+                    className={
+                      userProfile?.membership === "gold"
+                        ? styles.card
+                        : styles.focusedCard
+                    }
+                    onClick={() => setMembership("gold")}
+                  >
+                    <CardActionArea>
+                      <CardHeader title="Gold"></CardHeader>
+                      <CardContent>500 rsd/mo</CardContent>
+                    </CardActionArea>
+                  </Card>
+                  <Card
+                    variant="outlined"
+                    className={
+                      userProfile?.membership === "diamond"
+                        ? styles.card
+                        : styles.focusedCard
+                    }
+                    onClick={() => setMembership("diamond")}
+                  >
+                    <CardActionArea>
+                      <CardHeader title="Diamond"></CardHeader>
+                      <CardContent>1000 rsd/mo</CardContent>
+                    </CardActionArea>
+                  </Card>
+                </Stack>
+              </CustomDialog>
               {!croppedImage ? (
                 <Tooltip title="Upload photo" arrow placement="top">
                   <Avatar
@@ -591,7 +687,7 @@ const Settings = () => {
                           <button onClick={() => openMapDialog()}>
                             Edit location
                           </button>
-                          <Dialog
+                          {/* <Dialog
                             open={mapDialog}
                             onClose={() => closeMapDialog(false)}
                             classes={{ paper: styles.dialog }}
@@ -625,7 +721,25 @@ const Settings = () => {
                                 Confirm
                               </button>
                             </DialogActions>
-                          </Dialog>
+                          </Dialog> */}
+                          <CustomDialog
+                            dialogOpen={mapDialog}
+                            dialogClose={closeMapDialog}
+                            contentText="Location can be set either by geolocation (must
+                                be allowed) or by manually setting a marker on
+                                the map."
+                            dialogLoading={dialogLoading}
+                            title="Edit location"
+                          >
+                            <Map
+                              locationMarker={true}
+                              setMarkerCoords={setMarkerCoords}
+                              popup={
+                                <Image src={"/loginPic.webp"} layout="fill" />
+                              }
+                              markerCords={userProfile?.location}
+                            ></Map>{" "}
+                          </CustomDialog>
                         </>
                       )}
                     </div>

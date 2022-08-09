@@ -68,8 +68,49 @@
   padding: 1vmin;
 }
 
+.actions {
+  @extend .paper;
+  display: flex;
+  justify-content: center;
+  padding: 0.5vmin;
+  > button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 2rem;
+    background-color: transparent;
+    &:hover {
+      background-color: $baseColor;
+      cursor: pointer;
+    }
+    > svg {
+      width: 3vmin;
+      height: auto;
+    }
+  }
+}
+
 .economy {
   flex: 7;
   height: 90%;
   width: 100%;
+  > .paper {
+    padding-bottom: 2.5vmin;
+  }
+}
+
+.tabs {
+  border-radius: 2rem;
+}
+
+.indicator {
+  background-color: transparent;
+  display: flex;
+  justify-content: center;
+  span {
+    max-width: 30%;
+    width: 100%;
+    background-color: $accentColor;
+  }
 }

@@ -5,9 +5,13 @@ import AuthCheck from "../components/AuthCheck";
 import { useAuth } from "../contexts/AuthContext";
 import { getUser, getUserAds } from "../util/firebase";
 import styles from "../styles/userProfile.module.scss";
-import { Avatar, Paper } from "@mui/material";
+import { Avatar, Paper, Tab, Tabs } from "@mui/material";
 import { FiSettings } from "react-icons/fi";
+import { IoIosAdd } from "react-icons/io";
 import Link from "next/link";
+import TabPanel from "../components/TabPanel";
+import NextLinkAdapter from "../components/NextLinkAdapter";
+import CustomDialog from "../components/CustomDialog";
 
 const UserDashboard = () => {
   const { currUser } = useAuth();
@@ -15,6 +19,22 @@ const UserDashboard = () => {
   const [userProfile, setUserProfile] = useState<DocumentData>();
   const [userAds, setUserAds] =
     useState<QueryDocumentSnapshot<DocumentData>[]>();
+
+  const [tabValue, setTabValue] = useState(0);
+
+  const tabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
+  };
+
+  const [dialog, setDialog] = useState(false);
+  const [dialogLoading, setDialogLoading] = useState(false);
+
+  const dialogOpen = () => {
+    setDialog(true);
+  };
+  const dialogClose = (state?: boolean) => {
+    setDialog(false);
+  };
 
   useEffect(() => {
     const getUserDoc = async () => {
@@ -78,9 +98,49 @@ const UserDashboard = () => {
         </Box>
         <Box className={styles.economy}>
           <Paper elevation={4} className={styles.paper}>
-            {userAds?.map((doc, index) => {
+            <Tabs
+              value={tabValue}
+              onChange={tabChange}
+              centered
+              classes={{ indicator: styles.indicator }}
+              TabIndicatorProps={{ children: <span></span> }}
+            >
+              <Tab label="Dashboard" classes={{ root: styles.tabs }} />
+              <Tab label="My ads" classes={{ root: styles.tabs }} />
+              <Tab label="Messages" classes={{ root: styles.tabs }} />
+              <Tab label="My purchases" classes={{ root: styles.tabs }} />
+            </Tabs>
+            <hr style={{ border: "1px solid #e8e8e8" }} />
+
+            <TabPanel value={tabValue} index={0}>
+              Item One
+            </TabPanel>
+            <TabPanel value={tabValue} index={1}>
+              <Paper elevation={2} className={styles.actions}>
+                <button onClick={() => dialogOpen()}>
+                  <IoIosAdd /> {"Add item"}
+                </button>
+                <CustomDialog
+                  title="proba"
+                  contentText="Text"
+                  dialogClose={dialogClose}
+                  dialogOpen={dialog}
+                  dialogLoading={dialogLoading}
+                >
+                  Hello
+                </CustomDialog>
+              </Paper>
+            </TabPanel>
+            <TabPanel value={tabValue} index={2}>
+              Item Three
+            </TabPanel>
+            <TabPanel value={tabValue} index={3}>
+              Item Four
+            </TabPanel>
+
+            {/* {userAds?.map((doc, index) => {
               return <div key={index}>{JSON.stringify(doc.data())}</div>;
-            })}
+            })} */}
           </Paper>
         </Box>
       </Container>
