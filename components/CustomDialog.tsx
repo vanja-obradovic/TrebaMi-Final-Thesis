@@ -18,6 +18,8 @@ interface dialogProps {
   nativeContentText?: JSX.Element;
   title: string;
   dialogLoading: boolean;
+  dialogStyle?: string;
+  dialogContentStyle?: string;
 }
 
 const CustomDialog = (props: dialogProps) => {
@@ -29,16 +31,18 @@ const CustomDialog = (props: dialogProps) => {
     title,
     dialogLoading,
     nativeContentText,
+    dialogStyle,
+    dialogContentStyle,
   } = props;
 
   return (
     <Dialog
       open={dialogOpen}
       onClose={() => dialogClose(false)}
-      classes={{ paper: styles.dialog }}
+      classes={{ paper: [styles.dialog, dialogStyle].join(" ") }}
     >
       <DialogTitle>{title}</DialogTitle>
-      <DialogContent>
+      <DialogContent classes={{ root: dialogContentStyle }}>
         {contentText ? (
           <DialogContentText>{contentText}</DialogContentText>
         ) : (

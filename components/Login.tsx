@@ -6,9 +6,14 @@ import { useAuth } from "../contexts/AuthContext";
 import styles from "../styles/popup.module.scss";
 import { TextField } from "@mui/material";
 import { Box } from "@mui/system";
+import { useForm } from "react-hook-form";
 
 const Login = ({ setPopup, setRegister }) => {
   const id = useId();
+
+  const { register, handleSubmit, formState } = useForm();
+  const { isValid } = formState;
+  const onSubmit = (data) => console.log(data);
 
   const email = useRef<HTMLInputElement>();
   const password = useRef<HTMLInputElement>();
@@ -41,12 +46,12 @@ const Login = ({ setPopup, setRegister }) => {
           objectFit="cover"
         ></Image>
       </div>
-      <Box component="form" onSubmit={handleLogin}>
-        <h2>Prijavi se</h2>
+      <Box component="form" onSubmit={handleSubmit(onSubmit)}>
+        <h2>Prijavi se</h2>,
         <TextField
           type="email"
           id={`${id}-email`}
-          inputRef={email}
+          {...register("email")}
           required
           label="Email"
           variant="outlined"
@@ -59,7 +64,7 @@ const Login = ({ setPopup, setRegister }) => {
           type="password"
           name="pass"
           id={`${id}-password`}
-          inputRef={password}
+          {...register("password")}
           required
           label="Password"
           variant="outlined"
@@ -67,8 +72,10 @@ const Login = ({ setPopup, setRegister }) => {
           InputProps={{ className: styles.inputStyle }}
           InputLabelProps={{ className: styles.inputStyle }}
         />
-
-        <button disabled={loading} className={loading ? styles.loading : ""}>
+        <button
+          disabled={loading || !isValid}
+          className={loading ? styles.loading : ""}
+        >
           <span className={styles.btnText}>Potvrdi</span>
         </button>
         <div>

@@ -5,13 +5,21 @@ import AuthCheck from "../components/AuthCheck";
 import { useAuth } from "../contexts/AuthContext";
 import { getUser, getUserAds } from "../util/firebase";
 import styles from "../styles/userProfile.module.scss";
-import { Avatar, Paper, Tab, Tabs } from "@mui/material";
+import {
+  Autocomplete,
+  Avatar,
+  Paper,
+  Tab,
+  Tabs,
+  TextField,
+} from "@mui/material";
 import { FiSettings } from "react-icons/fi";
 import { IoIosAdd } from "react-icons/io";
 import Link from "next/link";
 import TabPanel from "../components/TabPanel";
 import NextLinkAdapter from "../components/NextLinkAdapter";
 import CustomDialog from "../components/CustomDialog";
+import CustomStepper from "../components/CustomStepper";
 
 const UserDashboard = () => {
   const { currUser } = useAuth();
@@ -26,15 +34,22 @@ const UserDashboard = () => {
     setTabValue(newValue);
   };
 
-  const [dialog, setDialog] = useState(false);
+  const [newAdDialog, setNewAdDialog] = useState(false);
   const [dialogLoading, setDialogLoading] = useState(false);
 
-  const dialogOpen = () => {
-    setDialog(true);
+  const newAdDialogOpen = () => {
+    setNewAdDialog(true);
   };
-  const dialogClose = (state?: boolean) => {
-    setDialog(false);
+  const newAdDialogClose = (state?: boolean) => {
+    setNewAdDialog(false);
   };
+
+  const productSubCategories = ["Hrana", "Tekstil", "Koza", "Drvo", "Hemija"];
+  const serviceSubCategories = [
+    "Ugostiteljstvo",
+    "Transport",
+    "Gradjevinarstvo",
+  ];
 
   useEffect(() => {
     const getUserDoc = async () => {
@@ -117,17 +132,57 @@ const UserDashboard = () => {
             </TabPanel>
             <TabPanel value={tabValue} index={1}>
               <Paper elevation={2} className={styles.actions}>
-                <button onClick={() => dialogOpen()}>
+                <button onClick={() => newAdDialogOpen()}>
                   <IoIosAdd /> {"Add item"}
                 </button>
                 <CustomDialog
-                  title="proba"
-                  contentText="Text"
-                  dialogClose={dialogClose}
-                  dialogOpen={dialog}
+                  title="Dodavanje novog oglasa"
+                  dialogClose={newAdDialogClose}
+                  dialogOpen={newAdDialog}
                   dialogLoading={dialogLoading}
+                  dialogContentStyle={styles.proba}
                 >
-                  Hello
+                  <TextField
+                    variant="outlined"
+                    label="Naziv"
+                    type="text"
+                  ></TextField>
+                  <TextField
+                    variant="outlined"
+                    label="Opis"
+                    multiline
+                    minRows={5}
+                    type="text"
+                  ></TextField>
+                  {userProfile?.category === "products" ? (
+                    <TextField
+                      variant="outlined"
+                      label="Cena"
+                      type="text"
+                      required
+                    ></TextField>
+                  ) : (
+                    <TextField
+                      variant="outlined"
+                      label="Cena"
+                      type="text"
+                      disabled
+                      InputLabelProps={{ shrink: true }}
+                      value="Po dogovoru"
+                    ></TextField>
+                  )}
+                  <Autocomplete
+                    disablePortal
+                    id="combo-box-demo"
+                    options={
+                      userProfile?.category === "products"
+                        ? productSubCategories
+                        : serviceSubCategories
+                    }
+                    renderInput={(params) => (
+                      <TextField {...params} label="Podkategorija" required />
+                    )}
+                  />
                 </CustomDialog>
               </Paper>
             </TabPanel>
@@ -135,7 +190,10 @@ const UserDashboard = () => {
               Item Three
             </TabPanel>
             <TabPanel value={tabValue} index={3}>
-              Item Four
+              <CustomStepper>
+                <div>Hello1</div>
+                <img src="loginPic.webp"></img>
+              </CustomStepper>
             </TabPanel>
 
             {/* {userAds?.map((doc, index) => {

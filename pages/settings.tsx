@@ -1,5 +1,5 @@
 import { Box, Container } from "@mui/system";
-import { DocumentData } from "firebase/firestore";
+import { DocumentData, GeoPoint } from "firebase/firestore";
 import React, { useEffect, useRef, useState } from "react";
 import AuthCheck from "../components/AuthCheck";
 import { useAuth } from "../contexts/AuthContext";
@@ -18,12 +18,7 @@ import {
   Skeleton,
   TextField,
   Tooltip,
-  Dialog,
-  DialogContent,
   DialogContentText,
-  DialogActions,
-  DialogTitle,
-  CircularProgress,
   Stack,
   Card,
   CardActionArea,
@@ -70,7 +65,7 @@ const Settings = () => {
   const confirmPassword = useRef<HTMLInputElement>();
   const emailDialogPassword = useRef<HTMLInputElement>();
   const catDialogPassword = useRef<HTMLInputElement>();
-  const [markerCoords, setMarkerCoords] = useState<{ lng; lat }>();
+  const [markerCoords, setMarkerCoords] = useState<GeoPoint>();
   const passRegex = new RegExp(
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d*.!@#$%^&(){}\[\]:\";'<>,.?\/~`_+-=|]{8,}$/
   );
@@ -319,7 +314,24 @@ const Settings = () => {
   const closeMapDialog = (update?: boolean) => {
     if (update === true) {
       if (markerCoords) {
-        toast.success(markerCoords.lng + "" + markerCoords.lat);
+        const docRef = firestore.doc(dbInstance, `users`, `${currUser?.uid}`);
+        setDialogLoading(true);
+        firestore
+          .updateDoc(docRef, {
+            location: markerCoords,
+          })
+          .then(async () => {
+            toast.success("Update successful!");
+            setMapDialog(false);
+            const userDoc = await getUser(currUser?.uid);
+            setUserProfile(userDoc.data());
+          })
+          .catch(() => {
+            toast.error("Error while updating, please try again.");
+          })
+          .finally(() => {
+            setDialogLoading(false);
+          });
         setMapDialog(false);
       } else {
         toast.error("Location not set!");
@@ -383,105 +395,7 @@ const Settings = () => {
                   {userProfile?.membership}
                 </span>
               </Tooltip>
-              {/* <Dialog
-                open={membershipDialogOpen}
-                onClose={() => closeMembershipDialog(false)}
-                classes={{ paper: styles.dialog }}
-              >
-                <DialogTitle>Change membership</DialogTitle>
-                <DialogContentText>
-                  {membership === "silver" && (
-                    <div>
-                      <div>Silver plan:</div>
-                      <div className={styles.membershipDetails}>
-                        <ul>
-                          <li>2 ads</li>
-                        </ul>
-                      </div>
-                    </div>
-                  )}
-                  {membership === "gold" && (
-                    <div>
-                      <div>Gold plan:</div>
-                      <div className={styles.membershipDetails}>
-                        <ul>
-                          <li>5 ads</li>
-                          <li>1 free ad promotion per month</li>
-                          <li>200 bonus rep per month</li>
-                        </ul>
-                      </div>
-                    </div>
-                  )}
-                  {membership === "diamond" && (
-                    <div>
-                      <div>Diamond plan:</div>
-                      <div className={styles.membershipDetails}>
-                        <ul>
-                          <li>10 ads</li>
-                          <li>3 free ad promotion per month</li>
-                          <li>500 bonus rep per month</li>
-                        </ul>
-                      </div>
-                    </div>
-                  )}
-                </DialogContentText>
-                <DialogContent>
-                  <Stack direction="row" className={styles.cardStack}>
-                    <Card
-                      variant="outlined"
-                      className={
-                        userProfile?.membership === "silver"
-                          ? styles.card
-                          : styles.focusedCard
-                      }
-                      onClick={() => setMembership("silver")}
-                    >
-                      <CardActionArea>
-                        <CardHeader title="Silver"></CardHeader>
-                        <CardContent>0 rsd/mo</CardContent>
-                      </CardActionArea>
-                    </Card>
-                    <Card
-                      variant="outlined"
-                      className={
-                        userProfile?.membership === "gold"
-                          ? styles.card
-                          : styles.focusedCard
-                      }
-                      onClick={() => setMembership("gold")}
-                    >
-                      <CardActionArea>
-                        <CardHeader title="Gold"></CardHeader>
-                        <CardContent>500 rsd/mo</CardContent>
-                      </CardActionArea>
-                    </Card>
-                    <Card
-                      variant="outlined"
-                      className={
-                        userProfile?.membership === "diamond"
-                          ? styles.card
-                          : styles.focusedCard
-                      }
-                      onClick={() => setMembership("diamond")}
-                    >
-                      <CardActionArea>
-                        <CardHeader title="Diamond"></CardHeader>
-                        <CardContent>1000 rsd/mo</CardContent>
-                      </CardActionArea>
-                    </Card>
-                  </Stack>
-                </DialogContent>
-                <DialogActions classes={{ root: styles.dialogActions }}>
-                  <button onClick={() => closeMembershipDialog(false)}>
-                    Cancel
-                  </button>
-                  {dialogLoading && <CircularProgress size="4.5vmin" />}
-                  <button onClick={() => closeMembershipDialog(true)}>
-                    Confirm
-                  </button>
-                </DialogActions>
-              </Dialog> */}
-              <CustomDialog
+              <CustomDialog // *Dialog for membership
                 dialogOpen={membershipDialogOpen}
                 dialogClose={closeMembershipDialog}
                 dialogLoading={dialogLoading}
@@ -581,6 +495,7 @@ const Settings = () => {
                   ></Avatar>
                 </Tooltip>
               ) : (
+                // *Section that is displayed when changing photo
                 <>
                   <div className={styles.avatarWProgress}>
                     <Avatar
@@ -630,7 +545,9 @@ const Settings = () => {
           <Paper elevation={4} className={styles.paper}>
             {userProfile ? (
               <>
-                <Accordion classes={{ root: styles.accordion }}>
+                <Accordion // *Accordion for basic changes
+                  classes={{ root: styles.accordion }}
+                >
                   <AccordionSummary
                     expandIcon={<MdOutlineExpandMore />}
                     classes={{
@@ -687,42 +604,8 @@ const Settings = () => {
                           <button onClick={() => openMapDialog()}>
                             Edit location
                           </button>
-                          {/* <Dialog
-                            open={mapDialog}
-                            onClose={() => closeMapDialog(false)}
-                            classes={{ paper: styles.dialog }}
-                          >
-                            <DialogTitle>Edit location</DialogTitle>
-                            <DialogContent>
-                              <DialogContentText>
-                                Location can be set either by geolocation (must
-                                be allowed) or by manually setting a marker on
-                                the map.
-                              </DialogContentText>
-                              <Map
-                                locationMarker={true}
-                                setMarkerCoords={setMarkerCoords}
-                                popup={
-                                  <Image src={"/loginPic.webp"} layout="fill" />
-                                }
-                                markerCords={userProfile?.location}
-                              ></Map>
-                            </DialogContent>
-                            <DialogActions
-                              classes={{ root: styles.dialogActions }}
-                            >
-                              <button onClick={() => closeMapDialog(false)}>
-                                Cancel
-                              </button>
-                              {dialogLoading && (
-                                <CircularProgress size="4.5vmin" />
-                              )}
-                              <button onClick={() => closeMapDialog(true)}>
-                                Confirm
-                              </button>
-                            </DialogActions>
-                          </Dialog> */}
-                          <CustomDialog
+
+                          <CustomDialog // *Dialog for map
                             dialogOpen={mapDialog}
                             dialogClose={closeMapDialog}
                             contentText="Location can be set either by geolocation (must
@@ -751,7 +634,10 @@ const Settings = () => {
                     </button>
                   </AccordionDetails>
                 </Accordion>
-                <Accordion classes={{ root: styles.accordion }}>
+
+                <Accordion // *Accordion for password change
+                  classes={{ root: styles.accordion }}
+                >
                   <AccordionSummary
                     expandIcon={<MdOutlineExpandMore />}
                     classes={{
@@ -809,7 +695,9 @@ const Settings = () => {
                   </AccordionDetails>
                 </Accordion>
 
-                <Accordion classes={{ root: styles.accordionDanger }}>
+                <Accordion // *Accordion for delicate operations
+                  classes={{ root: styles.accordionDanger }}
+                >
                   <AccordionSummary
                     expandIcon={<MdOutlineExpandMore />}
                     classes={{
@@ -845,48 +733,30 @@ const Settings = () => {
                       >
                         {emailChange ? "Confirm" : "Click to change"}
                       </button>
-                      <Dialog
-                        open={emailDialogOpen}
-                        onClose={() => closeEmailDialog(false)}
-                        classes={{ paper: styles.dialog }}
+
+                      <CustomDialog // *Dialog for changing email
+                        dialogOpen={emailDialogOpen}
+                        dialogClose={closeEmailDialog}
+                        dialogLoading={dialogLoading}
+                        title="Confirm delicate action"
+                        contentText="You are about to change email that is linked to this
+                            acount, enter your password to proceed."
                       >
-                        <DialogTitle>Confirm delicate action</DialogTitle>
-                        <DialogContent>
-                          <DialogContentText>
-                            You are about to change email that is linked to this
-                            acount, enter your password to proceed.
-                          </DialogContentText>
-                          <TextField
-                            autoFocus
-                            margin="dense"
-                            id="passwordConfirmationDialog"
-                            label="Password"
-                            type="password"
-                            fullWidth
-                            inputRef={emailDialogPassword}
-                            variant="outlined"
-                            InputLabelProps={{
-                              className: styles.inputStyle,
-                            }}
-                            InputProps={{ className: styles.inputStyle }}
-                          />
-                        </DialogContent>
-                        <DialogActions classes={{ root: styles.dialogActions }}>
-                          <button
-                            onClick={() => closeEmailDialog(false)}
-                            disabled={dialogLoading}
-                          >
-                            Cancel
-                          </button>
-                          {dialogLoading && <CircularProgress size="4.5vmin" />}
-                          <button
-                            onClick={() => closeEmailDialog()}
-                            disabled={dialogLoading}
-                          >
-                            Confirm
-                          </button>
-                        </DialogActions>
-                      </Dialog>
+                        <TextField
+                          autoFocus
+                          margin="dense"
+                          id="passwordConfirmationDialog"
+                          label="Password"
+                          type="password"
+                          fullWidth
+                          inputRef={emailDialogPassword}
+                          variant="outlined"
+                          InputLabelProps={{
+                            className: styles.inputStyle,
+                          }}
+                          InputProps={{ className: styles.inputStyle }}
+                        />
+                      </CustomDialog>
                     </span>
                     <span>
                       <FormControl disabled={!catChange}>
@@ -917,54 +787,36 @@ const Settings = () => {
                       >
                         {catChange ? "Confirm" : "Click to change"}
                       </button>
-                      <Dialog
-                        open={catDialogOpen}
-                        onClose={() => closeCatDialog(false)}
-                        classes={{ paper: styles.dialog }}
-                      >
-                        <DialogTitle>Confirm delicate action</DialogTitle>
-                        <DialogContent>
-                          <DialogContentText>
-                            You are about to change your account category. By
+
+                      <CustomDialog // *Dialog for changing category
+                        dialogOpen={catDialogOpen}
+                        dialogClose={closeCatDialog}
+                        dialogLoading={dialogLoading}
+                        title="Confirm delicate action"
+                        contentText=" You are about to change your account category. By
                             proceeding with this action you will loose all your
                             reputation, ratings and comments. Enter your
-                            password to continue:
-                          </DialogContentText>
-                          <TextField
-                            autoFocus
-                            margin="dense"
-                            id="passwordConfirmationDialog"
-                            label="Password"
-                            type="password"
-                            fullWidth
-                            variant="outlined"
-                            inputRef={catDialogPassword}
-                            InputLabelProps={{
-                              className: styles.inputStyle,
-                            }}
-                            InputProps={{ className: styles.inputStyle }}
-                          />
-                        </DialogContent>
-                        <DialogActions classes={{ root: styles.dialogActions }}>
-                          <button
-                            onClick={() => closeCatDialog(false)}
-                            disabled={dialogLoading}
-                          >
-                            Cancel
-                          </button>
-                          {dialogLoading && <CircularProgress size="4.5vmin" />}
-                          <button
-                            onClick={() => closeCatDialog()}
-                            disabled={dialogLoading}
-                          >
-                            Confirm
-                          </button>
-                        </DialogActions>
-                      </Dialog>
+                            password to continue:"
+                      >
+                        {" "}
+                        <TextField
+                          autoFocus
+                          margin="dense"
+                          id="passwordConfirmationDialog"
+                          label="Password"
+                          type="password"
+                          fullWidth
+                          variant="outlined"
+                          inputRef={catDialogPassword}
+                          InputLabelProps={{
+                            className: styles.inputStyle,
+                          }}
+                          InputProps={{ className: styles.inputStyle }}
+                        />
+                      </CustomDialog>
                     </span>
                   </AccordionDetails>
                 </Accordion>
-                {/* </Box> */}
               </>
             ) : (
               <Box className={styles.grid}>

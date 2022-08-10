@@ -114,3 +114,10 @@
     background-color: $accentColor;
   }
 }
+
+.proba {
+  display: flex;
+  flex-direction: column;
+  row-gap: 2vmin;
+  padding-top: inherit !important;
+}

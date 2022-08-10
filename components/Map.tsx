@@ -1,15 +1,12 @@
-
-
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import styles from "../styles/map.module.scss";
 import * as ReactDOM from "react-dom";
 import { GeoPoint } from "@firebase/firestore";
-import {CameraOptions} from "@tomtom-international/web-sdk-maps"
 
 interface mapProps {
   locationMarker: boolean;
-  setMarkerCoords: ({ lat, lng }) => void;
+  setMarkerCoords: (location: GeoPoint) => void;
   popup: React.ReactNode;
   markerCords?: GeoPoint;
 }
@@ -22,7 +19,7 @@ const Map = (props: mapProps) => {
   const marker = useRef<tt.Marker>();
 
   const el = document.createElement("div");
-  el.innerHTML="hello"
+  el.innerHTML = "hello";
 
   const popupDiv = document.createElement("div");
   popupDiv.className = styles.popup;
@@ -44,10 +41,9 @@ const Map = (props: mapProps) => {
             trackUserLocation: false,
           })
             .on("geolocate", (e: any) => {
-              setMarkerCoords({
-                lng: e.coords.longitude,
-                lat: e.coords.latitude,
-              });
+              setMarkerCoords(
+                new GeoPoint(e.coords.latitude, e.coords.longitude)
+              );
             })
             .on("error", (e: any) => {
               toast.error(
@@ -59,8 +55,8 @@ const Map = (props: mapProps) => {
       if (locationMarker)
         mapObject
           .on("dblclick", (e) => {
-            e.preventDefault()
-            setMarkerCoords({ lng: e.lngLat.lng, lat: e.lngLat.lat });
+            e.preventDefault();
+            setMarkerCoords(new GeoPoint(e.lngLat.lat, e.lngLat.lng));
             marker.current?.remove();
             marker.current = new tt.Marker({
               draggable: true,
@@ -68,10 +64,12 @@ const Map = (props: mapProps) => {
               .setLngLat(e.lngLat)
               .addTo(mapObject)
               .on("dragend", () => {
-                setMarkerCoords({
-                  lng: marker.current.getLngLat().lng,
-                  lat: marker.current.getLngLat().lat,
-                });
+                setMarkerCoords(
+                  new GeoPoint(
+                    marker.current.getLngLat().lat,
+                    marker.current.getLngLat().lng
+                  )
+                );
               })
               .setPopup(new tt.Popup().setDOMContent(popupDiv).addTo(mapObject))
               .togglePopup();
@@ -88,16 +86,24 @@ const Map = (props: mapProps) => {
                 .setLngLat([markerCords.longitude, markerCords.latitude])
                 .addTo(mapObject)
                 .on("dragend", () => {
-                  setMarkerCoords({
-                    lng: marker.current.getLngLat().lng,
-                    lat: marker.current.getLngLat().lat,
-                  });
+                  setMarkerCoords(
+                    new GeoPoint(
+                      marker.current.getLngLat().lat,
+                      marker.current.getLngLat().lng
+                    )
+                  );
                 })
                 .setPopup(
                   new tt.Popup().setDOMContent(popupDiv).addTo(mapObject)
                 )
                 .togglePopup();
-              mapObject.jumpTo({ center: {lat:44.8130537, lng:20.4674131}, zoom: 15 });
+              mapObject.jumpTo({
+                center: {
+                  lat: marker.current.getLngLat().lat,
+                  lng: marker.current.getLngLat().lng,
+                },
+                zoom: 15,
+              });
             }
           });
       setMap(mapObject);
