@@ -1,19 +1,24 @@
 import { Button, Step, StepLabel, Stepper, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import React from "react";
+import styles from "../styles/stepper.module.scss";
 
-const steps = ["Unos osnovnih informacija", "Unos slika"];
-
+type title = {
+  title: string;
+  optional?: boolean;
+};
 interface stepperProps {
   children: React.ReactNode[];
+  titles: title[];
 }
 
 const CustomStepper = (props: stepperProps) => {
+  const { titles } = props;
   const [activeStep, setActiveStep] = React.useState(0);
   const [skipped, setSkipped] = React.useState(new Set<number>());
 
   const isStepOptional = (step: number) => {
-    return step === 1;
+    return titles[step].optional;
   };
 
   const isStepSkipped = (step: number) => {
@@ -51,10 +56,11 @@ const CustomStepper = (props: stepperProps) => {
   const handleReset = () => {
     setActiveStep(0);
   };
+
   return (
     <Box>
       <Stepper activeStep={activeStep}>
-        {steps.map((label, index) => {
+        {titles.map((title, index) => {
           const stepProps: { completed?: boolean } = {};
           const labelProps: {
             optional?: React.ReactNode;
@@ -69,24 +75,24 @@ const CustomStepper = (props: stepperProps) => {
             stepProps.completed = false;
           }
           return (
-            <Step key={label} {...stepProps}>
-              <StepLabel {...labelProps}>{label}</StepLabel>
+            <Step key={title.title} {...stepProps}>
+              <StepLabel {...labelProps}>{title.title}</StepLabel>
             </Step>
           );
         })}
       </Stepper>
-      {activeStep === steps.length ? (
-        <React.Fragment>
+      {activeStep === titles.length ? (
+        <>
           All steps completed - you&apos;re finished
           <Box>
             <Box />
             <Button onClick={handleReset}>Reset</Button>
           </Box>
-        </React.Fragment>
+        </>
       ) : (
-        <React.Fragment>
+        <>
           {props.children[activeStep]}
-          <Box>
+          <Box className={styles.actions}>
             <Button
               color="inherit"
               disabled={activeStep === 0}
@@ -102,10 +108,10 @@ const CustomStepper = (props: stepperProps) => {
             )}
 
             <Button onClick={handleNext}>
-              {activeStep === steps.length - 1 ? "Finish" : "Next"}
+              {activeStep === titles.length - 1 ? "Finish" : "Next"}
             </Button>
           </Box>
-        </React.Fragment>
+        </>
       )}
     </Box>
   );

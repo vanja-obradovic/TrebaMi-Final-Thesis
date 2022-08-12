@@ -1,18 +1,20 @@
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import styles from "../styles/map.module.scss";
-import * as ReactDOM from "react-dom";
+import * as ReactDOM from "react-dom/client";
 import { GeoPoint } from "@firebase/firestore";
 
 interface mapProps {
   locationMarker: boolean;
   setMarkerCoords: (location: GeoPoint) => void;
-  popup: React.ReactNode;
+  popup?: React.ReactNode;
   markerCords?: GeoPoint;
+  lastGeoPoint?;
 }
 
 const Map = (props: mapProps) => {
-  const { locationMarker, setMarkerCoords, popup, markerCords } = props;
+  const { locationMarker, setMarkerCoords, popup, markerCords, lastGeoPoint } =
+    props;
 
   const mapElement = useRef();
   const [map, setMap] = useState<tt.Map>();
@@ -23,7 +25,9 @@ const Map = (props: mapProps) => {
 
   const popupDiv = document.createElement("div");
   popupDiv.className = styles.popup;
-  ReactDOM.render(popup, popupDiv);
+
+  const root = ReactDOM.createRoot(popupDiv);
+  root.render(popup);
 
   useEffect(() => {
     const initMap = async () => {
@@ -57,6 +61,7 @@ const Map = (props: mapProps) => {
           .on("dblclick", (e) => {
             e.preventDefault();
             setMarkerCoords(new GeoPoint(e.lngLat.lat, e.lngLat.lng));
+
             marker.current?.remove();
             marker.current = new tt.Marker({
               draggable: true,
@@ -84,6 +89,31 @@ const Map = (props: mapProps) => {
                 draggable: true,
               })
                 .setLngLat([markerCords.longitude, markerCords.latitude])
+                .addTo(mapObject)
+                .on("dragend", () => {
+                  setMarkerCoords(
+                    new GeoPoint(
+                      marker.current.getLngLat().lat,
+                      marker.current.getLngLat().lng
+                    )
+                  );
+                })
+                .setPopup(
+                  new tt.Popup().setDOMContent(popupDiv).addTo(mapObject)
+                )
+                .togglePopup();
+              mapObject.jumpTo({
+                center: {
+                  lat: marker.current.getLngLat().lat,
+                  lng: marker.current.getLngLat().lng,
+                },
+                zoom: 15,
+              });
+            } else if (lastGeoPoint) {
+              marker.current = new tt.Marker({
+                draggable: true,
+              })
+                .setLngLat([lastGeoPoint._long, lastGeoPoint._lat])
                 .addTo(mapObject)
                 .on("dragend", () => {
                   setMarkerCoords(

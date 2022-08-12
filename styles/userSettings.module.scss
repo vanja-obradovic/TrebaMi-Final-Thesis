@@ -7,13 +7,18 @@
   display: flex !important;
   justify-content: center;
   align-items: center;
-  gap: 3vmin;
+  gap: 5vmin;
+  @media only screen and (max-width: 992px) {
+    flex-direction: column;
+  }
 }
 
 .photo {
-  flex: 2;
-  width: 100%;
-  height: 45%;
+  @media only screen and (min-width: 992px) {
+    flex: 1;
+    max-width: 30%;
+  }
+  max-width: 80%;
 
   .paper {
     display: flex;
@@ -22,7 +27,6 @@
   }
 
   .avatarWrapper {
-    font-size: 2vmin;
     > span {
       border-radius: 1rem;
       padding-inline: 1vmin;
@@ -40,8 +44,7 @@
     }
     .avatar {
       margin: 2vmin;
-      min-width: 10vmin;
-      width: 27vmin !important;
+      min-width: 10rem;
       height: auto;
       aspect-ratio: 1/1;
 
@@ -54,7 +57,7 @@
         font-family: "Font Awesome 6 Free";
         content: "\e09a";
         font-weight: 900;
-        font-size: 3vmin;
+        font-size: 2rem;
         color: white;
         font-style: normal;
         font-variant: normal;
@@ -83,7 +86,7 @@
       }
     }
 
-    h2 {
+    > h2 {
       margin: 0;
       display: flex;
       justify-content: center;
@@ -101,15 +104,14 @@
 }
 
 .inputStyle {
-  font-size: inherit !important;
-  border-radius: 2rem;
+  border-radius: 1rem;
 }
 
 .settings {
-  flex: 7;
-  height: 90%;
-  width: 100%;
-  font-size: 2vmin;
+  @media only screen and (min-width: 992px) {
+    flex: 1;
+    max-width: 50vw;
+  }
   display: flex;
   .confirmButton {
     @include button($baseColor, $baseColorLighter, 1vmin, 2vmin);
@@ -117,7 +119,7 @@
     align-self: center;
     border-radius: 2rem;
     border: 1px solid rgba(0, 0, 0, 0.23);
-    font-size: inherit;
+    // font-size: inherit;
   }
   .paper {
     justify-content: space-around;
@@ -139,7 +141,7 @@
   }
 
   .accordion {
-    border-radius: 2rem;
+    border-radius: 1rem;
     border: solid 1px rgba(0, 0, 0, 0.23);
     margin-block: 0 !important;
     &::before {
@@ -161,7 +163,6 @@
   }
 
   .accordionSummary {
-    font-size: inherit;
     justify-content: center;
     margin-block: 1vmin !important;
   }
@@ -170,11 +171,11 @@
     display: flex;
     flex-direction: column;
     align-content: center;
-    row-gap: 1vmin;
+    row-gap: 1rem;
     .passwordDetails {
       display: flex;
       justify-content: space-evenly;
-      row-gap: 2vmin;
+      row-gap: 1rem;
       flex-wrap: wrap;
       button {
         @include button($baseColor, $baseColorLighter, 1vmin, 2vmin);
@@ -188,7 +189,7 @@
     @extend .grid;
     display: flex;
     flex-direction: column;
-    row-gap: 2vmin;
+    row-gap: 1rem;
     color: red;
 
     > span {
@@ -201,21 +202,16 @@
       }
       > button {
         @include button(red, rgb(224, 127, 127), 1.5vmin, 2vmin);
-        font-size: inherit;
+        // font-size: inherit;
         flex: 1;
       }
     }
   }
   .selectStyle {
-    margin-top: 1vmin;
-    border-radius: 2rem;
-    border: 1px solid rgba(0, 0, 0, 0.23);
-    font-size: inherit;
-    padding-block: 0.5vmin;
-    padding-inline: 1vmin;
+    border-radius: 1rem;
   }
   .labelStyle {
-    font-size: inherit;
+    // font-size: inherit;
   }
 }
 

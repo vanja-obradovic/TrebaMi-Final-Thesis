@@ -12,7 +12,6 @@ const Layout = ({ children }) => {
         transition={Zoom}
         autoClose={5000}
         hideProgressBar={false}
-        newestOnTop={true}
         closeOnClick
         rtl={false}
         pauseOnFocusLoss

@@ -17,7 +17,7 @@ interface dialogProps {
   contentText?: string;
   nativeContentText?: JSX.Element;
   title: string;
-  dialogLoading: boolean;
+  dialogLoading?: boolean;
   dialogStyle?: string;
   dialogContentStyle?: string;
 }
@@ -51,9 +51,9 @@ const CustomDialog = (props: dialogProps) => {
         {children}
       </DialogContent>
       <DialogActions classes={{ root: styles.dialogActions }}>
-        <button onClick={() => dialogClose(false)}>Cancel</button>
+        <button onClick={() => dialogClose(false)}>Otkazi</button>
         {dialogLoading && <CircularProgress size="4.5vmin" />}
-        <button onClick={() => dialogClose(true)}>Confirm</button>
+        <button onClick={() => dialogClose(true)}>Potvrdi</button>
       </DialogActions>
     </Dialog>
   );

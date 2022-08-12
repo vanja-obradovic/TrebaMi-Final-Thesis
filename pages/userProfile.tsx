@@ -190,9 +190,16 @@ const UserDashboard = () => {
               Item Three
             </TabPanel>
             <TabPanel value={tabValue} index={3}>
-              <CustomStepper>
+              <CustomStepper
+                titles={[
+                  { title: "Prvi korak" },
+                  { title: "Drugi korak", optional: true },
+                  { title: "Treci korak", optional: true },
+                ]}
+              >
                 <div>Hello1</div>
                 <img src="loginPic.webp"></img>
+                <div>Hello2</div>
               </CustomStepper>
             </TabPanel>
 

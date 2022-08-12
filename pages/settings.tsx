@@ -24,6 +24,8 @@ import {
   CardActionArea,
   CardContent,
   CardHeader,
+  MenuItem,
+  Select,
 } from "@mui/material";
 import { ImageFileUrl } from "../util/imageCropper";
 import ImageCropper from "../components/ImgCropper";
@@ -751,6 +753,7 @@ const Settings = () => {
                           fullWidth
                           inputRef={emailDialogPassword}
                           variant="outlined"
+                          size="small"
                           InputLabelProps={{
                             className: styles.inputStyle,
                           }}
@@ -759,23 +762,24 @@ const Settings = () => {
                       </CustomDialog>
                     </span>
                     <span>
-                      <FormControl disabled={!catChange}>
+                      <FormControl disabled={!catChange} size="small">
                         <InputLabel
                           htmlFor={selectId}
                           classes={{ root: styles.labelStyle }}
                         >
                           Category
                         </InputLabel>
-                        <NativeSelect
+                        <Select
                           className={styles.selectStyle}
                           inputProps={{ id: selectId, variant: "outlined" }}
                           defaultValue={userProfile?.category}
                           inputRef={category}
+                          label="Category"
                         >
-                          <option value={null}>None</option>
-                          <option value={"products"}>Products</option>
-                          <option value={"services"}>Services</option>
-                        </NativeSelect>
+                          <MenuItem value={null}>None</MenuItem>
+                          <MenuItem value={"products"}>Products</MenuItem>
+                          <MenuItem value={"services"}>Services</MenuItem>
+                        </Select>
                       </FormControl>
                       <button
                         style={catChange ? {} : { backgroundColor: "white" }}
@@ -806,6 +810,7 @@ const Settings = () => {
                           label="Password"
                           type="password"
                           fullWidth
+                          size="small"
                           variant="outlined"
                           inputRef={catDialogPassword}
                           InputLabelProps={{

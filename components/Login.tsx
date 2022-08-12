@@ -8,31 +8,35 @@ import { TextField } from "@mui/material";
 import { Box } from "@mui/system";
 import { useForm } from "react-hook-form";
 
+type FormData = {
+  email: string;
+  password: string;
+};
+
 const Login = ({ setPopup, setRegister }) => {
   const id = useId();
 
-  const { register, handleSubmit, formState } = useForm();
-  const { isValid } = formState;
-  const onSubmit = (data) => console.log(data);
+  const { register, handleSubmit } = useForm<FormData>();
 
-  const email = useRef<HTMLInputElement>();
-  const password = useRef<HTMLInputElement>();
   const [loading, setLoading] = useState(false);
 
   const { login } = useAuth();
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-
+  const handleLogin = async (data: FormData) => {
     try {
       setLoading(true);
-      await login?.(email.current.value, password.current.value).then((res) => {
+      await login?.(data.email, data.password).then((res) => {
         if (res.user.displayName === null) Router.push("/setup");
       });
     } catch {
-      toast.error("Pogresno korisnicko ime ili sifra!");
+      toast.error("Pogresan email ili sifra!");
     }
     setLoading(false);
+  };
+
+  const handleErrors = (err) => {
+    if (err.email) toast.error(err.email.message);
+    if (err.password) toast.error(err.password.message);
   };
 
   return (
@@ -46,14 +50,20 @@ const Login = ({ setPopup, setRegister }) => {
           objectFit="cover"
         ></Image>
       </div>
-      <Box component="form" onSubmit={handleSubmit(onSubmit)}>
+      <Box
+        component="form"
+        onSubmit={handleSubmit(handleLogin, handleErrors)}
+        noValidate
+      >
         <h2>Prijavi se</h2>,
         <TextField
           type="email"
           id={`${id}-email`}
-          {...register("email")}
-          required
+          {...register("email", {
+            required: "Morate uneti ispravnu email adresu",
+          })}
           label="Email"
+          required
           variant="outlined"
           size="small"
           InputProps={{ className: styles.inputStyle }}
@@ -64,17 +74,18 @@ const Login = ({ setPopup, setRegister }) => {
           type="password"
           name="pass"
           id={`${id}-password`}
-          {...register("password")}
-          required
+          {...register("password", { required: "Morate uneti sifru" })}
           label="Password"
+          required
           variant="outlined"
           size="small"
           InputProps={{ className: styles.inputStyle }}
           InputLabelProps={{ className: styles.inputStyle }}
         />
         <button
-          disabled={loading || !isValid}
+          disabled={loading}
           className={loading ? styles.loading : ""}
+          type="submit"
         >
           <span className={styles.btnText}>Potvrdi</span>
         </button>
