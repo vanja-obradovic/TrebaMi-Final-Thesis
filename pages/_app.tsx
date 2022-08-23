@@ -8,16 +8,16 @@ import { CssBaseline } from "@mui/material";
 const customTheme = createTheme({
   palette: {
     primary: {
-      main: "#3b40f9",
+      main: "#f2982e",
     },
     secondary: {
-      main: "#f2982e",
+      main: "#081e85",
     },
     // primaryDark: {
     //   main: "#081e85",
     // },
     background: {
-      default: "#fbfffc",
+      default: "#b4d9ff", //!old color #3b40f9
       paper: "#fbfffc",
     },
   },

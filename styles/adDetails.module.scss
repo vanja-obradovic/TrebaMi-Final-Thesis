@@ -1,0 +1,55 @@
+.paper {
+  height: 100%;
+  width: 100%;
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+}
+
+.container {
+  margin: auto;
+}
+
+.wrapper {
+  @extend .paper;
+  display: flex;
+  gap: 2rem;
+  @media only screen and (max-width: 992px) {
+    flex-direction: column;
+  }
+}
+
+.sideInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  justify-content: center;
+}
+
+.adInfo {
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  h1 {
+    margin-top: 0;
+    margin-left: 0.5rem;
+    text-decoration: underline;
+  }
+}
+
+.description {
+  margin-top: 1rem;
+  padding-left: 1rem;
+}
+
+.userDetails {
+  height: 100%;
+  width: 100%;
+  border-radius: 0.75rem !important;
+  h2 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}

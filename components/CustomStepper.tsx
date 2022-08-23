@@ -1,43 +1,68 @@
 import { Button, Step, StepLabel, Stepper, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import React from "react";
+import { UseFormHandleSubmit } from "react-hook-form";
 import styles from "../styles/stepper.module.scss";
 
 type title = {
   title: string;
   optional?: boolean;
+  submitBtn?: React.MutableRefObject<HTMLButtonElement>;
+  action?: () => void;
 };
+
 interface stepperProps {
   children: React.ReactNode[];
   titles: title[];
+  closeDialog?: (state: boolean) => void; //TODO srediti ovo kako treba
+  dialogLoading?: boolean;
+  canTransition?: boolean;
 }
 
 const CustomStepper = (props: stepperProps) => {
-  const { titles } = props;
+  const { titles, closeDialog, dialogLoading, canTransition } = props;
   const [activeStep, setActiveStep] = React.useState(0);
   const [skipped, setSkipped] = React.useState(new Set<number>());
 
   const isStepOptional = (step: number) => {
-    return titles[step].optional;
+    return titles[step] ? titles[step].optional : false;
   };
 
   const isStepSkipped = (step: number) => {
     return skipped.has(step);
   };
 
-  const handleNext = () => {
-    let newSkipped = skipped;
-    if (isStepSkipped(activeStep)) {
-      newSkipped = new Set(newSkipped.values());
-      newSkipped.delete(activeStep);
-    }
+  const isFinalStep = () => {
+    return activeStep === titles.length - 1;
+  };
 
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    setSkipped(newSkipped);
+  const isFirstStep = () => {
+    return activeStep === 0;
+  };
+
+  const handleNext = () => {
+    if (titles[activeStep].submitBtn)
+      titles[activeStep].submitBtn.current.click();
+    else if (titles[activeStep].action) titles[activeStep].action();
+
+    if (canTransition) {
+      let newSkipped = skipped;
+      if (isStepSkipped(activeStep)) {
+        newSkipped = new Set(newSkipped.values());
+        newSkipped.delete(activeStep);
+      }
+
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+      setSkipped(newSkipped);
+
+      if (isFinalStep()) closeDialog(false);
+    }
   };
 
   const handleBack = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+    isFirstStep()
+      ? closeDialog(false)
+      : setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
   const handleSkip = () => {
@@ -58,7 +83,7 @@ const CustomStepper = (props: stepperProps) => {
   };
 
   return (
-    <Box>
+    <>
       <Stepper activeStep={activeStep}>
         {titles.map((title, index) => {
           const stepProps: { completed?: boolean } = {};
@@ -81,39 +106,34 @@ const CustomStepper = (props: stepperProps) => {
           );
         })}
       </Stepper>
-      {activeStep === titles.length ? (
+      {/* {activeStep === titles.length ? (
         <>
-          All steps completed - you&apos;re finished
+          Oglas kompletiran
           <Box>
-            <Box />
             <Button onClick={handleReset}>Reset</Button>
           </Box>
         </>
-      ) : (
-        <>
-          {props.children[activeStep]}
-          <Box className={styles.actions}>
-            <Button
-              color="inherit"
-              disabled={activeStep === 0}
-              onClick={handleBack}
-            >
-              Back
-            </Button>
-            <Box sx={{ flex: "1 1 auto" }} />
-            {isStepOptional(activeStep) && (
-              <Button color="inherit" onClick={handleSkip} sx={{ mr: 1 }}>
-                Skip
-              </Button>
-            )}
+      ) : ( */}
+      <>
+        {props.children[activeStep]}
+        <Box className={styles.actions}>
+          <Button onClick={handleBack} variant="outlined">
+            {isFirstStep() ? "Otkazi" : "Nazad"}
+          </Button>
 
-            <Button onClick={handleNext}>
-              {activeStep === titles.length - 1 ? "Finish" : "Next"}
+          {!isFinalStep() && isStepOptional(activeStep) && (
+            <Button color="secondary" onClick={handleSkip}>
+              Preskoci
             </Button>
-          </Box>
-        </>
-      )}
-    </Box>
+          )}
+
+          <Button onClick={handleNext} variant="contained">
+            {isFinalStep() ? "Potvrdi" : "Dalje"}
+          </Button>
+        </Box>
+      </>
+      {/* )} */}
+    </>
   );
 };
 

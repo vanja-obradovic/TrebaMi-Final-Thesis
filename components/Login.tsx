@@ -23,14 +23,15 @@ const Login = ({ setPopup, setRegister }) => {
   const { login } = useAuth();
 
   const handleLogin = async (data: FormData) => {
-    try {
-      setLoading(true);
-      await login?.(data.email, data.password).then((res) => {
+    setLoading(true);
+    login?.(data.email, data.password)
+      .then((res) => {
         if (res.user.displayName === null) Router.push("/setup");
+      })
+      .catch((err) => {
+        console.log(err.message);
+        toast.error("Pogresan email ili sifra!");
       });
-    } catch {
-      toast.error("Pogresan email ili sifra!");
-    }
     setLoading(false);
   };
 

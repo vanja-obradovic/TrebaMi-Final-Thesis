@@ -2,7 +2,7 @@
 @import "./mixins.module.scss";
 
 .overlay {
-  display: flex;
+  display: flex !important;
   position: fixed;
   inset: 0;
   background-color: rgba(131, 130, 130, 0.8);
@@ -23,7 +23,7 @@
       height: 100%;
       display: flex;
       justify-content: flex-end;
-      border-radius: 0.5rem;
+      border-radius: 0.75rem;
       padding: 2vmin;
       transition: all 1.5s ease;
       gap: 2vmin;

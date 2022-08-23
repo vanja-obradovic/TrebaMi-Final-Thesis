@@ -30,7 +30,12 @@ import {
   query,
   updateDoc,
   GeoPoint,
+  FieldValue,
+  increment,
+  writeBatch,
+  collectionGroup,
 } from "firebase/firestore";
+import { ngram } from "./ngram";
 
 const fbConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -57,7 +62,38 @@ export const getUserAds = async (uid: string) => {
   return userAds;
 };
 
+export const getAdByRef = async (prov: string, aID: string) => {
+  const docRef = doc(getFirestore(app), `users/${prov}/ads/${aID}`);
+  const ad = getDoc(docRef).then((res) => {
+    return res;
+  });
+  return ad;
+};
+
+export const getAllAds = async () => {
+  const ref = collectionGroup(getFirestore(app), `ads`);
+  const allAds = getDocs(ref).then((res) => {
+    return res;
+  });
+  return allAds;
+};
+
+export const getAdsByKeyword = async (keyword: string) => {
+  if (keyword === "" || keyword === undefined || keyword === null) {
+    return [];
+  }
+  const search = ngram(keyword, 3);
+  const ref = collectionGroup(getFirestore(app), `ads`);
+  const refWhere = query(ref, where("keywords", "array-contains-any", search));
+  const allAds = await getDocs(refWhere).then((res) => {
+    return res;
+  });
+  console.log("vratio sa baze");
+  return allAds;
+};
+
 const app = !getApps().length ? initializeApp(fbConfig) : getApps()[0];
+
 export const auth = {
   getAuth,
   signInWithEmailAndPassword,
@@ -79,6 +115,11 @@ export const firestore = {
   where,
   query,
   GeoPoint,
+  FieldValue,
+  increment,
+  getDocs,
+  getDoc,
+  writeBatch,
 };
 export const storage = {
   getStorage,

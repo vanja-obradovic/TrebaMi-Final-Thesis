@@ -12,17 +12,17 @@
 }
 
 .dropDown {
-  border-radius: 1rem !important;
-  padding-inline: 1.25vmin;
-  padding-block: 0.75vmin;
+  border-radius: 0.75rem !important;
+  padding-inline: 1rem;
+  padding-block: 0.5rem;
 }
 
 .avatar {
   cursor: pointer;
-  height: 90%;
-  width: auto;
+  // height: 90%;
+  // width: auto;
 }
 
 .item {
-  border-radius: 1rem !important;
+  border-radius: 0.75rem !important;
 }

@@ -13,7 +13,6 @@ import {
   FormControl,
   InputLabel,
   LinearProgress,
-  NativeSelect,
   Paper,
   Skeleton,
   TextField,
@@ -26,11 +25,15 @@ import {
   CardHeader,
   MenuItem,
   Select,
+  Button,
+  IconButton,
 } from "@mui/material";
 import { ImageFileUrl } from "../util/imageCropper";
 import ImageCropper from "../components/ImgCropper";
 import { TiTickOutline } from "react-icons/ti";
-import { MdOutlineCancel, MdOutlineExpandMore } from "react-icons/md";
+import { MdOutlineCancel } from "react-icons/md";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import MapOutlinedIcon from "@mui/icons-material/MapOutlined";
 import { format } from "date-fns";
 import useId from "@mui/utils/useId";
 import { toast } from "react-toastify";
@@ -38,11 +41,53 @@ import { useRouter } from "next/router";
 import Map from "../components/Map";
 import Image from "next/image";
 import CustomDialog from "../components/CustomDialog";
+import { useForm } from "react-hook-form";
 
-const Settings = () => {
+type basicFormData = {
+  name: string;
+  surname: string;
+  number: string;
+};
+
+type passFormData = {
+  oldPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+};
+
+// export const getServerSideProps = async (context) => {
+//   const userToken = parseCookies(context).userToken;
+
+//   try {
+//     const user = await verifyToken(userToken);
+//     const userDoc = await getUser(user.uid);
+//     return { props: { userData: "abc" } };
+//   } catch (err) {
+//     console.log(err);
+//     // context.res.writeHead(302, { location: "/settings" });
+//     // context.res.end();
+//     // return { props: [] };
+//   }
+// };
+
+const Settings = ({ userData }) => {
   const dbInstance = firestore.getFirestore(app);
   const storageInstance = storage.getStorage(app);
+  const [userProfile, setUserProfile] = useState<DocumentData>();
   const router = useRouter();
+  const { register: basicRegister, handleSubmit: basicSubmit } =
+    useForm<basicFormData>({
+      defaultValues: {
+        name: userProfile?.name,
+        surname: userProfile?.surname,
+        number: userProfile?.number,
+      },
+    });
+  const {
+    register: passRegister,
+    handleSubmit: passSubmit,
+    getValues: getPassValues,
+  } = useForm<passFormData>();
 
   const { currUser, signout } = useAuth();
 
@@ -55,25 +100,15 @@ const Settings = () => {
 
   const selectId = useId();
 
-  const [userProfile, setUserProfile] = useState<DocumentData>();
-
-  const name = useRef<HTMLInputElement>();
-  const surname = useRef<HTMLInputElement>();
-  const number = useRef<HTMLInputElement>();
   const email = useRef<HTMLInputElement>();
   const category = useRef<HTMLSelectElement>();
-  const oldPassword = useRef<HTMLInputElement>();
-  const newPassword = useRef<HTMLInputElement>();
-  const confirmPassword = useRef<HTMLInputElement>();
   const emailDialogPassword = useRef<HTMLInputElement>();
   const catDialogPassword = useRef<HTMLInputElement>();
   const [markerCoords, setMarkerCoords] = useState<GeoPoint>();
-  const passRegex = new RegExp(
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d*.!@#$%^&(){}\[\]:\";'<>,.?\/~`_+-=|]{8,}$/
-  );
-  const emailRegex = new RegExp(
-    /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
-  );
+  const passRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d*.!@#$%^&(){}\[\]:\";'<>,.?\/~`_+-=|]{8,}$/;
+  const emailRegex =
+    /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 
   useEffect(() => {
     const getUserDoc = async () => {
@@ -143,6 +178,18 @@ const Settings = () => {
                 setCroppedImage(null);
                 setProgress(0);
               });
+            const adsRef = firestore.collection(
+              dbInstance,
+              `users/${currUser?.uid}/ads`
+            );
+            const batch = firestore.writeBatch(dbInstance);
+
+            firestore.getDocs(adsRef).then((docs) => {
+              docs.forEach((doc) => {
+                batch.update(doc.ref, { "provider.photoURL": url });
+              });
+              batch.commit();
+            });
           });
         }
       );
@@ -156,58 +203,94 @@ const Settings = () => {
     }
   };
 
-  const updateUserData = async () => {
+  const updateUserData = async (data: basicFormData) => {
+    console.log(data);
     const docRef = firestore.doc(dbInstance, `users`, `${currUser?.uid}`);
-    firestore
-      .updateDoc(docRef, {
-        name: name.current.value,
-        surname: surname.current.value,
-        number: number.current.value,
-      })
-      .then(() => {
-        toast.success("Update successful!");
-      })
-      .catch(() => {
-        toast.error("Error while updating, please try again.");
+    const adsRef = firestore.collection(
+      dbInstance,
+      `users/${currUser?.uid}/ads`
+    );
+    toast.promise(
+      firestore
+        .updateDoc(docRef, {
+          name: data.name,
+          surname: data.surname,
+          number: data.number,
+        })
+        .then(() => {
+          auth.updateProfile(currUser, {
+            displayName:
+              data.name.charAt(0).toUpperCase() +
+              data.name.slice(1) +
+              " " +
+              data.surname.charAt(0).toUpperCase() +
+              data.surname.slice(1),
+          });
+        }),
+      {
+        success: "Update successful!",
+        pending: "Update in progress...",
+        error: "Error while updating, please try again.",
+      }
+    );
+
+    const batch = firestore.writeBatch(dbInstance);
+
+    firestore.getDocs(adsRef).then((docs) => {
+      docs.forEach((doc) => {
+        batch.update(doc.ref, {
+          "provider.displayName":
+            data.name.charAt(0).toUpperCase() +
+            data.name.slice(1) +
+            " " +
+            data.surname.charAt(0).toUpperCase() +
+            data.surname.slice(1),
+        });
       });
+      batch.commit();
+    });
   };
 
-  const updateUserPassword = async () => {
-    if (
-      !oldPassword.current.value ||
-      !newPassword.current.value ||
-      !confirmPassword.current.value
-    )
-      toast.error("Moraju se popuniti sva polja za promenu lozinke");
-    else {
-      const credential = auth.EmailAuthProvider.credential(
-        currUser?.email,
-        oldPassword.current.value
-      );
-      auth
-        .reauthenticateWithCredential(currUser, credential)
-        .then(() => {
-          if (
-            passRegex.test(newPassword.current.value ?? "") &&
-            newPassword.current.value === confirmPassword.current.value
-          ) {
-            auth
-              .updatePassword(currUser, newPassword.current.value)
-              .then(() => {
-                toast.success("Update successful!");
-                signout();
-                router.replace("/");
-              });
-          } else {
-            toast.error(
-              "Lozinka mora imati makar jedno veliko i malo slovo, jedan broj i specijalni karakter i imati minimalno 8 karaktera!\n Lozinke se moraju poklapati!"
-            );
+  const handleUserUpdateErr = (err) => {
+    if (err.name) toast.error(err.name.message, { autoClose: 2500 });
+    if (err.surname) toast.error(err.surname.message, { autoClose: 2500 });
+    if (err.number) toast.error(err.number.message, { autoClose: 2500 });
+  };
+
+  const updateUserPassword = async (data: passFormData) => {
+    const credential = auth.EmailAuthProvider.credential(
+      currUser?.email,
+      data.oldPassword
+    );
+    toast.promise(
+      auth.reauthenticateWithCredential(currUser, credential).then(() => {
+        toast.promise(
+          auth.updatePassword(currUser, data.newPassword).then(() => {
+            signout();
+            router.replace("/");
+          }),
+          {
+            success: "Update successful!",
+            pending: "Update in progress",
+            error: "Update failed!",
           }
-        })
-        .catch(() => {
-          toast.error("Old password doesn't match your input");
-        });
-    }
+        );
+      }),
+      {
+        success: "Authentication successful!",
+        pending: "Authentication in progress...",
+        error: "Authentication failed!",
+      }
+    );
+  };
+
+  const handlePassUpdateErr = (err) => {
+    if (err.oldPassword)
+      toast.error(err.oldPassword.message, { autoClose: 2500 });
+    if (err.newPassword)
+      toast.error(err.newPassword.message, { autoClose: 2500 });
+    if (err.confirmPassword)
+      toast.error(err.confirmPassword.message, { autoClose: 2500 });
   };
 
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
@@ -317,6 +400,10 @@ const Settings = () => {
     if (update === true) {
       if (markerCoords) {
         const docRef = firestore.doc(dbInstance, `users`, `${currUser?.uid}`);
+        const adsRef = firestore.collection(
+          dbInstance,
+          `users/${currUser?.uid}/ads`
+        );
         setDialogLoading(true);
         firestore
           .updateDoc(docRef, {
@@ -327,6 +414,15 @@ const Settings = () => {
             setMapDialog(false);
             const userDoc = await getUser(currUser?.uid);
             setUserProfile(userDoc.data());
+
+            const batch = firestore.writeBatch(dbInstance);
+
+            firestore.getDocs(adsRef).then((docs) => {
+              docs.forEach((doc) => {
+                batch.update(doc.ref, { "provider.location": markerCoords });
+              });
+              batch.commit();
+            });
           })
           .catch(() => {
             toast.error("Error while updating, please try again.");
@@ -351,10 +447,38 @@ const Settings = () => {
   const closeMembershipDialog = (update?: boolean) => {
     if (update === true) {
       const docRef = firestore.doc(dbInstance, `users`, `${currUser?.uid}`);
+
+      let rep, adPermit, promotionPermit;
+
+      switch (membership) {
+        case "silver": {
+          rep = 0;
+          adPermit = 2;
+          promotionPermit = 0;
+          break;
+        }
+        case "gold": {
+          rep = 200;
+          adPermit = 5;
+          promotionPermit = 1;
+          break;
+        }
+        case "diamond": {
+          rep = 500;
+          adPermit = 10;
+          promotionPermit = 3;
+          break;
+        }
+      }
+
       setDialogLoading(true);
+
       firestore
         .updateDoc(docRef, {
           membership: membership,
+          reputation: firestore.increment(rep),
+          "ad.permitted": adPermit,
+          "adPromotion.permitted": promotionPermit,
         })
         .then(async () => {
           toast.success("Update successful!");
@@ -518,24 +642,34 @@ const Settings = () => {
                       />
                     </div>
                   </div>
-                  <div>
+                  <div className={styles.avatarActions}>
                     <Tooltip
-                      title="Cancel upload"
+                      title="Otkazi promenu"
                       arrow
                       disableHoverListener={loading}
                     >
-                      <button disabled={loading} onClick={cancelFileUpload}>
+                      <Button
+                        disabled={loading}
+                        onClick={cancelFileUpload}
+                        variant="contained"
+                        color="error"
+                      >
                         <MdOutlineCancel />
-                      </button>
+                      </Button>
                     </Tooltip>
                     <Tooltip
-                      title="Confirm upload"
+                      title="Potvrdi promenu"
                       arrow
                       disableHoverListener={loading}
                     >
-                      <button disabled={loading} onClick={confirmFileUpload}>
+                      <Button
+                        disabled={loading}
+                        onClick={confirmFileUpload}
+                        variant="contained"
+                        color="success"
+                      >
                         <TiTickOutline />
-                      </button>
+                      </Button>
                     </Tooltip>
                   </div>
                 </>
@@ -551,7 +685,7 @@ const Settings = () => {
                   classes={{ root: styles.accordion }}
                 >
                   <AccordionSummary
-                    expandIcon={<MdOutlineExpandMore />}
+                    expandIcon={<ExpandMoreIcon />}
                     classes={{
                       content: styles.accordionSummary,
                       root: styles.accordionSummaryRoot,
@@ -560,12 +694,22 @@ const Settings = () => {
                     Change basic information
                   </AccordionSummary>
                   <AccordionDetails className={styles.passwordDetailsWrapper}>
-                    <div className={styles.passwordDetails}>
+                    <Box
+                      component="form"
+                      className={styles.passwordDetails}
+                      noValidate
+                      onSubmit={basicSubmit(
+                        updateUserData,
+                        handleUserUpdateErr
+                      )}
+                    >
                       <TextField
                         variant="outlined"
-                        label="Name"
+                        label="Ime"
                         required
-                        inputRef={name}
+                        {...basicRegister("name", {
+                          required: "Morate uneti ime",
+                        })}
                         size="small"
                         InputLabelProps={{
                           shrink: true,
@@ -576,9 +720,11 @@ const Settings = () => {
                       ></TextField>
                       <TextField
                         variant="outlined"
-                        label="Surname"
+                        label="Prezime"
                         required
-                        inputRef={surname}
+                        {...basicRegister("surname", {
+                          required: "Morate uneti prezime",
+                        })}
                         size="small"
                         defaultValue={userProfile?.surname}
                         InputLabelProps={{
@@ -590,10 +736,12 @@ const Settings = () => {
 
                       <TextField
                         variant="outlined"
-                        label="Number"
+                        label="Broj telefona"
                         required
                         size="small"
-                        inputRef={number}
+                        {...basicRegister("number", {
+                          required: "Morate uneti broj telefona",
+                        })}
                         InputLabelProps={{
                           shrink: true,
                           className: styles.inputStyle,
@@ -603,18 +751,21 @@ const Settings = () => {
                       ></TextField>
                       {userProfile?.isProvider && (
                         <>
-                          <button onClick={() => openMapDialog()}>
-                            Edit location
-                          </button>
+                          <Button
+                            onClick={() => openMapDialog()}
+                            color="secondary"
+                            variant="outlined"
+                            endIcon={<MapOutlinedIcon />}
+                          >
+                            Promeni lokaciju
+                          </Button>
 
                           <CustomDialog // *Dialog for map
                             dialogOpen={mapDialog}
                             dialogClose={closeMapDialog}
-                            contentText="Location can be set either by geolocation (must
-                                be allowed) or by manually setting a marker on
-                                the map."
+                            contentText="Lokacija se moze postaviti ili automatski(mora biti odobreno) ili rucno postavljanjem markera na mapi duplim klikom"
                             dialogLoading={dialogLoading}
-                            title="Edit location"
+                            title="Promena lokacije"
                           >
                             <Map
                               locationMarker={true}
@@ -627,13 +778,14 @@ const Settings = () => {
                           </CustomDialog>
                         </>
                       )}
-                    </div>
-                    <button
-                      className={styles.confirmButton}
-                      onClick={updateUserData}
-                    >
-                      Confirm changes
-                    </button>
+                      <Button
+                        className={styles.confirmButton}
+                        type="submit"
+                        variant="contained"
+                      >
+                        Potvrdi promene
+                      </Button>
+                    </Box>
                   </AccordionDetails>
                 </Accordion>
 
@@ -641,7 +793,7 @@ const Settings = () => {
                   classes={{ root: styles.accordion }}
                 >
                   <AccordionSummary
-                    expandIcon={<MdOutlineExpandMore />}
+                    expandIcon={<ExpandMoreIcon />}
                     classes={{
                       content: styles.accordionSummary,
                       root: styles.accordionSummaryRoot,
@@ -650,50 +802,75 @@ const Settings = () => {
                     Change password
                   </AccordionSummary>
                   <AccordionDetails className={styles.passwordDetailsWrapper}>
-                    <div className={styles.passwordDetails}>
-                      <TextField
-                        variant="outlined"
-                        label="Old password"
-                        inputRef={oldPassword}
-                        required
-                        size="small"
-                        InputLabelProps={{
-                          className: styles.inputStyle,
-                        }}
-                        InputProps={{ className: styles.inputStyle }}
-                        type="password"
-                      ></TextField>
-                      <TextField
-                        variant="outlined"
-                        label="New password"
-                        inputRef={newPassword}
-                        required
-                        size="small"
-                        InputLabelProps={{
-                          className: styles.inputStyle,
-                        }}
-                        InputProps={{ className: styles.inputStyle }}
-                        type="password"
-                      ></TextField>
-                      <TextField
-                        variant="outlined"
-                        label="Confirm password"
-                        inputRef={confirmPassword}
-                        required
-                        size="small"
-                        InputLabelProps={{
-                          className: styles.inputStyle,
-                        }}
-                        InputProps={{ className: styles.inputStyle }}
-                        type="password"
-                      ></TextField>
-                    </div>
-                    <button
-                      className={styles.confirmButton}
-                      onClick={updateUserPassword}
+                    <Box
+                      component="form"
+                      className={styles.passwordDetails}
+                      noValidate
+                      onSubmit={passSubmit(
+                        updateUserPassword,
+                        handlePassUpdateErr
+                      )}
                     >
-                      Confirm changes
-                    </button>
+                      <TextField
+                        variant="outlined"
+                        label="Stara lozinka"
+                        {...passRegister("oldPassword", {
+                          required: "Morate uneti staru lozinku",
+                        })}
+                        required
+                        size="small"
+                        InputLabelProps={{
+                          className: styles.inputStyle,
+                        }}
+                        InputProps={{ className: styles.inputStyle }}
+                        type="password"
+                      ></TextField>
+                      <TextField
+                        variant="outlined"
+                        label="Nova lozinka"
+                        {...passRegister("newPassword", {
+                          required: "Morate uneti novu lozinku",
+                          pattern: {
+                            value: passRegex,
+                            message:
+                              "Lozinka mora imati makar jedno veliko i malo slovo, jedan broj i specijalni karakter i imati minimalno 8 karaktera!",
+                          },
+                        })}
+                        required
+                        size="small"
+                        InputLabelProps={{
+                          className: styles.inputStyle,
+                        }}
+                        InputProps={{ className: styles.inputStyle }}
+                        type="password"
+                      ></TextField>
+                      <TextField
+                        variant="outlined"
+                        label="Potvrda lozinke"
+                        {...passRegister("confirmPassword", {
+                          required: "Morate uneti potvrdu lozinke",
+                          validate: {
+                            check: (value) =>
+                              value === getPassValues("newPassword") ||
+                              "Lozinke se ne poklapaju",
+                          },
+                        })}
+                        required
+                        size="small"
+                        InputLabelProps={{
+                          className: styles.inputStyle,
+                        }}
+                        InputProps={{ className: styles.inputStyle }}
+                        type="password"
+                      ></TextField>
+                      <Button
+                        className={styles.confirmButton}
+                        type="submit"
+                        variant="contained"
+                      >
+                        Potvrdi promene
+                      </Button>
+                    </Box>
                   </AccordionDetails>
                 </Accordion>
 
@@ -701,13 +878,13 @@ const Settings = () => {
                   classes={{ root: styles.accordionDanger }}
                 >
                   <AccordionSummary
-                    expandIcon={<MdOutlineExpandMore />}
+                    expandIcon={<ExpandMoreIcon />}
                     classes={{
                       content: styles.accordionSummary,
                       root: styles.accordionSummaryRoot,
                     }}
                   >
-                    Danger zone
+                    Opasna zona
                   </AccordionSummary>
                   <AccordionDetails className={styles.dangerZone}>
                     <span>
@@ -725,16 +902,17 @@ const Settings = () => {
                         InputProps={{ className: styles.inputStyle }}
                         disabled={!emailChange}
                       ></TextField>
-                      <button
-                        style={emailChange ? {} : { backgroundColor: "white" }}
+                      <Button
                         onClick={(e) => {
                           e.preventDefault();
                           setEmailChange(!emailChange);
                           if (emailChange) openEmailDialog();
                         }}
+                        color={emailChange ? "error" : "info"}
+                        variant="contained"
                       >
                         {emailChange ? "Confirm" : "Click to change"}
-                      </button>
+                      </Button>
 
                       <CustomDialog // *Dialog for changing email
                         dialogOpen={emailDialogOpen}
@@ -781,16 +959,17 @@ const Settings = () => {
                           <MenuItem value={"services"}>Services</MenuItem>
                         </Select>
                       </FormControl>
-                      <button
-                        style={catChange ? {} : { backgroundColor: "white" }}
+                      <Button
                         onClick={(e) => {
                           e.preventDefault();
                           setCatChange(!catChange);
                           if (catChange) openCatDialog();
                         }}
+                        color={catChange ? "error" : "info"}
+                        variant="contained"
                       >
                         {catChange ? "Confirm" : "Click to change"}
-                      </button>
+                      </Button>
 
                       <CustomDialog // *Dialog for changing category
                         dialogOpen={catDialogOpen}

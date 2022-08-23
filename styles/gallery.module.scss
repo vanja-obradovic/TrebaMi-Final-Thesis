@@ -1,0 +1,45 @@
+.primaryPhoto {
+  position: relative;
+  aspect-ratio: 1.5;
+  width: 75%;
+  margin: auto;
+  img {
+    border-radius: 0.75rem;
+  }
+  .arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 50;
+    width: 3vmax;
+    height: auto;
+    &:first-of-type {
+      left: 2.5%;
+    }
+    &:last-of-type {
+      right: 2.5%;
+    }
+    &:hover {
+      cursor: pointer;
+      color: white;
+    }
+  }
+}
+
+.preview {
+  height: clamp(5vmin, 7vmin, 10vmax);
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  column-gap: 0.5rem;
+  row-gap: 0.25rem;
+  margin-top: 0.5rem;
+  .photoPreview {
+    position: relative;
+    aspect-ratio: 3/2;
+    height: inherit;
+    img {
+      border-radius: 0.75rem;
+    }
+  }
+}

@@ -3,33 +3,31 @@ import { toast } from "react-toastify";
 import styles from "../styles/map.module.scss";
 import * as ReactDOM from "react-dom/client";
 import { GeoPoint } from "@firebase/firestore";
+import AdCard from "./AdCard";
 
 interface mapProps {
   locationMarker: boolean;
-  setMarkerCoords: (location: GeoPoint) => void;
+  setMarkerCoords?: (location: GeoPoint) => void;
   popup?: React.ReactNode;
-  markerCords?: GeoPoint;
-  lastGeoPoint?;
+  markerCords?: { _long; _lat };
+  // lastGeoPoint?: { _long; _lat };
 }
 
 const Map = (props: mapProps) => {
-  const { locationMarker, setMarkerCoords, popup, markerCords, lastGeoPoint } =
-    props;
+  const { locationMarker, setMarkerCoords, popup, markerCords } = props;
 
   const mapElement = useRef();
   const [map, setMap] = useState<tt.Map>();
   const marker = useRef<tt.Marker>();
 
-  const el = document.createElement("div");
-  el.innerHTML = "hello";
-
-  const popupDiv = document.createElement("div");
-  popupDiv.className = styles.popup;
-
-  const root = ReactDOM.createRoot(popupDiv);
-  root.render(popup);
+  // const el = document.createElement("div");
+  // el.innerHTML = "hello";
 
   useEffect(() => {
+    const popupDiv = document.createElement("div");
+    popupDiv.className = styles.popup;
+    const root = ReactDOM.createRoot(popupDiv);
+    root.render(popup);
     const initMap = async () => {
       const tt = await import("@tomtom-international/web-sdk-maps");
 
@@ -45,9 +43,10 @@ const Map = (props: mapProps) => {
             trackUserLocation: false,
           })
             .on("geolocate", (e: any) => {
-              setMarkerCoords(
-                new GeoPoint(e.coords.latitude, e.coords.longitude)
-              );
+              if (locationMarker)
+                setMarkerCoords(
+                  new GeoPoint(e.coords.latitude, e.coords.longitude)
+                );
             })
             .on("error", (e: any) => {
               toast.error(
@@ -55,87 +54,95 @@ const Map = (props: mapProps) => {
               );
             })
         );
+      mapObject.addControl(new tt.FullscreenControl());
+      mapObject.addControl(
+        new tt.NavigationControl({ showExtendedRotationControls: true })
+      );
 
-      if (locationMarker)
-        mapObject
-          .on("dblclick", (e) => {
-            e.preventDefault();
-            setMarkerCoords(new GeoPoint(e.lngLat.lat, e.lngLat.lng));
+      if (locationMarker) {
+        mapObject.on("dblclick", (e) => {
+          e.preventDefault();
+          setMarkerCoords(new GeoPoint(e.lngLat.lat, e.lngLat.lng));
 
-            marker.current?.remove();
-            marker.current = new tt.Marker({
-              draggable: true,
-            })
-              .setLngLat(e.lngLat)
-              .addTo(mapObject)
-              .on("dragend", () => {
-                setMarkerCoords(
-                  new GeoPoint(
-                    marker.current.getLngLat().lat,
-                    marker.current.getLngLat().lng
-                  )
-                );
-              })
-              .setPopup(new tt.Popup().setDOMContent(popupDiv).addTo(mapObject))
-              .togglePopup();
+          marker.current?.remove();
+          marker.current = new tt.Marker({
+            draggable: true,
           })
-          .on("load", () => {
-            mapObject.fitBounds([
-              [18.82982, 42.2452243971],
-              [22.9860185076, 46.1717298447],
-            ]);
-            if (markerCords) {
-              marker.current = new tt.Marker({
-                draggable: true,
-              })
-                .setLngLat([markerCords.longitude, markerCords.latitude])
-                .addTo(mapObject)
-                .on("dragend", () => {
-                  setMarkerCoords(
-                    new GeoPoint(
-                      marker.current.getLngLat().lat,
-                      marker.current.getLngLat().lng
-                    )
-                  );
-                })
-                .setPopup(
-                  new tt.Popup().setDOMContent(popupDiv).addTo(mapObject)
+            .setLngLat(e.lngLat)
+            .addTo(mapObject)
+            .on("dragend", () => {
+              setMarkerCoords(
+                new GeoPoint(
+                  marker.current.getLngLat().lat,
+                  marker.current.getLngLat().lng
                 )
-                .togglePopup();
-              mapObject.jumpTo({
-                center: {
-                  lat: marker.current.getLngLat().lat,
-                  lng: marker.current.getLngLat().lng,
-                },
-                zoom: 15,
-              });
-            } else if (lastGeoPoint) {
-              marker.current = new tt.Marker({
-                draggable: true,
-              })
-                .setLngLat([lastGeoPoint._long, lastGeoPoint._lat])
-                .addTo(mapObject)
-                .on("dragend", () => {
-                  setMarkerCoords(
-                    new GeoPoint(
-                      marker.current.getLngLat().lat,
-                      marker.current.getLngLat().lng
-                    )
-                  );
-                })
-                .setPopup(
-                  new tt.Popup().setDOMContent(popupDiv).addTo(mapObject)
+              );
+            })
+            .setPopup(new tt.Popup().setDOMContent(popupDiv).addTo(mapObject))
+            .togglePopup();
+        });
+      }
+      mapObject.on("load", () => {
+        mapObject.fitBounds([
+          [18.82982, 42.2452243971],
+          [22.9860185076, 46.1717298447],
+        ]);
+        if (markerCords) {
+          console.log(markerCords);
+          marker.current = new tt.Marker({
+            draggable: locationMarker,
+          })
+            .setLngLat([markerCords._long, markerCords._lat])
+            .addTo(mapObject);
+          if (locationMarker) {
+            marker.current.on("dragend", () => {
+              setMarkerCoords(
+                new GeoPoint(
+                  marker.current.getLngLat().lat,
+                  marker.current.getLngLat().lng
                 )
-                .togglePopup();
-              mapObject.jumpTo({
-                center: {
-                  lat: marker.current.getLngLat().lat,
-                  lng: marker.current.getLngLat().lng,
-                },
-                zoom: 15,
-              });
-            }
+              );
+            });
+          }
+          marker.current
+            .setPopup(new tt.Popup().setDOMContent(popupDiv).addTo(mapObject))
+            .togglePopup();
+
+          mapObject.jumpTo({
+            center: {
+              lat: marker.current.getLngLat().lat,
+              lng: marker.current.getLngLat().lng,
+            },
+            zoom: 15,
           });
+        }
+        // else if (lastGeoPoint) {
+        //   marker.current = new tt.Marker({
+        //     draggable: true,
+        //   })
+        //     .setLngLat([lastGeoPoint._long, lastGeoPoint._lat])
+        //     .addTo(mapObject)
+        //     .on("dragend", () => {
+        //       setMarkerCoords(
+        //         new GeoPoint(
+        //           marker.current.getLngLat().lat,
+        //           marker.current.getLngLat().lng
+        //         )
+        //       );
+        //     })
+        //     .setPopup(
+        //       new tt.Popup().setDOMContent(popupDiv).addTo(mapObject)
+        //     )
+        //     .togglePopup();
+        // mapObject.jumpTo({
+        //   center: {
+        //     lat: marker.current.getLngLat().lat,
+        //     lng: marker.current.getLngLat().lng,
+        //   },
+        //   zoom: 15,
+        // });
+        // }
+      });
       setMap(mapObject);
     };
     initMap();

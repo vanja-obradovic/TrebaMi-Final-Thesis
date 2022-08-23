@@ -1,4 +1,4 @@
-import { Container } from "@mui/material";
+import { Box, ClickAwayListener, Container } from "@mui/material";
 import React from "react";
 import { useState } from "react";
 import styles from "../styles/popup.module.scss";
@@ -15,18 +15,35 @@ const Popup = () => {
         Prijavi se
       </a>
       {popUp && (
-        <div id="popupTarget" className={styles.overlay}>
-          <Container maxWidth="md" className={styles.popupWrapper}>
-            {/* <div className={styles.popupWrapper}> */}
-            {!register && (
-              <Login setPopup={setPopup} setRegister={setRegister} />
-            )}
-            {register && (
-              <Register setPopup={setPopup} setRegister={setRegister} />
-            )}
-            {/* </div> */}
-          </Container>
-        </div>
+        <Container
+          maxWidth={false}
+          id="popupTarget"
+          className={styles.overlay}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") {
+              setPopup(false);
+              setRegister(false);
+            }
+          }}
+        >
+          <ClickAwayListener
+            onClickAway={() => {
+              setPopup(false);
+              setRegister(false);
+            }}
+          >
+            <Container maxWidth="md" className={styles.popupWrapper}>
+              {/* <div className={styles.popupWrapper}> */}
+              {!register && (
+                <Login setPopup={setPopup} setRegister={setRegister} />
+              )}
+              {register && (
+                <Register setPopup={setPopup} setRegister={setRegister} />
+              )}
+              {/* </div> */}
+            </Container>
+          </ClickAwayListener>
+        </Container>
       )}
     </>
   );

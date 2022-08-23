@@ -3,7 +3,6 @@ import { useState, useEffect, useContext } from "react";
 import app, { auth } from "../util/firebase";
 import { UserCredential, User } from "firebase/auth";
 import { useRouter } from "next/router";
-
 interface authContextInterface {
   currUser: User;
   signup: (email: string, password: string) => Promise<UserCredential>;
@@ -47,6 +46,19 @@ export const AuthProvider = ({ children }) => {
     );
 
     return unsubscribe;
+
+    //!nookies version
+    // const unsubscribe = authInstance.onIdTokenChanged(async (user) => {
+    //   if (!user) {
+    //     setCurrUser(null);
+    //     setCookie(undefined, "userToken", "", {});
+    //     return;
+    //   }
+    //   const userToken = await user.getIdToken();
+    //   setCurrUser(user);
+    //   setCookie(undefined, "userToken", userToken, {});
+    // });
+    // return unsubscribe;
   }, [authInstance]);
 
   const value = {

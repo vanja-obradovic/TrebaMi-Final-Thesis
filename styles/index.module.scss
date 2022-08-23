@@ -1,0 +1,41 @@
+.list {
+  padding-inline: 0.75rem;
+  > * {
+    &:first-child {
+      margin-top: 0;
+    }
+    &:last-child {
+      margin-bottom: 0;
+    }
+    margin-block: 0.75rem;
+  }
+}
+
+.firstHalf {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  .searchWrapper {
+    margin-block: 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    .search {
+      width: 50%;
+    }
+  }
+}
+
+.secondHalf {
+  flex: 1;
+  display: flex;
+  > div {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}

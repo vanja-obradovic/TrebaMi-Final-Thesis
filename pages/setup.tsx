@@ -79,6 +79,8 @@ const Setup = () => {
         isProvider: data.provider,
         location: data.location,
         category: data.category ?? null,
+        ad: { count: 0, permitted: 2 },
+        adPromotion: { count: 0, permitted: 0 },
       })
       .then(() => {
         if (croppedImage) {
@@ -345,7 +347,10 @@ const Setup = () => {
                     setMarkerCoords={(location: GeoPoint) => {
                       setValue("location", location);
                     }}
-                    lastGeoPoint={lastGeoPoint}
+                    markerCords={{
+                      _long: lastGeoPoint.longitude,
+                      _lat: lastGeoPoint.latitude,
+                    }}
                   ></Map>
                 </CustomDialog>
               </>

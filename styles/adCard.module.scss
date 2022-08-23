@@ -1,0 +1,55 @@
+.card {
+  border-radius: 0.75rem;
+  margin-block: 0.5rem;
+}
+
+// .smallTitle {
+//   font-size: 1.1rem !important;
+// }
+
+.small {
+  font-size: 0.75rem !important;
+}
+
+.smallDetails {
+  justify-content: flex-end !important;
+}
+
+.cardContent {
+  display: flex;
+  gap: 1rem;
+
+  .cardImage {
+    flex: 2;
+    position: relative;
+    aspect-ratio: 3/2;
+    img {
+      border-radius: 0.75rem;
+    }
+  }
+
+  .cardInfo {
+    flex: 5;
+    display: flex;
+    flex-direction: column;
+    h3 {
+      font-size: 1.5rem;
+      font-weight: 500;
+      margin-top: 0;
+    }
+    .cardDetails {
+      flex: 4;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      .description {
+        padding-left: 1rem;
+      }
+    }
+    .cardActions {
+      display: flex;
+      justify-content: space-around;
+      font-size: 1.2rem;
+    }
+  }
+}

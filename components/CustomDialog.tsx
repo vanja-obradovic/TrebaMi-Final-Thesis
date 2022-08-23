@@ -5,6 +5,7 @@ import {
   DialogContentText,
   DialogActions,
   DialogTitle,
+  Button,
 } from "@mui/material";
 import React from "react";
 
@@ -20,6 +21,7 @@ interface dialogProps {
   dialogLoading?: boolean;
   dialogStyle?: string;
   dialogContentStyle?: string;
+  isStepperDialog?: boolean;
 }
 
 const CustomDialog = (props: dialogProps) => {
@@ -33,6 +35,7 @@ const CustomDialog = (props: dialogProps) => {
     nativeContentText,
     dialogStyle,
     dialogContentStyle,
+    isStepperDialog,
   } = props;
 
   return (
@@ -48,13 +51,36 @@ const CustomDialog = (props: dialogProps) => {
         ) : (
           nativeContentText
         )}
-        {children}
+        {!isStepperDialog //TODO srediti ovo kako treba
+          ? children
+          : React.isValidElement(children)
+          ? React.cloneElement(children, {
+              closeDialog: dialogClose,
+              dialogLoading: dialogLoading,
+            })
+          : null}
       </DialogContent>
-      <DialogActions classes={{ root: styles.dialogActions }}>
-        <button onClick={() => dialogClose(false)}>Otkazi</button>
-        {dialogLoading && <CircularProgress size="4.5vmin" />}
-        <button onClick={() => dialogClose(true)}>Potvrdi</button>
-      </DialogActions>
+      {!isStepperDialog && (
+        <DialogActions classes={{ root: styles.dialogActions }}>
+          <Button
+            onClick={() => dialogClose(false)}
+            color="error"
+            variant="contained"
+            disabled={dialogLoading}
+          >
+            Otkazi
+          </Button>
+          {dialogLoading && <CircularProgress size="4.5vmin" />}
+          <Button
+            onClick={() => dialogClose(true)}
+            color="success"
+            variant="contained"
+            disabled={dialogLoading}
+          >
+            Potvrdi
+          </Button>
+        </DialogActions>
+      )}
     </Dialog>
   );
 };

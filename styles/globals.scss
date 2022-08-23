@@ -85,10 +85,18 @@ footer {
   }
   .author {
     display: flex;
-    justify-content: space-evenly;
-    width: 30vmin;
-    min-width: 15vmin;
+    justify-content: flex-end;
+    align-items: center;
+
+    min-width: 50%;
     gap: 1vmin;
+    > div {
+      &:first-of-type {
+        position: relative;
+        height: 100%;
+        aspect-ratio: 1/1;
+      }
+    }
   }
 }
 
@@ -101,28 +109,64 @@ main {
   margin-top: 6vh;
 }
 
-.probaWrapper {
+button {
+  border-radius: 0.75rem !important;
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+//* MAP STYLES*//
+
+.mapboxgl-popup-content {
+  border-radius: 0.75rem;
+}
+
+.mapboxgl-popup-close-button {
+  top: 0.5rem;
+  right: 0.5rem;
+  font-size: 1rem;
+  border-radius: 50%;
+}
+
+//* MAP STYLES *//
+
+.indicator {
+  background-color: transparent !important;
   display: flex;
-  flex-direction: row;
-  height: 80%;
-}
-
-.proba {
-  flex: 1;
-  background-color: green;
-  border-radius: 0.5rem;
-  margin: 1rem;
-  height: 100%;
-  transition: all 0.5s;
-  &:first-child {
-    background-color: red;
-  }
-  &:hover {
-    flex: 5;
-    cursor: pointer;
+  justify-content: center;
+  span {
+    max-width: 30%;
+    width: 100%;
+    background-color: #081e85;
   }
 }
+// .proba {
+//   border-radius: 0.75rem;
+// }
 
-.basicSearch {
-  @include roundedInput(2rem, 80vw);
-}
+// .probaWrapper {
+//   display: flex;
+//   flex-direction: row;
+//   height: 80%;
+// }
+
+// .proba {
+//   flex: 1;
+//   background-color: green;
+//   border-radius: 0.5rem;
+//   margin: 1rem;
+//   height: 100%;
+//   transition: all 0.5s;
+//   &:first-child {
+//     background-color: red;
+//   }
+//   &:hover {
+//     flex: 5;
+//     cursor: pointer;
+//   }
+// }
+
+// .basicSearch {
+//   @include roundedInput(2rem, 80vw);
+// }
