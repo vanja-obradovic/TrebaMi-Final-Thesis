@@ -96,9 +96,10 @@ const UserDashboard = () => {
 
   const productSubCategories = ["Hrana", "Tekstil", "Koza", "Drvo", "Hemija"];
   const serviceSubCategories = [
-    "Ugostiteljstvo",
     "Transport",
     "Gradjevinarstvo",
+    "Elektrika",
+    "Vodovod",
   ];
 
   useEffect(() => {

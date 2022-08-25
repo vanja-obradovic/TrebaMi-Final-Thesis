@@ -2,7 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import Head from "next/head";
 import { getAdsByKeyword, getAllAds } from "../util/firebase";
 import { adSchema, Advertisement } from "../models/Advertisement";
-import { Autocomplete, Box, CircularProgress, TextField } from "@mui/material";
+import {
+  Autocomplete,
+  Backdrop,
+  Box,
+  CircularProgress,
+  ClickAwayListener,
+  TextField,
+} from "@mui/material";
 import AdCard from "../components/AdCard";
 import { Controller, useForm } from "react-hook-form";
 import { useRouter } from "next/router";
@@ -10,7 +17,11 @@ import useArray from "../hooks/useArray";
 import { QuerySnapshot } from "firebase/firestore";
 import useDebounce from "../hooks/useDebounce";
 import SearchIcon from "@mui/icons-material/Search";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+
 import styles from "../styles/index.module.scss";
+import useTimeout from "../hooks/useTimeout";
+import Image from "next/image";
 
 // export const getServerSideProps = async () => {
 //   const allAds = await getAllAds().then((res) => {
@@ -58,7 +69,7 @@ export default function Home() {
         const splitLen = split.length;
         if (
           options.length &&
-          (input.length > splitLen * 6 || split[splitLen - 1] === "")
+          (input.length > splitLen * 5 || split[splitLen - 1] === "")
         )
           return;
       }
@@ -78,7 +89,28 @@ export default function Home() {
     [input]
   );
 
-  let loading = fetching || active;
+  const [focusProducts, setFocusProducts] = useState(false);
+  const [focusServices, setFocusServices] = useState(false);
+  const [interactive, setInteractive] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  let loadingResults = fetching || active;
+
+  useEffect(() => {
+    if (window.innerWidth > 1280) setInteractive(true);
+    const updateInteractivity = () => {
+      if (window.innerWidth > 1280) setInteractive(true);
+      else setInteractive(false);
+    };
+
+    window.addEventListener("resize", updateInteractivity);
+
+    setTimeout(() => {
+      setLoading(false);
+    }, 750);
+
+    return () => window.removeEventListener("resize", updateInteractivity);
+  }, []);
 
   return (
     <>
@@ -87,75 +119,211 @@ export default function Home() {
         <meta name="description" content="Graduation project at ETF" />
       </Head>
 
-      <Box className={styles.firstHalf}>
-        <Box>Vase omiljeno mesto za pronalazenje novih mesta za kupovinu</Box>
-        <Box
-          component="form"
-          onSubmit={(e) => {
-            e.preventDefault();
-            router.push({ pathname: "/search", query: { keyword: input } });
-          }}
-          className={styles.searchWrapper}
-        >
-          <Autocomplete
-            disablePortal
-            id="search"
-            className={styles.search}
-            classes={{ listbox: styles.list }}
-            open={open}
-            onOpen={() => {
-              setOpen(true);
-            }}
-            onClose={() => {
-              setOpen(false);
-              clear();
-            }}
-            isOptionEqualToValue={(option, value) => option.name === value.name}
-            getOptionLabel={(option: Advertisement) => option.name ?? input}
-            options={options}
-            loading={loading}
-            loadingText={"Ucitava se ..."}
-            defaultValue={null}
-            inputValue={input}
-            onInputChange={(e, input) => {
-              setInput(input);
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Pretrazite..."
-                InputProps={{
-                  ...params.InputProps,
-                  endAdornment: (
-                    <>
-                      {loading ? (
-                        <CircularProgress color="inherit" size={20} />
-                      ) : (
-                        <SearchIcon />
-                      )}
-                      {params.InputProps.endAdornment}
-                    </>
-                  ),
+      <Backdrop
+        sx={{ backgroundColor: "black!important", zIndex: 99999 }}
+        open={loading}
+        transitionDuration={{ appear: 0, enter: 0, exit: 2000 }}
+      >
+        <CircularProgress
+          color="primary"
+          sx={{ width: "5rem!important", height: "5rem!important" }}
+        />
+      </Backdrop>
+      {!loading && (
+        <>
+          <Box className={styles.firstHalf}>
+            <Box>Vase omiljeno mesto za ono sto vam treba, gde god da ste</Box>
+            <Box
+              component="form"
+              onSubmit={(e) => {
+                e.preventDefault();
+                router.push({ pathname: "/search", query: { keyword: input } });
+              }}
+              className={styles.searchWrapper}
+            >
+              <Autocomplete
+                disablePortal
+                id="search"
+                className={styles.search}
+                classes={{ listbox: styles.list }}
+                open={open}
+                onOpen={() => {
+                  setOpen(true);
                 }}
+                onClose={() => {
+                  setOpen(false);
+                  clear();
+                }}
+                isOptionEqualToValue={(option, value) =>
+                  option.name === value.name
+                }
+                getOptionLabel={(option: Advertisement) => option.name ?? input}
+                options={options}
+                loading={loadingResults}
+                loadingText={"Ucitava se ..."}
+                defaultValue={null}
+                inputValue={input}
+                onInputChange={(e, input) => {
+                  setInput(input);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Pretrazite..."
+                    InputProps={{
+                      ...params.InputProps,
+                      endAdornment: (
+                        <>
+                          {loadingResults ? (
+                            <CircularProgress color="inherit" size={20} />
+                          ) : (
+                            <SearchIcon />
+                          )}
+                          {params.InputProps.endAdornment}
+                        </>
+                      ),
+                    }}
+                  />
+                )}
+                freeSolo
+                clearOnEscape
+                renderOption={(props, option) => (
+                  <AdCard
+                    {...option}
+                    key={option.link}
+                    search={true}
+                    small={true}
+                  ></AdCard>
+                )}
               />
-            )}
-            freeSolo
-            clearOnEscape
-            renderOption={(props, option) => (
-              <AdCard
-                {...option}
-                key={option.link}
-                search={true}
-                small={true}
-              ></AdCard>
-            )}
-          />
-        </Box>
-      </Box>
-      <Box className={styles.secondHalf}>
-        <Box bgcolor="GrayText">Dobra</Box>
-        <Box bgcolor="Highlight">Usluge</Box>
-      </Box>
+            </Box>
+            <p>
+              Klikom na neku od kategorija ispod otvara se meni za detaljniju
+              pretragu te kategorije
+            </p>
+          </Box>
+          <Box className={styles.secondHalf}>
+            <ClickAwayListener
+              onClickAway={() => {
+                setFocusProducts(false);
+                console.log("blur");
+              }}
+            >
+              <Box
+                component="div"
+                className={styles.products}
+                onFocus={() => {
+                  setFocusProducts(true);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Escape" && e.target.localName === "div") {
+                    e.target.blur();
+                    setFocusProducts(false);
+                  }
+                }}
+                tabIndex={-2}
+              >
+                {!focusProducts ? (
+                  interactive ? (
+                    <div className={styles.productsInteractive}>
+                      <div className={styles.first}>
+                        {/* <div>
+                      <Image src="/veg.jpg" layout="fill"></Image>
+                    </div> */}
+                        <img src="./veg.jpg"></img>
+                      </div>
+                      <div className={styles.second}>
+                        {/* <div>
+                      <Image src="/wood.jpg" layout="fill"></Image>
+                    </div> */}
+                        <img src="./wood.jpg"></img>
+                      </div>
+                      <div className={styles.third}>
+                        {/* <div>
+                      <Image src="/clay.jpg" layout="fill"></Image>
+                    </div> */}
+                        <img src="./clay.jpg"></img>
+                      </div>
+                      <div className={styles.fourth}>
+                        {/* <div>
+                      <Image src="/tex.jpg" layout="fill"></Image>
+                    </div> */}
+                        <img src="./tex.jpg"></img>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className={styles.productsBasic}>
+                      <img src="./products.jpg" alt="" />
+                    </div>
+                  )
+                ) : (
+                  <div>Hello</div>
+                )}
+              </Box>
+            </ClickAwayListener>
+            <ClickAwayListener
+              onClickAway={() => {
+                setFocusServices(false);
+                console.log("blur");
+              }}
+            >
+              <Box
+                className={styles.services}
+                onFocus={(e) => {
+                  console.log("focus");
+                  setFocusServices(true);
+                }}
+                onKeyDown={(e) => {
+                  console.log(e);
+                  if (e.key === "Escape" && e.target.localName === "div") {
+                    e.target.blur();
+                    setFocusServices(false);
+                    console.log("blur");
+                  }
+                }}
+                tabIndex={-1}
+              >
+                {!focusServices ? (
+                  interactive ? (
+                    <div className={styles.servicesInteractive}>
+                      <div className={styles.first}>
+                        {/* <div>
+                      <Image src="/construction.jpg" layout="fill"></Image>
+                    </div> */}
+                        <img src="./construction.jpg"></img>
+                      </div>
+                      <div className={styles.second}>
+                        {/* <div>
+                      <Image src="/transport.jpg" layout="fill"></Image>
+                    </div> */}
+                        <img src="./transport.jpg"></img>
+                      </div>
+                      <div className={styles.third}>
+                        {/* <div>
+                      <Image src="/electrician.jpg" layout="fill"></Image>
+                    </div> */}
+                        <img src="./electrician.jpg"></img>
+                      </div>
+                      <div className={styles.fourth}>
+                        {/* <div>
+                      <Image src="/plumbing.jpg" layout="fill"></Image>
+                    </div> */}
+                        <img src="./plumbing.jpg"></img>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className={styles.servicesBasic}>
+                      <img src="./services.jpg" alt="" />
+                    </div>
+                  )
+                ) : (
+                  <div>Hello</div>
+                )}
+              </Box>
+            </ClickAwayListener>
+          </Box>
+        </>
+      )}
     </>
   );
 }
