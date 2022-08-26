@@ -3,6 +3,9 @@ import { toast } from "react-toastify";
 import styles from "../styles/map.module.scss";
 import * as ReactDOM from "react-dom/client";
 import { GeoPoint } from "@firebase/firestore";
+// import SearchBox from "@tomtom-international/web-sdk-plugin-searchbox";
+import { Map, Marker } from "@tomtom-international/web-sdk-maps";
+// import { services } from "@tomtom-international/web-sdk-services";
 import AdCard from "./AdCard";
 
 interface mapProps {
@@ -17,8 +20,8 @@ const Map = (props: mapProps) => {
   const { locationMarker, setMarkerCoords, popup, markerCords } = props;
 
   const mapElement = useRef();
-  const [map, setMap] = useState<tt.Map>();
-  const marker = useRef<tt.Marker>();
+  const [map, setMap] = useState<Map>();
+  const marker = useRef<Marker>();
 
   // const el = document.createElement("div");
   // el.innerHTML = "hello";
@@ -30,6 +33,9 @@ const Map = (props: mapProps) => {
     root.render(popup);
     const initMap = async () => {
       const tt = await import("@tomtom-international/web-sdk-maps");
+      const { services } = await import(
+        "@tomtom-international/web-sdk-services"
+      );
 
       const mapObject = tt
         .map({
@@ -144,6 +150,24 @@ const Map = (props: mapProps) => {
         // }
       });
       setMap(mapObject);
+
+      // const ttSearchBox = new SearchBox(services, {
+      //   idleTimePress: 100,
+      //   minNumberOfCharacters: 0,
+      //   searchOptions: {
+      //     key: "",
+      //     language: "en-GB",
+      //   },
+      //   autocompleteOptions: {
+      //     key: "",
+      //     language: "en-GB",
+      //   },
+      //   noResultsMessage: "No results found.",
+      // });
+      // map.addControl(ttSearchBox, "top-left");
+      // ttSearchBox.on("tomtom.searchbox.resultsfound", function (data) {
+      //   console.log(data);
+      // });
     };
     initMap();
     return () => map?.remove();

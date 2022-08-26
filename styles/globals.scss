@@ -1,7 +1,7 @@
 @import "./variables.module.scss";
 @import "./mixins.module.scss";
 @import "@tomtom-international/web-sdk-maps/dist/maps.css";
-
+@import "@tomtom-international/web-sdk-plugin-searchbox/dist/SearchBox.css";
 html,
 body {
   padding: 0;
@@ -46,7 +46,7 @@ header {
   height: 6vh;
   width: 100%;
 
-  z-index: 5000;
+  z-index: 1000;
 
   span:first-child {
     grid-column-start: 2;

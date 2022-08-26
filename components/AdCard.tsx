@@ -21,6 +21,7 @@ interface CardProps {
   link: string;
   search?: boolean;
   small?: boolean;
+  disabled?: boolean;
 }
 
 const AdCard = (props: CardProps) => {
@@ -28,13 +29,13 @@ const AdCard = (props: CardProps) => {
     name,
     description,
     price,
-    subcategory,
     images,
     quantity,
     priceUnit,
     link,
     search,
     small,
+    disabled,
   } = props;
 
   const router = useRouter();
@@ -51,6 +52,7 @@ const AdCard = (props: CardProps) => {
               query: { prov: path[1], aID: path[3] },
             });
           }}
+          disabled={disabled}
         >
           {/* <CardHeader
             title={name}
