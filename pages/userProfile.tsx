@@ -128,6 +128,7 @@ const UserDashboard = () => {
             userProfile?.category === "products" ? data.price : "Po dogovoru",
           quantity: userProfile?.category === "products" ? data.quantity : null,
           subcategory: data.subcategory,
+          category: userProfile?.category,
           provider: {
             location: userProfile?.location,
             displayName: currUser?.displayName,

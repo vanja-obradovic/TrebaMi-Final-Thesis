@@ -8,8 +8,16 @@ body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
-  height: 100%;
+  height: 100vh;
   // background-color: $baseColorLighter;
+  &::-webkit-scrollbar {
+    background-color: lightgrey;
+    border-radius: 0.75rem;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: grey;
+    border-radius: 0.75rem;
+  }
 }
 
 #__next {
@@ -102,11 +110,22 @@ footer {
 
 main {
   min-height: 94vh;
-  display: flex;
-  flex-direction: column;
-  padding-block: 2.5%;
+  // display: flex;
+  // flex-direction: column;
+  // padding-block: 2.5%;
   width: auto;
   margin-top: 6vh;
+  > * {
+    &:first-child:is([aria-hidden]) + * {
+      margin-top: 2.5%;
+    }
+    &:first-child:not([aria-hidden]) {
+      margin-top: 2.5%;
+    }
+    &:last-child:not([aria-hidden]) {
+      margin-bottom: 2.5%;
+    }
+  }
 }
 
 button {

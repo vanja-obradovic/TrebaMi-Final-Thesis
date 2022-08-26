@@ -6,6 +6,7 @@ import {
   Autocomplete,
   Backdrop,
   Box,
+  Button,
   CircularProgress,
   ClickAwayListener,
   TextField,
@@ -44,12 +45,16 @@ import Image from "next/image";
 //   return { props: { allAds: allAds } };
 // };
 
+type FormData = {
+  subcategory: string;
+  name: string;
+};
+
 export default function Home() {
   // allAds.forEach((ad) => {
   //   console.log(ad.name);
   // });
 
-  const { register, handleSubmit } = useForm();
   const router = useRouter();
 
   const [open, setOpen] = useState(false);
@@ -107,10 +112,22 @@ export default function Home() {
 
     setTimeout(() => {
       setLoading(false);
-    }, 750);
+    }, 500);
 
     return () => window.removeEventListener("resize", updateInteractivity);
   }, []);
+
+  const productSubCategories = ["Hrana", "Tekstil", "Koza", "Drvo", "Hemija"];
+  const serviceSubCategories = [
+    "Transport",
+    "Gradjevinarstvo",
+    "Elektrika",
+    "Vodovod",
+  ];
+
+  const { control, register, handleSubmit } = useForm<FormData>({
+    shouldUnregister: true,
+  });
 
   return (
     <>
@@ -122,7 +139,7 @@ export default function Home() {
       <Backdrop
         sx={{ backgroundColor: "black!important", zIndex: 99999 }}
         open={loading}
-        transitionDuration={{ appear: 0, enter: 0, exit: 2000 }}
+        transitionDuration={{ appear: 0, enter: 0, exit: 1500 }}
       >
         <CircularProgress
           color="primary"
@@ -257,7 +274,44 @@ export default function Home() {
                     </div>
                   )
                 ) : (
-                  <div>Hello</div>
+                  <Box
+                    component="form"
+                    onSubmit={handleSubmit((data: FormData) => {
+                      router.push({
+                        pathname: "/search",
+                        query: {
+                          subcat: data.subcategory,
+                          name: data.name,
+                          cat: "products",
+                        },
+                      });
+                    })}
+                  >
+                    <Controller
+                      name="subcategory"
+                      control={control}
+                      render={({ field: { onChange, ...props } }) => (
+                        <Autocomplete
+                          {...props}
+                          disablePortal
+                          id="combo-box-demo"
+                          options={productSubCategories}
+                          onChange={(e, data) => onChange(data)}
+                          renderInput={(params) => (
+                            <TextField {...params} label="Podkategorija" />
+                          )}
+                        />
+                      )}
+                    />
+                    <TextField
+                      label="Ime ili puno ime"
+                      {...register("name")}
+                    ></TextField>
+
+                    <Button type="submit" variant="contained">
+                      Ok
+                    </Button>
+                  </Box>
                 )}
               </Box>
             </ClickAwayListener>
@@ -317,7 +371,44 @@ export default function Home() {
                     </div>
                   )
                 ) : (
-                  <div>Hello</div>
+                  <Box
+                    component="form"
+                    onSubmit={handleSubmit((data: FormData) => {
+                      router.push({
+                        pathname: "/search",
+                        query: {
+                          subcat: data.subcategory,
+                          name: data.name,
+                          cat: "services",
+                        },
+                      });
+                    })}
+                  >
+                    <Controller
+                      name="subcategory"
+                      control={control}
+                      render={({ field: { onChange, ...props } }) => (
+                        <Autocomplete
+                          {...props}
+                          disablePortal
+                          id="combo-box-demo"
+                          options={serviceSubCategories}
+                          onChange={(e, data) => onChange(data)}
+                          renderInput={(params) => (
+                            <TextField {...params} label="Podkategorija" />
+                          )}
+                        />
+                      )}
+                    />
+                    <TextField
+                      label="Ime ili puno ime"
+                      {...register("name")}
+                    ></TextField>
+
+                    <Button type="submit" variant="contained">
+                      Ok
+                    </Button>
+                  </Box>
                 )}
               </Box>
             </ClickAwayListener>

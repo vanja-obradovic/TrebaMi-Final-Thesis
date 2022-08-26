@@ -206,13 +206,8 @@ const Setup = () => {
   };
 
   const closeMapDialog = (update?: boolean) => {
-    if (update === true) {
-      setMapDialog(false);
-      setLastGeoPoint(getValues("location"));
-    } else {
-      setValue("location", lastGeoPoint);
-      setMapDialog(false);
-    }
+    if (update === true) setValue("location", lastGeoPoint);
+    setMapDialog(false);
   };
 
   return (
@@ -344,13 +339,15 @@ const Setup = () => {
                 >
                   <Map
                     locationMarker={true}
-                    setMarkerCoords={(location: GeoPoint) => {
-                      setValue("location", location);
-                    }}
-                    markerCords={{
-                      _long: lastGeoPoint.longitude,
-                      _lat: lastGeoPoint.latitude,
-                    }}
+                    setMarkerCoords={setLastGeoPoint}
+                    markerCords={
+                      lastGeoPoint
+                        ? {
+                            _long: lastGeoPoint.longitude,
+                            _lat: lastGeoPoint.latitude,
+                          }
+                        : null
+                    }
                   ></Map>
                 </CustomDialog>
               </>

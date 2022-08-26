@@ -6,6 +6,7 @@ export const adSchemaCard = yup.object({
   priceUnit: yup.string(),
   description: yup.string(),
   subcategory: yup.string(),
+  category: yup.string(),
   quantity: yup.number().notRequired().nullable(),
   images: yup.array(yup.string().url()).notRequired(),
 });
@@ -16,6 +17,7 @@ export const adSchema = yup.object({
   priceUnit: yup.string(),
   description: yup.string(),
   subcategory: yup.string(),
+  category: yup.string(),
   quantity: yup.number().notRequired().nullable(),
   images: yup.array(yup.string().url()).notRequired(),
   provider: yup.object({

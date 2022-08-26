@@ -91,6 +91,43 @@ export const getAdsByKeyword = async (keyword: string) => {
   console.log("vratio sa baze");
   return allAds;
 };
+export const getAdsAdvanced = async (
+  name: string,
+  subcat: string,
+  cat: string
+) => {
+  if (name === "" && subcat === "") {
+    const ref = collectionGroup(getFirestore(app), `ads`);
+    const refWhere = query(ref, where("category", "==", cat));
+    const allAds = await getDocs(refWhere);
+    return allAds;
+  } else if (name === "") {
+    const ref = collectionGroup(getFirestore(app), `ads`);
+    const refWhere = query(ref, where("subcategory", "==", subcat));
+    const allAds = await getDocs(refWhere);
+    return allAds;
+  } else if (subcat === "") {
+    const ref = collectionGroup(getFirestore(app), `ads`);
+    const refWhere = query(
+      ref,
+      where("provider.displayName", ">=", name),
+      where("provider.displayName", "<=", name + "~"),
+      where("category", "==", cat)
+    );
+    const allAds = await getDocs(refWhere);
+    return allAds;
+  } else {
+    const ref = collectionGroup(getFirestore(app), `ads`);
+    const refWhere = query(
+      ref,
+      where("provider.displayName", ">=", name),
+      where("provider.displayName", "<=", name + "~"),
+      where("subcategory", "==", subcat)
+    );
+    const allAds = await getDocs(refWhere);
+    return allAds;
+  }
+};
 
 const app = !getApps().length ? initializeApp(fbConfig) : getApps()[0];
 

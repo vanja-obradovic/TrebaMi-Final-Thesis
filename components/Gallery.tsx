@@ -25,9 +25,17 @@ const Gallery = (props: GalleryProps) => {
   };
   return (
     <>
-      <Container maxWidth="md">
+      <Container
+        maxWidth="md"
+        tabIndex={-1}
+        onKeyDown={(e) => {
+          if (e.code === "ArrowLeft") prevImage(images.length);
+          if (e.code === "ArrowRight") nextImage(images.length);
+        }}
+        sx={{ outline: "none!important" }}
+      >
         <Box className={styles.primaryPhoto}>
-          {images.length && (
+          {images.length > 1 && (
             <ChevronLeftIcon
               className={styles.arrow}
               color="primary"
@@ -40,7 +48,7 @@ const Gallery = (props: GalleryProps) => {
             src={images.length ? images[primaryIndex] : "/noImg.png"}
             layout="fill"
           ></Image>
-          {images.length && (
+          {images.length > 1 && (
             <ChevronRightIcon
               className={styles.arrow}
               color="primary"

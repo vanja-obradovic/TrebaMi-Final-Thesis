@@ -12,7 +12,10 @@
   }
 }
 .container {
-  margin: auto;
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  min-height: inherit;
 }
 
 .paper {
