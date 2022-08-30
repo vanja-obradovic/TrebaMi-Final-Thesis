@@ -31,7 +31,7 @@ const Map = (props: mapProps) => {
   } = useArray<Marker>([]);
 
   const options = {
-    key: "eBXlMwdCvb3fyihhln6FAMi87pwNIet1",
+    key: process.env.NEXT_PUBLIC_TOMTOM,
     language: "en-GB",
   };
 
@@ -60,7 +60,7 @@ const Map = (props: mapProps) => {
       const mapObject = mapElement.current
         ? tt
             .map({
-              key: "eBXlMwdCvb3fyihhln6FAMi87pwNIet1",
+              key: process.env.NEXT_PUBLIC_TOMTOM,
               container: mapElement.current,
               clickTolerance: 15,
               bounds: [

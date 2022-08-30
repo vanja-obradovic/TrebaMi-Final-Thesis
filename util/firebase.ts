@@ -46,8 +46,6 @@ const fbConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-console.log(fbConfig);
-
 export const getUser = async (uid: string) => {
   const usersRef = doc(getFirestore(app), `/users/${uid}`);
   const userDoc = getDoc(usersRef).then((res) => {
