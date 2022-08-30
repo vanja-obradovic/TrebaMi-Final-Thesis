@@ -18,16 +18,17 @@ export const getServerSideProps = async ({ query }) => {
   console.log(ad.provider);
   return {
     props: {
-      adDetails: {
-        ...ad,
-        provider: {
-          ...ad.provider,
-          location: {
-            _long: ad.provider.location._long,
-            _lat: ad.provider.location._lat,
-          },
-        },
-      },
+      adDetails: ad,
+      // : {
+      //   ...ad,
+      //   provider: {
+      //     ...ad.provider,
+      //     location: {
+      //       _long: ad.provider.location._long,
+      //       _lat: ad.provider.location._lat,
+      //     },
+      //   },
+      // },
     },
   };
 };
@@ -61,7 +62,10 @@ const AdDetails = ({ adDetails }: { adDetails: Advertisement }) => {
             ></UserDetails>
           </Box>
           <Box>
-            <Map locationMarker={false} markerCords={provider.location}></Map>
+            <Map
+              locationMarker={false}
+              markerCords={provider.location.coords}
+            ></Map>
           </Box>
         </Box>
         <Paper className={styles.adInfo} elevation={4}>

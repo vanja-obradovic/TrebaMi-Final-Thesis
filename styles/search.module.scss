@@ -1,7 +1,99 @@
+@import "../styles/variables.module.scss";
 .outerContainer {
   display: flex;
+  max-height: 80vh;
+  row-gap: 0.75rem;
+  @media only screen and (max-width: 1280px) {
+    flex-direction: column;
+    .filter {
+      height: auto;
+    }
+  }
+}
+.innerContainer {
+  overflow: auto;
+}
+
+.drawer {
+  padding-top: 0.5rem;
+  > button {
+    margin-inline: 1rem;
+  }
+}
+
+.formControl {
+  background-color: $baseColorLighter;
+  border-radius: 0.75rem;
+}
+.formLabel {
+  background-color: $baseColorLighter;
+  width: 100%;
+  border-bottom: 1px solid grey;
+  font-size: 1.2rem;
+  text-align: center;
+  border-radius: 0.75rem 0.75rem 0 0;
+}
+
+.formGroup {
+  max-height: 30vh;
+  flex-wrap: nowrap !important;
+  padding-left: 0.75rem;
+}
+.formHelperText {
+  text-align: center;
+}
+
+.filter {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  height: 80vh;
 }
 
 .drawerInner {
+  @media only screen and (max-width: 992px) {
+    width: 100vw;
+  }
   height: 100%;
+  display: flex;
+  row-gap: 0.75rem;
+  flex-direction: column;
+  justify-content: space-evenly;
+  padding: 0.5rem 1rem;
+  background-color: white;
+  overflow: auto;
+}
+
+.slider {
+  width: 85%;
+  margin: auto;
+  padding-block: 2rem;
+}
+
+.label {
+  transform: translateY(120%) scale(1) !important;
+  &::before {
+    top: -25%;
+    left: 50%;
+  }
+}
+
+.collapsed {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-inline: 5%;
+  > * {
+    &:first-child {
+      width: 20%;
+    }
+    &:last-child {
+      width: 33%;
+      @media only screen and (max-width: 768px) {
+        width: 50% !important;
+      }
+    }
+  }
 }

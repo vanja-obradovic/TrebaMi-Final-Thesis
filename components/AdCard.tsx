@@ -6,14 +6,14 @@ import {
   Box,
 } from "@mui/material";
 import Image from "next/image";
-import { useRouter } from "next/router";
+import Router from "next/router";
 import React from "react";
 import styles from "../styles/adCard.module.scss";
 
 interface CardProps {
   name: string;
-  price: string;
-  description: string;
+  price: number;
+  description?: string;
   subcategory: string;
   quantity?: number;
   images?: string[];
@@ -22,6 +22,7 @@ interface CardProps {
   search?: boolean;
   small?: boolean;
   disabled?: boolean;
+  mapCard?: boolean;
 }
 
 const AdCard = (props: CardProps) => {
@@ -36,29 +37,76 @@ const AdCard = (props: CardProps) => {
     search,
     small,
     disabled,
+    mapCard,
   } = props;
 
-  const router = useRouter();
-
-  return (
+  return !mapCard ? (
+    <Card variant="elevation" className={styles.card} elevation={2}>
+      <CardActionArea
+        disableRipple
+        onClick={() => {
+          const path = link.split("/");
+          Router.push({
+            pathname: "/ad",
+            query: { prov: path[1], aID: path[3] },
+          });
+        }}
+        disabled={disabled}
+      >
+        <CardContent className={styles.cardContent}>
+          <Box className={styles.cardImage}>
+            {!!images?.length ? (
+              <Image src={images[0]} layout="fill"></Image>
+            ) : (
+              <Image src={"/noImg.png"} layout="fill"></Image>
+            )}
+          </Box>
+          <Box className={styles.cardInfo}>
+            <h3>{name}</h3>
+            <Box
+              className={[
+                styles.cardDetails,
+                small ? styles.smallDetails : "",
+              ].join(" ")}
+            >
+              {search || (
+                <div className={styles.description}>{description}</div>
+              )}
+              <Box
+                className={[styles.cardActions, small ? styles.small : ""].join(
+                  " "
+                )}
+              >
+                {!search ? (
+                  <div>Raspolozivo:{quantity}</div>
+                ) : (
+                  <div>Ocena: </div>
+                )}
+                <div>
+                  {price} {priceUnit}
+                </div>
+              </Box>
+            </Box>
+          </Box>
+        </CardContent>
+      </CardActionArea>
+    </Card>
+  ) : (
     <>
-      <Card variant="elevation" className={styles.card} elevation={2}>
+      <Card variant="elevation" className={styles.mapCard} elevation={2}>
         <CardActionArea
           disableRipple
           onClick={() => {
             const path = link.split("/");
-            router.push({
+            Router.push({
               pathname: "/ad",
               query: { prov: path[1], aID: path[3] },
             });
           }}
           disabled={disabled}
+          className={styles.mapCardAction}
         >
-          {/* <CardHeader
-            title={name}
-            classes={{ title: small ? styles.smallTitle : "" }}
-          ></CardHeader> */}
-          <CardContent className={styles.cardContent}>
+          <CardContent className={styles.mapCardContent}>
             <Box className={styles.cardImage}>
               {!!images?.length ? (
                 <Image src={images[0]} layout="fill"></Image>
@@ -66,32 +114,21 @@ const AdCard = (props: CardProps) => {
                 <Image src={"/noImg.png"} layout="fill"></Image>
               )}
             </Box>
-            <Box className={styles.cardInfo}>
+            <Box className={styles.mapCardInfo}>
               <h3>{name}</h3>
               <Box
                 className={[
-                  styles.cardDetails,
+                  styles.mapCardDetails,
                   small ? styles.smallDetails : "",
                 ].join(" ")}
               >
-                {search || (
-                  <div className={styles.description}>{description}</div>
-                )}
-                <Box
-                  className={[
-                    styles.cardActions,
-                    small ? styles.small : "",
-                  ].join(" ")}
-                >
-                  {!search ? (
-                    <div>Raspolozivo:{quantity}</div>
-                  ) : (
-                    <div>Ocena: </div>
-                  )}
+                <div>
                   <div>
-                    Cena: {price} {priceUnit}
+                    {price}
+                    {priceUnit}
                   </div>
-                </Box>
+                </div>
+                <div>***** </div>
               </Box>
             </Box>
           </CardContent>

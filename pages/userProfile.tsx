@@ -468,7 +468,9 @@ const UserDashboard = () => {
                 {userAds?.map((item, index) => {
                   return (
                     <AdCard
-                      {...adSchemaCard.cast(item.data())}
+                      {...adSchemaCard.cast(item.data(), {
+                        stripUnknown: true,
+                      })}
                       key={index}
                       link={item.ref.path}
                     />

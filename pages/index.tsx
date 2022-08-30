@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Head from "next/head";
-import { getAdsByKeyword, getAllAds } from "../util/firebase";
+import { getAdsByKeyword } from "../util/firebase";
 import { adSchema, Advertisement } from "../models/Advertisement";
 import {
   Autocomplete,
@@ -18,32 +18,8 @@ import useArray from "../hooks/useArray";
 import { QuerySnapshot } from "firebase/firestore";
 import useDebounce from "../hooks/useDebounce";
 import SearchIcon from "@mui/icons-material/Search";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 import styles from "../styles/index.module.scss";
-import useTimeout from "../hooks/useTimeout";
-import Image from "next/image";
-
-// export const getServerSideProps = async () => {
-//   const allAds = await getAllAds().then((res) => {
-//     return res.docs.map((ad, index) => {
-//       const temp = adSchema.cast(ad.data());
-
-//       return {
-//         ...temp,
-//         provider: {
-//           ...temp.provider,
-//           location: {
-//             _long: temp.provider.location._long,
-//             _lat: temp.provider.location._lat,
-//           },
-//         },
-//         link: ad.ref.path,
-//       };
-//     });
-//   });
-//   return { props: { allAds: allAds } };
-// };
 
 type FormData = {
   subcategory: string;
@@ -51,10 +27,6 @@ type FormData = {
 };
 
 export default function Home() {
-  // allAds.forEach((ad) => {
-  //   console.log(ad.name);
-  // });
-
   const router = useRouter();
 
   const [open, setOpen] = useState(false);
@@ -82,7 +54,7 @@ export default function Home() {
       const allAds = await getAdsByKeyword(input).then((res) => {
         if (res instanceof QuerySnapshot)
           return res.docs.map((ad) => {
-            const tmp = adSchema.cast(ad.data());
+            const tmp = adSchema.cast(ad.data(), { stripUnknown: true });
             return { ...tmp, link: ad.ref.path };
           });
         else return [];

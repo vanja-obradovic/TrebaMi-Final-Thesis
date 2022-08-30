@@ -6,16 +6,9 @@ import { getUserAds } from "../util/firebase";
 export const getServerSideProps = async ({ query }) => {
   const userAds = await getUserAds(query.id).then((res) => {
     return res.docs.map((ad, index) => {
-      const temp = adSchema.cast(ad.data());
+      const temp = adSchema.cast(ad.data(), { stripUnknown: true });
       return {
         ...temp,
-        provider: {
-          ...temp.provider,
-          location: {
-            _long: temp.provider.location._long,
-            _lat: temp.provider.location._lat,
-          },
-        },
         link: ad.ref.path,
       };
     });

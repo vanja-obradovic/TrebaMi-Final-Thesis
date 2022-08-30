@@ -31,7 +31,7 @@ import { LoadingButton } from "@mui/lab";
 import { useForm } from "react-hook-form";
 import CustomDialog from "../components/CustomDialog";
 import Map from "../components/Map";
-import { GeoPoint } from "firebase/firestore";
+import { Location } from "../models/Location";
 
 type FormData = {
   name: string;
@@ -39,7 +39,7 @@ type FormData = {
   number: string;
   category: string;
   provider: boolean;
-  location: GeoPoint;
+  location: Location;
 };
 
 const Setup = () => {
@@ -199,14 +199,14 @@ const Setup = () => {
   };
 
   const [mapDialog, setMapDialog] = useState(false);
-  const [lastGeoPoint, setLastGeoPoint] = useState<GeoPoint>();
+  const [location, setLocation] = useState<Location>();
 
   const openMapDialog = () => {
     setMapDialog(true);
   };
 
   const closeMapDialog = (update?: boolean) => {
-    if (update === true) setValue("location", lastGeoPoint);
+    if (update === true) setValue("location", location);
     setMapDialog(false);
   };
 
@@ -339,15 +339,8 @@ const Setup = () => {
                 >
                   <Map
                     locationMarker={true}
-                    setMarkerCoords={setLastGeoPoint}
-                    markerCords={
-                      lastGeoPoint
-                        ? {
-                            _long: lastGeoPoint.longitude,
-                            _lat: lastGeoPoint.latitude,
-                          }
-                        : null
-                    }
+                    setLocation={setLocation}
+                    markerCords={location?.coords}
                   ></Map>
                 </CustomDialog>
               </>

@@ -1,4 +1,5 @@
 import {
+  Autocomplete,
   Box,
   Button,
   Checkbox,
@@ -10,74 +11,110 @@ import {
   FormGroup,
   FormHelperText,
   FormLabel,
+  InputLabel,
+  MenuItem,
+  Paper,
+  Select,
+  Slider,
+  TextField,
+  Typography,
 } from "@mui/material";
 import { QuerySnapshot } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import AdCard from "../components/AdCard";
 import styles from "../styles/search.module.scss";
 import { useAuth } from "../contexts/AuthContext";
-import { adSchema, Advertisement } from "../models/Advertisement";
+import { adSchema, adSchemaCard, Advertisement } from "../models/Advertisement";
 import { getAdsAdvanced, getAdsByKeyword } from "../util/firebase";
 import MenuIcon from "@mui/icons-material/Menu";
+import ClearOutlinedIcon from "@mui/icons-material/ClearOutlined";
+import Map from "../components/Map";
+import useArray from "../hooks/useArray";
+import useTimeout from "../hooks/useTimeout";
+import { Controller, useForm } from "react-hook-form";
+import { watch } from "fs";
 
 export const getServerSideProps = async ({ query }) => {
+  const calculatePriceRange = (prices): [number, number] => {
+    const minPrice = Math.min(...prices);
+    const maxPrice = Math.max(...prices);
+
+    return [minPrice, maxPrice];
+  };
   if (query.keyword) {
+    const prices: number[] = [];
     const keyword = query.keyword;
     const allAds = await getAdsByKeyword(keyword).then((res) => {
       if (res instanceof QuerySnapshot)
         return res.docs.map((ad, index) => {
           const temp = adSchema.cast(ad.data());
-
-          return {
-            ...temp,
-            provider: {
-              ...temp.provider,
-              location: {
-                _long: temp.provider.location._long,
-                _lat: temp.provider.location._lat,
-              },
-            },
-            link: ad.ref.path,
-          };
+          prices.push(temp.price);
+          return { ...temp, link: ad.ref.path };
         });
       else return [];
     });
-    return { props: { allAds: allAds } };
+    return {
+      props: { allAds: allAds, priceRange: calculatePriceRange(prices) },
+    };
   } else {
+    const prices: number[] = [];
     const { name, subcat, cat } = query;
     const allAds = await getAdsAdvanced(name, subcat, cat).then((res) => {
       if (res instanceof QuerySnapshot)
         return res.docs.map((ad, index) => {
           const temp = adSchema.cast(ad.data());
-
+          prices.push(temp.price);
           return {
             ...temp,
-            provider: {
-              ...temp.provider,
-              location: {
-                _long: temp.provider.location._long,
-                _lat: temp.provider.location._lat,
-              },
-            },
             link: ad.ref.path,
           };
         });
       else return [];
     });
-    return { props: { allAds: allAds } };
+    return {
+      props: { allAds: allAds, priceRange: calculatePriceRange(prices) },
+    };
   }
 };
 
-const Search = ({ allAds }: { allAds: Advertisement[] }) => {
+const Search = ({
+  allAds,
+  priceRange,
+}: {
+  allAds: Advertisement[];
+  priceRange: [number, number];
+}) => {
+  const { control, getValues } = useForm(); //*for municipalities
+  const {
+    control: priceControl,
+    getValues: getSliderValue,
+    setValue: setSliderValue,
+  } = useForm();
+  const {
+    control: sortControl,
+    watch: watchSort,
+    getValues: getSort,
+    setValue: setSort,
+  } = useForm();
   const [drawer, toggleDrawer] = useState(false);
   const [drawerButton, setDrawerButton] = useState(false);
   const { isLoggedIn } = useAuth();
+  const {
+    array: ads,
+    removePrimitiveDuplicates,
+    set: setAds,
+  } = useArray<Advertisement>(allAds);
+
+  const [priceRangeClient, setPriceRange] =
+    useState<[number, number]>(priceRange);
 
   useEffect(() => {
     if (window.innerWidth < 1280) setDrawerButton(true);
     const updateDrawer = () => {
-      if (window.innerWidth > 1280) setDrawerButton(false);
-      else setDrawerButton(true);
+      if (window.innerWidth > 1280) {
+        setDrawerButton(false);
+        toggleDrawer(false);
+      } else setDrawerButton(true);
     };
 
     window.addEventListener("resize", updateDrawer);
@@ -85,43 +122,305 @@ const Search = ({ allAds }: { allAds: Advertisement[] }) => {
     return () => window.removeEventListener("resize", updateDrawer);
   }, []);
 
+  const handleMunicipalityFilter = () => {
+    if (Object.values(getValues()).every((val) => val === false)) {
+      setAds(allAds);
+      setPriceRange(priceRange);
+      setSliderValue("priceRange", priceRange);
+      setSort("sort", "");
+    } else {
+      const filtered = allAds.filter((item) =>
+        getValues(item.provider.location.municipality)
+      );
+      setAds(filtered);
+      const priceFilter = calculatePriceRange(
+        filtered.map((item) => item.price)
+      );
+      setPriceRange(priceFilter);
+      setSliderValue("priceRange", priceFilter);
+      setSort("sort", "");
+    }
+  };
+
+  const { reset: resetPriceRangeTimeout } = useTimeout(() => {
+    setAds(
+      allAds.filter(
+        (item) =>
+          item.price >= getSliderValue("priceRange.0") &&
+          item.price <= getSliderValue("priceRange.1") &&
+          (Object.values(getValues()).every((val) => val === false) ||
+            getValues(item.provider.location.municipality))
+      )
+    );
+    setSort("sort", "");
+  }, 500);
+
+  const handlePriceRangeFilter = () => {
+    resetPriceRangeTimeout();
+  };
+
+  const handleSort = () => {
+    switch (getSort("sort")) {
+      case "priceAsc": {
+        setAds(ads.sort((a, b) => a.price - b.price));
+        break;
+      }
+      case "priceDesc": {
+        setAds(ads.sort((a, b) => b.price - a.price));
+        break;
+      }
+    }
+  };
+
+  const calculatePriceRange = (prices: number[]): [number, number] => {
+    const minPrice = Math.min(...prices);
+    const maxPrice = Math.max(...prices);
+
+    return [minPrice, maxPrice];
+  };
+
+  // console.log(watch());
+
   return (
-    <Container maxWidth="xl" className={styles.outerContainer}>
-      <Box>
+    <Container maxWidth={false} className={styles.outerContainer}>
+      <Paper className={styles.filter}>
         {drawerButton && (
-          <Button onClick={() => toggleDrawer(true)}>
-            <MenuIcon />
-            Otvori filtere
-          </Button>
+          <Box className={styles.collapsed}>
+            <Button onClick={() => toggleDrawer(true)}>
+              <MenuIcon />
+              Meni
+            </Button>
+            <FormControl classes={{ root: styles.formControl }}>
+              <InputLabel id="sort-label">Sortiraj po...</InputLabel>
+              <Controller
+                name="sort"
+                control={sortControl}
+                render={({ field: { onChange, ...props } }) => (
+                  <Select
+                    onChange={(e) => {
+                      onChange(e.target.value);
+                      handleSort();
+                    }}
+                    label="Sortiraj po..."
+                    id="sort-label"
+                    value={watchSort("sort") ?? ""}
+                  >
+                    <MenuItem value="priceAsc">Ceni rastuce</MenuItem>
+                    <MenuItem value="priceDesc">Ceni opadajuce</MenuItem>
+                    {/* <MenuItem value="priceDesc">Ceni opadajuce</MenuItem>
+                    <MenuItem value="priceDesc">Ceni opadajuce</MenuItem> */}
+                  </Select>
+                )}
+              />
+            </FormControl>
+          </Box>
         )}
         {!drawerButton && (
-          <FormControl component="fieldset" variant="standard">
-            <FormLabel component="legend">Proba</FormLabel>
-            <FormGroup>
-              <FormControlLabel
-                control={<Checkbox name="jedan" />}
-                label="Jedan"
+          <>
+            <FormControl
+              component="fieldset"
+              variant="standard"
+              classes={{ root: styles.formControl }}
+            >
+              <FormLabel component="legend" className={styles.formLabel}>
+                Opstina
+              </FormLabel>
+              <FormGroup classes={{ root: styles.formGroup }}>
+                {removePrimitiveDuplicates(
+                  allAds.map((ad) => ad.provider.location.municipality)
+                ).map((item, index) => {
+                  return (
+                    <FormControlLabel
+                      key={index}
+                      control={
+                        <Controller
+                          name={item}
+                          control={control}
+                          defaultValue={false}
+                          render={({ field: props }) => (
+                            <Checkbox
+                              {...props}
+                              checked={!!props.value}
+                              onChange={(e) => {
+                                props.onChange(e.target.checked);
+                                handleMunicipalityFilter();
+                              }}
+                            />
+                          )}
+                        />
+                      }
+                      label={item}
+                    />
+                  );
+                })}
+              </FormGroup>
+            </FormControl>
+
+            <FormControl classes={{ root: styles.formControl }}>
+              <FormLabel component="legend" className={styles.formLabel}>
+                Opseg cene
+              </FormLabel>
+              <Controller
+                name="priceRange"
+                control={priceControl}
+                defaultValue={priceRangeClient}
+                render={({ field: { onChange, ...props } }) => (
+                  <Slider
+                    {...props}
+                    value={props.value}
+                    onChange={(e, data) => {
+                      onChange(data);
+                      handlePriceRangeFilter();
+                    }}
+                    valueLabelDisplay="on"
+                    min={priceRangeClient[0]}
+                    max={priceRangeClient[1]}
+                    classes={{
+                      root: styles.slider,
+                      valueLabel: styles.label,
+                    }}
+                    disabled={priceRangeClient[0] === priceRangeClient[1]}
+                  />
+                )}
               />
-              <FormControlLabel control={<Checkbox name="dva" />} label="Dva" />
-              <FormControlLabel control={<Checkbox name="tri" />} label="3" />
-            </FormGroup>
-            <FormHelperText>Pomocni tekst</FormHelperText>
-          </FormControl>
+              <FormHelperText className={styles.formHelperText}>
+                Promenom izbora opstine se resetuje filter cene
+              </FormHelperText>
+            </FormControl>
+            <FormControl classes={{ root: styles.formControl }}>
+              <InputLabel id="sort-label">Sortiraj po...</InputLabel>
+              <Controller
+                name="sort"
+                control={sortControl}
+                render={({ field: { onChange, ...props } }) => (
+                  <Select
+                    onChange={(e) => {
+                      onChange(e.target.value);
+                      handleSort();
+                    }}
+                    label="Sortiraj po..."
+                    id="sort-label"
+                    value={watchSort("sort") ?? ""}
+                  >
+                    <MenuItem value="priceAsc">Ceni rastuce</MenuItem>
+                    <MenuItem value="priceDesc">Ceni opadajuce</MenuItem>
+                    {/* <MenuItem value="priceDesc">Ceni opadajuce</MenuItem>
+                    <MenuItem value="priceDesc">Ceni opadajuce</MenuItem> */}
+                  </Select>
+                )}
+              />
+              {/* <FormHelperText className={styles.formHelperText}>
+                Sortiranje se resetuje promenom filtera
+              </FormHelperText> */}
+            </FormControl>
+            <Map
+              locationMarker={false}
+              markersWPopups={ads.map((ad) =>
+                adSchemaCard.cast(ad, { stripUnknown: true })
+              )}
+            ></Map>
+          </>
         )}
-      </Box>
+      </Paper>
+
       <Drawer
         anchor="left"
         open={drawer}
         onClose={() => toggleDrawer(false)}
         hideBackdrop
+        classes={{ paper: styles.drawer }}
       >
+        <Button
+          onClick={() => toggleDrawer(false)}
+          variant="outlined"
+          color="secondary"
+          disableRipple
+        >
+          <ClearOutlinedIcon />
+        </Button>
         <ClickAwayListener onClickAway={() => toggleDrawer(false)}>
-          <div className={styles.drawerInner}>aaa</div>
+          <div className={styles.drawerInner}>
+            <FormControl
+              component="fieldset"
+              variant="filled"
+              classes={{ root: styles.formControl }}
+            >
+              <FormLabel component="legend" className={styles.formLabel}>
+                Opstina
+              </FormLabel>
+              <FormGroup classes={{ root: styles.formGroup }}>
+                {removePrimitiveDuplicates(
+                  allAds.map((ad) => ad.provider.location.municipality)
+                ).map((item, index) => {
+                  return (
+                    <FormControlLabel
+                      key={index}
+                      control={
+                        <Controller
+                          name={item}
+                          control={control}
+                          defaultValue={false}
+                          render={({ field: props }) => (
+                            <Checkbox
+                              {...props}
+                              checked={!!props.value}
+                              onChange={(e) => {
+                                props.onChange(e.target.checked);
+                                handleMunicipalityFilter();
+                              }}
+                            />
+                          )}
+                        />
+                      }
+                      label={item}
+                    />
+                  );
+                })}
+              </FormGroup>
+            </FormControl>
+            <FormControl classes={{ root: styles.formControl }}>
+              <FormLabel component="legend" className={styles.formLabel}>
+                Opseg cene
+              </FormLabel>
+              <Controller
+                name="priceRange"
+                control={priceControl}
+                defaultValue={priceRangeClient}
+                render={({ field: { onChange, ...props } }) => (
+                  <Slider
+                    {...props}
+                    value={props.value}
+                    onChange={(e, data) => {
+                      onChange(data);
+                      handlePriceRangeFilter();
+                    }}
+                    valueLabelDisplay="on"
+                    min={priceRangeClient[0]}
+                    max={priceRangeClient[1]}
+                    classes={{
+                      root: styles.slider,
+                      valueLabel: styles.label,
+                    }}
+                    disabled={priceRangeClient[0] === priceRangeClient[1]}
+                  />
+                )}
+              />
+              <FormHelperText className={styles.formHelperText}>
+                Promenom izbora opstine se resetuje filter cene
+              </FormHelperText>
+            </FormControl>
+            <Map
+              locationMarker={false}
+              markersWPopups={ads.map((ad) =>
+                adSchemaCard.cast(ad, { stripUnknown: true })
+              )}
+            ></Map>
+          </div>
         </ClickAwayListener>
       </Drawer>
 
-      <Container maxWidth="lg">
-        {allAds.map((item, index) => {
+      <Container maxWidth="lg" className={styles.innerContainer}>
+        {ads.map((item, index) => {
           return (
             <AdCard
               key={index}
@@ -134,6 +433,7 @@ const Search = ({ allAds }: { allAds: Advertisement[] }) => {
               link={isLoggedIn() ? item.link : ""}
               subcategory={item.subcategory}
               disabled={!isLoggedIn()}
+              // small={drawerButton}
             ></AdCard>
           );
         })}

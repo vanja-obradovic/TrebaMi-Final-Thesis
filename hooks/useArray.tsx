@@ -5,6 +5,7 @@ function useArray<S>(defaultValue: Array<S>) {
 
   const push = (element: S) => {
     setArray((a) => [...a, element]);
+    return element;
   };
 
   const filter = (callback) => {
@@ -28,6 +29,13 @@ function useArray<S>(defaultValue: Array<S>) {
     );
   };
 
+  const removePrimitiveDuplicates = (a) => {
+    const seen = {};
+    return a.filter((item) => {
+      return seen.hasOwnProperty(item) ? false : (seen[item] = true);
+    });
+  };
+
   const clear = () => {
     setArray([]);
   };
@@ -40,6 +48,7 @@ function useArray<S>(defaultValue: Array<S>) {
     insert,
     remove,
     removeElement,
+    removePrimitiveDuplicates,
     clear,
   };
 }

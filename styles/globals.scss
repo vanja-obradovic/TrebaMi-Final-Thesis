@@ -10,9 +10,13 @@ body {
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
   height: 100vh;
   // background-color: $baseColorLighter;
+}
+
+* {
   &::-webkit-scrollbar {
     background-color: lightgrey;
     border-radius: 0.75rem;
+    width: 0.75rem;
   }
   &::-webkit-scrollbar-thumb {
     background-color: grey;
@@ -139,13 +143,36 @@ button {
 
 .mapboxgl-popup-content {
   border-radius: 0.75rem;
+  height: 100%;
+  width: 100%;
+  padding: 1rem 1rem;
 }
 
 .mapboxgl-popup-close-button {
-  top: 0.5rem;
-  right: 0.5rem;
+  top: 0.25rem;
+  right: 0.25rem;
   font-size: 1rem;
   border-radius: 50%;
+}
+
+.mapboxgl-popup {
+  transform: none !important;
+  max-width: none !important;
+  height: 100%;
+
+  left: 0;
+  width: 35%;
+}
+.mapboxgl-popup-anchor-top .mapboxgl-popup-tip,
+.mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip,
+.mapboxgl-popup-anchor-center .mapboxgl-popup-tip,
+.mapboxgl-popup-anchor-left .mapboxgl-popup-tip,
+.mapboxgl-popup-anchor-right .mapboxgl-popup-tip,
+.mapboxgl-popup-anchor-bottom-right .mapboxgl-popup-tip,
+.mapboxgl-popup-anchor-bottom-left .mapboxgl-popup-tip,
+.mapboxgl-popup-anchor-top-right .mapboxgl-popup-tip,
+.mapboxgl-popup-anchor-top-left .mapboxgl-popup-tip {
+  display: none !important;
 }
 
 //* MAP STYLES *//

@@ -42,6 +42,7 @@ import Map from "../components/Map";
 import Image from "next/image";
 import CustomDialog from "../components/CustomDialog";
 import { useForm } from "react-hook-form";
+import { Location } from "../models/Location";
 
 type basicFormData = {
   name: string;
@@ -104,7 +105,7 @@ const Settings = ({ userData }) => {
   const category = useRef<HTMLSelectElement>();
   const emailDialogPassword = useRef<HTMLInputElement>();
   const catDialogPassword = useRef<HTMLInputElement>();
-  const [markerCoords, setMarkerCoords] = useState<GeoPoint>();
+  const [location, setLocation] = useState<Location>();
   const passRegex =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d*.!@#$%^&(){}\[\]:\";'<>,.?\/~`_+-=|]{8,}$/;
   const emailRegex =
@@ -393,12 +394,12 @@ const Settings = ({ userData }) => {
 
   const openMapDialog = () => {
     setMapDialog(true);
-    setMarkerCoords(null);
+    setLocation(null);
   };
 
   const closeMapDialog = (update?: boolean) => {
     if (update === true) {
-      if (markerCoords) {
+      if (location) {
         const docRef = firestore.doc(dbInstance, `users`, `${currUser?.uid}`);
         const adsRef = firestore.collection(
           dbInstance,
@@ -407,7 +408,7 @@ const Settings = ({ userData }) => {
         setDialogLoading(true);
         firestore
           .updateDoc(docRef, {
-            location: markerCoords,
+            location: location,
           })
           .then(async () => {
             toast.success("Update successful!");
@@ -419,7 +420,7 @@ const Settings = ({ userData }) => {
 
             firestore.getDocs(adsRef).then((docs) => {
               docs.forEach((doc) => {
-                batch.update(doc.ref, { "provider.location": markerCoords });
+                batch.update(doc.ref, { "provider.location": location });
               });
               batch.commit();
             });
@@ -769,11 +770,11 @@ const Settings = ({ userData }) => {
                           >
                             <Map
                               locationMarker={true}
-                              setMarkerCoords={setMarkerCoords}
+                              setLocation={setLocation}
                               popup={
                                 <Image src={"/loginPic.webp"} layout="fill" />
                               }
-                              markerCords={userProfile?.location}
+                              markerCords={userProfile?.location.coords}
                             ></Map>{" "}
                           </CustomDialog>
                         </>

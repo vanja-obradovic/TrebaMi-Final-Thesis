@@ -1,3 +1,4 @@
+import Router from "next/router";
 import React, { useRef, useId } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import Popup from "./Popup";
@@ -8,7 +9,13 @@ const Header = () => {
 
   return (
     <header>
-      <span>DIPLOMSKI</span>
+      <span
+        onClick={() => {
+          Router.push("/");
+        }}
+      >
+        DIPLOMSKI
+      </span>
 
       {!isLoggedIn() && <Popup />}
 
