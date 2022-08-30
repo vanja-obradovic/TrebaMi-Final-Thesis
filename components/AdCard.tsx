@@ -83,7 +83,7 @@ const AdCard = (props: CardProps) => {
                   <div>Ocena: </div>
                 )}
                 <div>
-                  {price} {priceUnit}
+                  {price === -1 ? "Po dogovoru" : price} {priceUnit}
                 </div>
               </Box>
             </Box>
