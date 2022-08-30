@@ -131,6 +131,17 @@ main {
       margin-bottom: 2.5%;
     }
   }
+  &::before {
+    font: var(--fa-font-solid);
+    content: "\e09a";
+    font-weight: 900;
+    font-size: 2rem;
+    color: white;
+    font-style: normal;
+    font-variant: normal;
+    text-rendering: auto;
+    position: absolute;
+  }
 }
 
 button {
