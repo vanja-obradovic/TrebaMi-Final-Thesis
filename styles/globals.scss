@@ -2,7 +2,8 @@
 @import "./mixins.module.scss";
 @import "@tomtom-international/web-sdk-maps/dist/maps.css";
 @import "@tomtom-international/web-sdk-plugin-searchbox/dist/SearchBox.css";
-@import url("https://use.fontawesome.com/releases/v6.1.2/css/all.css");
+// @import url("https://use.fontawesome.com/releases/v6.1.2/css/all.css");
+// @import "@fortawesome/fontawesome-svg-core/styles.css";
 html,
 body {
   padding: 0;
@@ -130,17 +131,6 @@ main {
     &:last-child:not([aria-hidden]) {
       margin-bottom: 2.5%;
     }
-  }
-  &::before {
-    font: var(--fa-font-solid);
-    content: "\e09a";
-    font-weight: 900;
-    font-size: 2rem;
-    color: white;
-    font-style: normal;
-    font-variant: normal;
-    text-rendering: auto;
-    position: absolute;
   }
 }
 

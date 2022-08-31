@@ -1,7 +1,6 @@
 import "../styles/globals.scss";
 import Layout from "../components/Layout";
 import { AuthProvider } from "../contexts/AuthContext";
-
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { CssBaseline } from "@mui/material";
 
