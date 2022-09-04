@@ -1,15 +1,20 @@
 import { Box, Container } from "@mui/system";
-
 import {
-  doc,
   DocumentData,
   DocumentReference,
   QueryDocumentSnapshot,
 } from "firebase/firestore";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useReducer, useRef, useState } from "react";
 import AuthCheck from "../components/AuthCheck";
 import { useAuth } from "../contexts/AuthContext";
-import app, { firestore, getUser, getUserAds, storage } from "../util/firebase";
+import app, {
+  firestore,
+  getUser,
+  getUserAds,
+  getUserChats,
+  getUserReceipts,
+  storage,
+} from "../util/firebase";
 import styles from "../styles/userProfile.module.scss";
 import {
   Autocomplete,
@@ -27,7 +32,6 @@ import {
 } from "@mui/material";
 import ClearOutlinedIcon from "@mui/icons-material/ClearOutlined";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import Link from "next/link";
 import TabPanel from "../components/TabPanel";
 import { adSchemaCard } from "../models/Advertisement";
 import CustomDialog from "../components/CustomDialog";
@@ -35,6 +39,7 @@ import CustomStepper from "../components/CustomStepper";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import GalleryCropper from "../components/ImgCropperWGallery";
+import ChatCard from "../components/ChatCard";
 import { ImageFileUrl } from "../util/imageCropper";
 import Image from "next/image";
 import { v4 as uuidv4 } from "uuid";
@@ -42,6 +47,12 @@ import AdCard from "../components/AdCard";
 import UserDetails from "../components/UserDetails";
 import { ngram } from "../util/ngram";
 import useArray from "../hooks/useArray";
+import { Receipt } from "../models/Receipt";
+import AdReceipt from "../components/AdReceipt";
+import { User, userSchema } from "../models/User";
+import { Chat, chatSchema } from "../models/Chat";
+import PieChart from "../components/PieChart";
+import { isSameMonth } from "date-fns";
 
 type adFormData = {
   name: string;
@@ -70,19 +81,75 @@ const UserDashboard = () => {
     },
   });
 
-  const [userProfile, setUserProfile] = useState<DocumentData>();
+  const [userProfile, setUserProfile] = useState<User>();
   const [adRef, setAdRef] = useState<DocumentReference>();
   const [userAds, setUserAds] =
     useState<QueryDocumentSnapshot<DocumentData>[]>();
+  const [userPurchases, setUserPurchases] = useState<Receipt[]>();
+  const [userSales, setUserSales] = useState<Receipt[]>();
+  const [userChats, setUserChats] = useState<Chat[]>();
+  const [monthPurchases, setMonthPurchases] = useState<Receipt[]>([]);
+  const [monthSales, setMonthSales] = useState<Receipt[]>([]);
+  const [subCatSpending, setSubCatSpending] = useState<{
+    labels: string[];
+    data: number[];
+  }>();
+  const [subCatEarnings, setSubCatEarnings] = useState<{
+    labels: string[];
+    data: number[];
+  }>();
 
   const dbInstance = firestore.getFirestore(app);
   const storageInstance = storage.getStorage(app);
 
   const [tabValue, setTabValue] = useState(0);
+  const [updateReceipts, forceUpdate] = useReducer((x) => x + 1, 0);
 
   const tabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
+
+  useEffect(() => {
+    const currentDate = new Date().getTime();
+    // switch (tabValue) {
+    //   case 3: {
+    getUserReceipts(currUser?.uid, "purchases").then((res) => {
+      setUserPurchases(res);
+      setMonthPurchases(
+        res.filter(
+          (item) => isSameMonth(currentDate, item.timestamp) && item.completed
+        )
+      );
+
+      setSubCatSpending(getSubcatStatistic(res));
+    });
+    //   break;
+    // }
+    // case 4: {
+    getUserReceipts(currUser?.uid, "sales").then((res) => {
+      setUserSales(res);
+      setMonthSales(
+        res.filter(
+          (item) => isSameMonth(currentDate, item.timestamp) && item.completed
+        )
+      );
+      setSubCatEarnings(getSubcatStatistic(res));
+    });
+
+    if (tabValue === 2)
+      getUserChats({
+        uid: currUser?.uid,
+        displayName: currUser?.displayName,
+        photoURL: currUser?.photoURL,
+      }).then((res) => {
+        console.log(res);
+        setUserChats(res);
+      });
+
+    //     break;
+    //   }
+    // }
+  }, [tabValue, updateReceipts, currUser?.uid]);
 
   const [newAdDialog, setNewAdDialog] = useState(false);
   const [dialogLoading, setDialogLoading] = useState(false);
@@ -105,7 +172,7 @@ const UserDashboard = () => {
   useEffect(() => {
     const getUserDoc = async () => {
       const userDoc = await getUser(currUser?.uid);
-      setUserProfile(userDoc.data());
+      setUserProfile(userSchema.cast(userDoc.data()));
       const userAds = await getUserAds(currUser?.uid);
       setUserAds(userAds.docs);
     };
@@ -129,11 +196,13 @@ const UserDashboard = () => {
           quantity: userProfile?.category === "products" ? data.quantity : null,
           subcategory: data.subcategory,
           category: userProfile?.category,
+          rating: null,
           provider: {
             location: userProfile?.location,
             displayName: currUser?.displayName,
             photoURL: currUser?.photoURL,
           },
+          pendingUsers: [],
           priceUnit: userProfile?.category === "products" ? data.priceUnit : "",
           keywords: ngram(data.name, 3),
         })
@@ -227,6 +296,35 @@ const UserDashboard = () => {
     }
   };
 
+  const getMonthFlow = () => {
+    const spendings = monthPurchases?.reduce(
+      (prev, curr) => prev + curr.amount * curr.quantity,
+      0
+    );
+    const earnings = monthSales?.reduce(
+      (prev, curr) => prev + curr.amount * curr.quantity,
+      0
+    );
+    return [spendings, earnings];
+  };
+
+  const getSubcatStatistic = (input) => {
+    const reduced = input?.reduce((arr, curr) => {
+      if (curr.completed)
+        arr[curr.subcategory] =
+          (arr[curr.subcategory] || 0) + curr.amount * curr.quantity;
+      return arr;
+    }, {});
+
+    const labels = [];
+    const data = Object.entries(reduced).map((item) => {
+      labels.push(item[0]);
+      return item[1] as number;
+    });
+
+    return { labels: labels, data: data };
+  };
+
   return (
     <AuthCheck>
       <Container component="div" maxWidth="xl" className={styles.container}>
@@ -238,7 +336,7 @@ const UserDashboard = () => {
             rating={userProfile?.rating}
             reputation={userProfile?.reputation}
           ></UserDetails>
-          <Box className={styles.economy}>
+          <Box className={styles.tabWrapper}>
             <Paper elevation={4} className={styles.paper}>
               <Tabs
                 value={tabValue}
@@ -252,11 +350,109 @@ const UserDashboard = () => {
                 <Tab label="Moji oglasi" classes={{ root: styles.tabs }} />
                 <Tab label="Poruke" classes={{ root: styles.tabs }} />
                 <Tab label="Moje kupovine" classes={{ root: styles.tabs }} />
+                {userProfile?.isProvider && (
+                  <Tab label="Moje prodaje" classes={{ root: styles.tabs }} />
+                )}
               </Tabs>
               <hr style={{ border: "1px solid #e8e8e8" }} />
 
               <TabPanel value={tabValue} index={0}>
-                Item One
+                <Container maxWidth="md" className={styles.dashboard}>
+                  <Container maxWidth="md" className={styles.economy}>
+                    <Box>
+                      <PieChart
+                        dataset={{
+                          labels: ["Raspolozivo", "Iskorisceno"],
+                          data: [
+                            userProfile?.ad.permitted - userProfile?.ad.count,
+                            userProfile?.ad.count,
+                          ],
+                          title: "Raspolozivi/iskorisceni oglasi",
+                        }}
+                      ></PieChart>
+                    </Box>
+                    <Box>
+                      <PieChart
+                        dataset={{
+                          labels: ["Raspolozivo", "Iskorisceno"],
+                          data: [
+                            userProfile?.ad.permitted - userProfile?.ad.count,
+                            userProfile?.ad.count,
+                          ],
+                          title: "Raspolozivi/iskorisceni oglasi",
+                        }}
+                      ></PieChart>
+                    </Box>
+                    {userProfile?.adPromotion.permitted !== 0 && (
+                      <Box>
+                        <PieChart
+                          dataset={{
+                            labels: ["Raspolozivo", "Iskorisceno"],
+                            data: [
+                              userProfile?.adPromotion.permitted -
+                                userProfile?.adPromotion.count,
+                              userProfile?.adPromotion.count,
+                            ],
+                            title: "Raspolozive/iskoriscene promocije",
+                          }}
+                        ></PieChart>
+                      </Box>
+                    )}
+                    {monthPurchases.length > 0 && monthSales.length > 0 && (
+                      <>
+                        <Box>
+                          <PieChart
+                            dataset={{
+                              labels: ["Kupovine", "Prodaje"],
+                              data: [monthPurchases.length, monthSales.length],
+                              title: "Kupovina/prodaja ovog meseca",
+                            }}
+                          ></PieChart>
+                        </Box>
+                        <Box>
+                          <PieChart
+                            dataset={{
+                              labels: ["Rashodi", "Prihodi"],
+                              data: getMonthFlow(),
+                              title: "Rashodi/prihodi ovog meseca",
+                            }}
+                          ></PieChart>
+                        </Box>
+                      </>
+                    )}
+                    {subCatSpending?.data.length > 0 && (
+                      <Box>
+                        <PieChart
+                          dataset={{
+                            data: subCatSpending?.data ?? [],
+                            labels: subCatSpending?.labels ?? [],
+                            title: "Rashodi po podkategoriji",
+                          }}
+                        ></PieChart>
+                      </Box>
+                    )}
+                    {userProfile?.isProvider &&
+                      subCatEarnings?.data.length > 0 && (
+                        <Box>
+                          <PieChart
+                            dataset={{
+                              data: subCatEarnings?.data ?? [],
+                              labels: subCatEarnings?.labels ?? [],
+                              title: "Prihodi po podkategoriji",
+                            }}
+                          ></PieChart>
+                        </Box>
+                      )}
+                  </Container>
+                  <Container maxWidth="md" className={styles.favourites}>
+                    <div>
+                      Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                      Quos iusto sed id minus unde neque quod temporibus at! Eum
+                      tempore iure velit harum provident dolorum nisi. Omnis
+                      culpa delectus quod.
+                    </div>
+                  </Container>
+                </Container>
               </TabPanel>
               <TabPanel value={tabValue} index={1}>
                 {userProfile?.ad.count !== userProfile?.ad.permitted && (
@@ -305,9 +501,9 @@ const UserDashboard = () => {
                                   "Naziv ne moze imati manje od 3 karaktera",
                               },
                               maxLength: {
-                                value: 30,
+                                value: 25,
                                 message:
-                                  "Naziv ne moze imati vise od 30 karaktera",
+                                  "Naziv ne moze imati vise od 25 karaktera",
                               },
                             })}
                           ></TextField>
@@ -337,6 +533,7 @@ const UserDashboard = () => {
                                   required
                                   {...register("price", {
                                     required: "Morate uneti cenu",
+                                    valueAsNumber: true,
                                   })}
                                   InputProps={{
                                     endAdornment: (
@@ -370,6 +567,7 @@ const UserDashboard = () => {
                                 required
                                 {...register("quantity", {
                                   required: "Morate uneti kolicinu",
+                                  valueAsNumber: true,
                                 })}
                               ></TextField>
                             </>
@@ -468,21 +666,59 @@ const UserDashboard = () => {
                 {userAds?.map((item, index) => {
                   return (
                     <AdCard
-                      {...adSchemaCard.cast(item.data(), {
-                        stripUnknown: true,
-                      })}
+                      ad={adSchemaCard.cast(
+                        { ...item.data(), link: item.ref.path },
+                        {
+                          stripUnknown: true,
+                        }
+                      )}
                       key={index}
-                      link={item.ref.path}
                     />
                   );
                 })}
               </TabPanel>
               <TabPanel value={tabValue} index={2}>
-                Item Three
+                <h3>Poruke</h3>
+                <Container maxWidth="md">
+                  {userChats?.map((chat) => {
+                    return <ChatCard {...chat} key={chat.id}></ChatCard>;
+                  })}
+                </Container>
               </TabPanel>
               <TabPanel value={tabValue} index={3}>
-                Item four
+                <Container maxWidth="lg" className={styles.receiptContainer}>
+                  {userPurchases?.map((item, index) => {
+                    if (item) {
+                      return (
+                        <AdReceipt
+                          key={index}
+                          props={item}
+                          type="purchases"
+                          refetch={forceUpdate}
+                        ></AdReceipt>
+                      );
+                    }
+                  })}
+                </Container>
               </TabPanel>
+              {userProfile?.isProvider && (
+                <TabPanel value={tabValue} index={4}>
+                  <Container maxWidth="lg" className={styles.receiptContainer}>
+                    {userSales?.map((item, index) => {
+                      if (item) {
+                        return (
+                          <AdReceipt
+                            key={index}
+                            props={item}
+                            type="sales"
+                            refetch={forceUpdate}
+                          ></AdReceipt>
+                        );
+                      }
+                    })}
+                  </Container>
+                </TabPanel>
+              )}
             </Paper>
           </Box>
         </Paper>

@@ -88,3 +88,27 @@
     content: "\f553";
   }
 }
+.Gradjevina {
+  @extend .markerIcon;
+  &::before {
+    content: "\e58a";
+  }
+}
+.Transport {
+  @extend .markerIcon;
+  &::before {
+    content: "\f63c";
+  }
+}
+.Vodovod {
+  @extend .markerIcon;
+  &::before {
+    content: "\e005";
+  }
+}
+.Elektrika {
+  @extend .markerIcon;
+  &::before {
+    content: "\f0e7";
+  }
+}

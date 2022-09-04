@@ -34,8 +34,15 @@ import {
   increment,
   writeBatch,
   collectionGroup,
+  arrayUnion,
+  arrayRemove,
+  orderBy,
 } from "firebase/firestore";
 import { ngram } from "./ngram";
+import { commentSchema } from "../models/Comment";
+import { receiptSchema } from "../models/Receipt";
+import { Chat, chatSchema } from "../models/Chat";
+import { Message, messageSchema } from "../models/Message";
 
 const fbConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -60,6 +67,18 @@ export const getUserAds = async (uid: string) => {
     return res;
   });
   return userAds;
+};
+
+export const getUserReceipts = async (
+  uid: string,
+  type: "purchases" | "sales"
+) => {
+  const adsRef = collection(getFirestore(app), `/users/${uid}/${type}`);
+  const userPurchases = await getDocs(adsRef);
+  return userPurchases.docs.flatMap((doc) => {
+    const docData = doc.data();
+    return docData.receipts.map((receipt) => receiptSchema.cast(receipt));
+  });
 };
 
 export const getAdByRef = async (prov: string, aID: string) => {
@@ -129,6 +148,93 @@ export const getAdsAdvanced = async (
   }
 };
 
+export const getAdComments = async (adID: string) => {
+  const ref = collectionGroup(getFirestore(app), `comments`);
+  const refWhere = query(ref, where("aid", "==", adID));
+  const allComments = await getDocs(refWhere);
+  return allComments.docs.flatMap((doc) => {
+    const docData = doc.data();
+    return docData.comments.map((elem) =>
+      commentSchema.cast(
+        {
+          ...elem,
+          commenter: docData.commenter,
+        },
+        { stripUnknown: true }
+      )
+    );
+  });
+  // docData.comments.forEach((item) => {
+  //   return commentSchema.cast(
+  //     {
+  //       ...item,
+  //       timestamp: item.timestamp.toDate().toString(),
+  //       commenter: docData.commenter,
+  //     },
+  //     { stripUnknown: true }
+  //   );
+  // });
+  // console.log(comments);
+  // return comments;
+  // return commentSchema.cast(comments, { stripUnknown: true });
+  // });
+};
+
+export const getChat = async (chatID: string) => {
+  const ref = doc(getFirestore(app), `chat/${chatID}`);
+  const chat = await getDoc(ref);
+  return chatSchema.cast(chat.data());
+};
+
+export const newChat = async (chatDetails: Chat) => {
+  const ref = doc(getFirestore(app), `chat/${chatDetails.id}`);
+  return setDoc(ref, chatDetails);
+};
+
+export const getUserChats = async (member) => {
+  console.log(member);
+  const ref = collection(getFirestore(app), `chat`);
+  const refWhere = query(ref, where("members", "array-contains", member));
+  const chats = await getDocs(refWhere);
+  return chats.docs.map((doc) => {
+    return chatSchema.cast(doc.data(), { stripUnknown: true });
+  });
+};
+
+export const getChatMessages = async (chatID: string) => {
+  const ref = query(
+    collection(getFirestore(app), `message/${chatID}/messages`),
+    orderBy("sentAt")
+  );
+  const messages = await getDocs(ref);
+  return messages.docs.map((doc) => {
+    return messageSchema.cast(doc.data(), { stripUnknown: true });
+  });
+};
+
+export const sendMessage = (
+  chatID: string,
+  message: Message,
+  senderID: string
+) => {
+  const ref = collection(getFirestore(app), `message/${chatID}/messages`);
+  addDoc(ref, message).then(() => {
+    updateDoc(doc(getFirestore(app), `chat/${chatID}`), {
+      "recentMessage.messageText": message.messageText,
+      "recentMessage.sentAt": message.sentAt,
+      "recentMessage.sentBy": message.sentBy,
+      "recentMessage.readBy": [senderID],
+    });
+  });
+};
+
+export const setOffer = (chatID: string, offer: number) => {
+  const ref = doc(getFirestore(app), `chat/${chatID}`);
+  return updateDoc(ref, {
+    "offer.amount": offer,
+  });
+};
+
 const app = !getApps().length ? initializeApp(fbConfig) : getApps()[0];
 
 export const auth = {
@@ -157,6 +263,9 @@ export const firestore = {
   getDocs,
   getDoc,
   writeBatch,
+  arrayUnion,
+  arrayRemove,
+  orderBy,
 };
 export const storage = {
   getStorage,

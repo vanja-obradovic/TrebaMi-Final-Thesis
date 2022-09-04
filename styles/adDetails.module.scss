@@ -15,7 +15,7 @@
   @extend .paper;
   display: flex;
   gap: 2rem;
-  @media only screen and (max-width: 992px) {
+  @media only screen and (max-width: 1280px) {
     flex-direction: column;
   }
 }
@@ -32,13 +32,72 @@
   padding: 0.75rem;
   display: flex;
   width: 100%;
-  height: 75vh;
+  min-height: 80vh;
+  max-height: 100vh;
   overflow: auto;
   flex-direction: column;
-  h1 {
-    margin-top: 0;
+
+  .actionWrapper {
+    @extend .paper;
+    padding: 0.25rem;
+    @media only screen and (max-width: 544px) {
+      flex-direction: column;
+      row-gap: 0.75rem;
+    }
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: 1rem;
+    .actionInfo {
+      @media only screen and (max-width: 544px) {
+        display: flex;
+        column-gap: 0.5rem;
+      }
+      font-size: 1.8rem;
+      h4 {
+        margin: 0;
+      }
+    }
+    .action {
+      display: flex;
+      gap: 0.5rem;
+      flex-direction: column;
+      .actionInput {
+        display: flex;
+        flex-direction: column;
+        row-gap: 0.25rem;
+        justify-content: center;
+        .actionInputLegend {
+          font-size: smaller;
+          color: grey;
+          font-weight: 500;
+        }
+      }
+      .actionButtons {
+        display: flex;
+        gap: 0.5rem;
+        > button {
+          padding: 0.5rem 1.5rem;
+          flex: 1 1 20%;
+          height: fit-content;
+        }
+      }
+    }
+  }
+
+  .adTitle {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
     margin-left: 0.5rem;
-    text-decoration: underline;
+    margin-bottom: 1rem;
+    > h1 {
+      margin: 0;
+      text-decoration: underline;
+    }
+    > .rating {
+      align-items: center;
+    }
   }
 }
 

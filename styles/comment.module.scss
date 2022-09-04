@@ -1,0 +1,36 @@
+.commentWrapper {
+  display: flex;
+  flex-direction: column;
+  width: 85%;
+  align-self: center;
+  margin-block: 0.5rem;
+  border-radius: 0.75rem !important;
+  padding: 0.75rem !important;
+  .commenter {
+    display: inline-flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0.5rem;
+    a:hover {
+      font-weight: bold;
+    }
+  }
+  .commentHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-right: 5%;
+    .rating {
+      align-items: center;
+    }
+  }
+  .commentText {
+    padding-inline: 1rem;
+  }
+  .commentTimestamp {
+    font-size: small;
+    display: inline-flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+}

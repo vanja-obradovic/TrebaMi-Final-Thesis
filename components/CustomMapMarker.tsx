@@ -1,10 +1,10 @@
 import { ClickAwayListener } from "@mui/material";
 import React, { useState } from "react";
-import { ProductSubCat } from "../models/Advertisement";
+import { ProductSubCat, ServiceSubCat } from "../models/Advertisement";
 import styles from "../styles/CustomMapMarker.module.scss";
 
 interface markerProps {
-  type: ProductSubCat;
+  type: ProductSubCat | ServiceSubCat;
 }
 
 const CustomMapMarker = (props: markerProps) => {

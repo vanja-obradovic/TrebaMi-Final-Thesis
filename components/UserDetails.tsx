@@ -15,8 +15,8 @@ import styles from "../styles/userDetails.module.scss";
 interface userDetailsProps {
   photoURL: string;
   displayName: string;
-  rating?: string;
-  reputation?: string;
+  rating?: number;
+  reputation?: number;
   membership?: string;
   rootStyle?: string;
   userLink?: string;

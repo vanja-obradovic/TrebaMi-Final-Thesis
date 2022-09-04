@@ -272,7 +272,11 @@ const Search = ({
                       onChange(data);
                       handlePriceRangeFilter();
                     }}
-                    valueLabelDisplay="on"
+                    valueLabelDisplay={
+                      priceRangeClient.every((item) => item === -1)
+                        ? "off"
+                        : "on"
+                    }
                     min={priceRangeClient[0]}
                     max={priceRangeClient[1]}
                     classes={{
@@ -394,7 +398,11 @@ const Search = ({
                       onChange(data);
                       handlePriceRangeFilter();
                     }}
-                    valueLabelDisplay="on"
+                    valueLabelDisplay={
+                      priceRangeClient.every((item) => item === -1)
+                        ? "off"
+                        : "on"
+                    }
                     min={priceRangeClient[0]}
                     max={priceRangeClient[1]}
                     classes={{
@@ -424,14 +432,18 @@ const Search = ({
           return (
             <AdCard
               key={index}
-              description={item.description}
-              name={item.name}
-              price={item.price}
-              priceUnit={item.priceUnit}
-              images={item.images}
-              quantity={item.quantity}
-              link={isLoggedIn() ? item.link : ""}
-              subcategory={item.subcategory}
+              // description={item.description}
+              // name={item.name}
+              // price={item.price}
+              // priceUnit={item.priceUnit}
+              // images={item.images}
+              // quantity={item.quantity}
+              // link={isLoggedIn() ? item.link : ""}
+              // subcategory={item.subcategory}
+              ad={adSchemaCard.cast(
+                { ...item, link: isLoggedIn() ? item.link : "" },
+                { stripUnknown: true }
+              )}
               disabled={!isLoggedIn()}
               // small={drawerButton}
             ></AdCard>

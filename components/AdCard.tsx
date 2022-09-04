@@ -4,21 +4,17 @@ import {
   CardContent,
   CardHeader,
   Box,
+  Rating,
 } from "@mui/material";
 import Image from "next/image";
 import Router from "next/router";
 import React from "react";
 import styles from "../styles/adCard.module.scss";
+import PlaceIcon from "@mui/icons-material/Place";
+import { AdvertisementCard } from "../models/Advertisement";
 
 interface CardProps {
-  name: string;
-  price: number;
-  description?: string;
-  subcategory: string;
-  quantity?: number;
-  images?: string[];
-  priceUnit: string;
-  link: string;
+  ad: AdvertisementCard;
   search?: boolean;
   small?: boolean;
   disabled?: boolean;
@@ -26,26 +22,14 @@ interface CardProps {
 }
 
 const AdCard = (props: CardProps) => {
-  const {
-    name,
-    description,
-    price,
-    images,
-    quantity,
-    priceUnit,
-    link,
-    search,
-    small,
-    disabled,
-    mapCard,
-  } = props;
+  const { ad, search, small, disabled, mapCard } = props;
 
   return !mapCard ? (
     <Card variant="elevation" className={styles.card} elevation={2}>
       <CardActionArea
         disableRipple
         onClick={() => {
-          const path = link.split("/");
+          const path = ad.link.split("/");
           Router.push({
             pathname: "/ad",
             query: { prov: path[1], aID: path[3] },
@@ -55,35 +39,44 @@ const AdCard = (props: CardProps) => {
       >
         <CardContent className={styles.cardContent}>
           <Box className={styles.cardImage}>
-            {!!images?.length ? (
-              <Image src={images[0]} layout="fill"></Image>
+            {!!ad.images?.length ? (
+              <Image src={ad.images[0]} layout="fill"></Image>
             ) : (
               <Image src={"/noImg.png"} layout="fill"></Image>
             )}
           </Box>
           <Box className={styles.cardInfo}>
-            <h3>{name}</h3>
+            <span className={styles.cardTitle}>
+              <h3>{ad.name}</h3>
+              <Rating
+                value={ad.rating}
+                precision={0.5}
+                readOnly
+                size="small"
+                classes={{ root: styles.rating }}
+              />
+            </span>
             <Box
               className={[
                 styles.cardDetails,
                 small ? styles.smallDetails : "",
               ].join(" ")}
             >
-              {search || (
-                <div className={styles.description}>{description}</div>
-              )}
+              <div className={styles.location}>
+                <PlaceIcon />
+                {ad.provider.location.municipality}
+              </div>
+              {/* {search || (
+                <div className={styles.description}>{ad.description}</div>
+              )} */}
               <Box
                 className={[styles.cardActions, small ? styles.small : ""].join(
                   " "
                 )}
               >
-                {!search ? (
-                  <div>Raspolozivo:{quantity}</div>
-                ) : (
-                  <div>Ocena: </div>
-                )}
+                {!search && <div>Raspolozivo:{ad.quantity}</div>}
                 <div>
-                  {price === -1 ? "Po dogovoru" : price} {priceUnit}
+                  {ad.price === -1 ? "Po dogovoru" : ad.price} {ad.priceUnit}
                 </div>
               </Box>
             </Box>
@@ -97,7 +90,7 @@ const AdCard = (props: CardProps) => {
         <CardActionArea
           disableRipple
           onClick={() => {
-            const path = link.split("/");
+            const path = ad.link.split("/");
             Router.push({
               pathname: "/ad",
               query: { prov: path[1], aID: path[3] },
@@ -108,27 +101,33 @@ const AdCard = (props: CardProps) => {
         >
           <CardContent className={styles.mapCardContent}>
             <Box className={styles.cardImage}>
-              {!!images?.length ? (
-                <Image src={images[0]} layout="fill"></Image>
+              {!!ad.images?.length ? (
+                <Image src={ad.images[0]} layout="fill"></Image>
               ) : (
                 <Image src={"/noImg.png"} layout="fill"></Image>
               )}
             </Box>
             <Box className={styles.mapCardInfo}>
-              <h3>{name}</h3>
+              <h3>{ad.name}</h3>
               <Box
                 className={[
                   styles.mapCardDetails,
                   small ? styles.smallDetails : "",
                 ].join(" ")}
               >
+                <Rating
+                  value={ad.rating}
+                  precision={0.5}
+                  readOnly
+                  size="small"
+                  classes={{ root: styles.mapCardRating }}
+                />
                 <div>
                   <div>
-                    {price}
-                    {priceUnit}
+                    {ad.price}
+                    {ad.priceUnit}
                   </div>
                 </div>
-                <div>***** </div>
               </Box>
             </Box>
           </CardContent>

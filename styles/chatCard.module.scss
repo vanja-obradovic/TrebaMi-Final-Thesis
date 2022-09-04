@@ -1,0 +1,50 @@
+.card {
+  border-radius: 0.75rem !important;
+  margin-block: 0.5rem;
+}
+
+.small {
+  font-size: 0.75rem !important;
+}
+
+.cardContent {
+  display: flex;
+  gap: 1rem;
+  @media only screen and (max-width: 699px) {
+    flex-direction: column;
+  }
+
+  .cardInfo {
+    width: 100%;
+    flex: 5;
+    display: flex;
+    flex-direction: column;
+    .cardTitle {
+      width: 100%;
+      margin-bottom: 1rem;
+      @media only screen and (min-width: 545px) {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+      }
+      > h3 {
+        @media only screen and (max-width: 544px) {
+          font-size: 150%;
+          text-align: center;
+        }
+        font-size: 1.5rem;
+        font-weight: 500;
+        margin: 0;
+      }
+    }
+    .cardDetails {
+      @media only screen and (max-width: 544px) {
+        font-size: 100%;
+      }
+      flex: 4;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+  }
+}

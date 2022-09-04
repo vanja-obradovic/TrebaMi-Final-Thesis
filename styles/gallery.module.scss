@@ -2,6 +2,9 @@
   position: relative;
   aspect-ratio: 1.5;
   width: 75%;
+  @media only screen and (max-width: 544px) {
+    width: 100% !important;
+  }
   margin: auto;
   img {
     border-radius: 0.75rem;
@@ -27,7 +30,10 @@
 }
 
 .preview {
-  height: clamp(5vmin, 7vmin, 10vmax);
+  @media only screen and (max-width: 544px) {
+    height: 12vmin !important;
+  }
+  height: 7vmin;
   display: flex;
   justify-content: center;
   flex-wrap: wrap;

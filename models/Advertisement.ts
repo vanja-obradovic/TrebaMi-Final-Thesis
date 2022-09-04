@@ -8,6 +8,7 @@ export const adSchemaCard = yup.object({
   subcategory: yup.string(),
   quantity: yup.number().notRequired().nullable(),
   images: yup.array(yup.string().url()).notRequired(),
+  rating: yup.number().min(1).max(5).notRequired().nullable(),
   provider: yup.object({
     displayName: yup.string().required(),
     location: yup.object().shape(locationSchema.fields),
@@ -25,11 +26,13 @@ export const adSchema = yup.object({
   category: yup.string(),
   quantity: yup.number().notRequired().nullable(),
   images: yup.array(yup.string().url()).notRequired(),
+  rating: yup.number().min(1).max(5).notRequired().nullable(),
   provider: yup.object({
     displayName: yup.string().required(),
     location: yup.object().shape(locationSchema.fields),
     photoURL: yup.string().url().nullable(),
   }),
+  pendingUsers: yup.array(yup.string()),
   link: yup.string().optional().nullable(),
 });
 

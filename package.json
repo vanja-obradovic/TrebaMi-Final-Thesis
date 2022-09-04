@@ -17,11 +17,13 @@
     "@tomtom-international/web-sdk-maps": "^6.20.0",
     "@tomtom-international/web-sdk-plugin-searchbox": "^3.2.0",
     "@tomtom-international/web-sdk-services": "^6.20.0",
+    "chart.js": "^3.9.1",
     "firebase-admin": "^11.0.1",
     "next": "12.2.0",
     "nookies": "^2.5.2",
     "prop-types": "^15.8.1",
     "react": "18.2.0",
+    "react-chartjs-2": "^4.3.1",
     "react-dom": "^18.2.0",
     "react-easy-crop": "^4.4.0",
     "react-hook-form": "^7.34.0",
@@ -38,7 +40,6 @@
     "eslint-config-next": "12.2.0",
     "firebase": "^9.8.4",
     "react-toastify": "^9.0.5",
-    "recharts": "^2.1.13",
     "typescript": "^4.7.4"
   }
 }

@@ -21,7 +21,7 @@ const User = ({ userAds }) => {
     <div>
       User
       {userAds.map((val, index) => {
-        return <AdCard {...val} key={index}></AdCard>;
+        return <AdCard ad={val} key={index}></AdCard>;
       })}
     </div>
   );

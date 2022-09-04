@@ -178,7 +178,7 @@ export default function Home() {
                 clearOnEscape
                 renderOption={(props, option) => (
                   <AdCard
-                    {...option}
+                    ad={option}
                     key={option.link}
                     search={true}
                     small={true}
@@ -249,6 +249,7 @@ export default function Home() {
                   <Box
                     component="form"
                     onSubmit={handleSubmit((data: FormData) => {
+                      setLoading(true);
                       router.push({
                         pathname: "/search",
                         query: {

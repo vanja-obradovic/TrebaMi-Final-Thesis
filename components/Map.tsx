@@ -6,7 +6,11 @@ import { Map, Marker } from "@tomtom-international/web-sdk-maps";
 import AdCard from "./AdCard";
 import { Coords, Location } from "../models/Location";
 import CustomMapMarker from "./CustomMapMarker";
-import { AdvertisementCard, ProductSubCat } from "../models/Advertisement";
+import {
+  AdvertisementCard,
+  ProductSubCat,
+  ServiceSubCat,
+} from "../models/Advertisement";
 import useArray from "../hooks/useArray";
 
 interface mapProps {
@@ -224,14 +228,16 @@ const Map = (props: mapProps) => {
             const popupDiv = document.createElement("div");
             popupDiv.className = styles.popup;
             const root = ReactDOM.createRoot(popupDiv);
-            root.render(<AdCard {...marker} mapCard={true}></AdCard>);
+            root.render(<AdCard ad={marker} mapCard={true}></AdCard>);
             return popupDiv;
           });
           const customMarkers = markersWPopups.map((marker) => {
             const markerDiv = document.createElement("div");
             const root = ReactDOM.createRoot(markerDiv);
             root.render(
-              <CustomMapMarker type={marker.subcategory as ProductSubCat} />
+              <CustomMapMarker
+                type={marker.subcategory as ProductSubCat | ServiceSubCat}
+              />
             );
             return markerDiv;
           });

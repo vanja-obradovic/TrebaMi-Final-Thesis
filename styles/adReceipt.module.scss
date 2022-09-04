@@ -1,0 +1,57 @@
+.receiptWrapper {
+  border-radius: 0.75rem !important;
+  padding: 0.75rem !important;
+  display: flex;
+  width: 100%;
+  gap: 1rem;
+
+  @media only screen and (max-width: 767px) {
+    flex-direction: column;
+  }
+
+  .receipt {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.25rem;
+    font-size: large;
+    h2 {
+      margin-bottom: 0;
+    }
+    .receiptDetails {
+      gap: 0.25rem;
+      display: flex;
+      flex-direction: column;
+    }
+    .receiptSum {
+    }
+    .receiptTime {
+      color: grey;
+    }
+  }
+  .actions {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    @media only screen and (max-width: 767px) {
+      width: 100% !important;
+    }
+    justify-content: center;
+    gap: 1rem;
+    > button {
+      width: 100%;
+    }
+  }
+}
+
+.commentForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  .commentRating {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}

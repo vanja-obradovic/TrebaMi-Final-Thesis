@@ -183,13 +183,22 @@ const Settings = ({ userData }) => {
               dbInstance,
               `users/${currUser?.uid}/ads`
             );
+            const commentsRef = firestore.collection(
+              dbInstance,
+              `users/${currUser?.uid}/comments`
+            );
             const batch = firestore.writeBatch(dbInstance);
 
             firestore.getDocs(adsRef).then((docs) => {
               docs.forEach((doc) => {
                 batch.update(doc.ref, { "provider.photoURL": url });
               });
-              batch.commit();
+              firestore.getDocs(commentsRef).then((docs) => {
+                docs.forEach((doc) => {
+                  batch.update(doc.ref, { "commenter.photoURL": url });
+                });
+                batch.commit();
+              });
             });
           });
         }
@@ -211,31 +220,18 @@ const Settings = ({ userData }) => {
       dbInstance,
       `users/${currUser?.uid}/ads`
     );
-    toast.promise(
-      firestore
-        .updateDoc(docRef, {
-          name: data.name,
-          surname: data.surname,
-          number: data.number,
-        })
-        .then(() => {
-          auth.updateProfile(currUser, {
-            displayName:
-              data.name.charAt(0).toUpperCase() +
-              data.name.slice(1) +
-              " " +
-              data.surname.charAt(0).toUpperCase() +
-              data.surname.slice(1),
-          });
-        }),
-      {
-        success: "Update successful!",
-        pending: "Update in progress...",
-        error: "Error while updating, please try again.",
-      }
+    const commentsRef = firestore.collection(
+      dbInstance,
+      `users/${currUser?.uid}/comments`
     );
 
     const batch = firestore.writeBatch(dbInstance);
+
+    batch.update(docRef, {
+      name: data.name,
+      surname: data.surname,
+      number: data.number,
+    });
 
     firestore.getDocs(adsRef).then((docs) => {
       docs.forEach((doc) => {
@@ -248,7 +244,35 @@ const Settings = ({ userData }) => {
             data.surname.slice(1),
         });
       });
-      batch.commit();
+      firestore.getDocs(commentsRef).then((docs) => {
+        docs.forEach((doc) => {
+          batch.update(doc.ref, {
+            "commenter.displayName":
+              data.name.charAt(0).toUpperCase() +
+              data.name.slice(1) +
+              " " +
+              data.surname.charAt(0).toUpperCase() +
+              data.surname.slice(1),
+          });
+        });
+        toast.promise(
+          batch.commit().then(() => {
+            auth.updateProfile(currUser, {
+              displayName:
+                data.name.charAt(0).toUpperCase() +
+                data.name.slice(1) +
+                " " +
+                data.surname.charAt(0).toUpperCase() +
+                data.surname.slice(1),
+            });
+          }),
+          {
+            success: "Update successful!",
+            pending: "Update in progress...",
+            error: "Error while updating, please try again.",
+          }
+        );
+      });
     });
   };
 
@@ -506,7 +530,7 @@ const Settings = ({ userData }) => {
           <Paper elevation={4} className={styles.paper}>
             <Box className={styles.avatarWrapper}>
               Membership
-              <Tooltip title="Change membership" arrow placement="left">
+              <Tooltip title="Promenite tip clanstva" arrow placement="left">
                 <span
                   style={
                     userProfile?.membership === "silver"
@@ -526,39 +550,39 @@ const Settings = ({ userData }) => {
                 dialogOpen={membershipDialogOpen}
                 dialogClose={closeMembershipDialog}
                 dialogLoading={dialogLoading}
-                title="Change membership"
+                title="Promena tipa clanstva"
                 nativeContentText={
                   <DialogContentText>
                     {membership === "silver" && (
                       <div>
-                        <div>Silver plan:</div>
+                        <div>Srebrni plan:</div>
                         <div className={styles.membershipDetails}>
                           <ul>
-                            <li>2 ads</li>
+                            <li>2 oglasa</li>
                           </ul>
                         </div>
                       </div>
                     )}
                     {membership === "gold" && (
                       <div>
-                        <div>Gold plan:</div>
+                        <div>Zlatni plan:</div>
                         <div className={styles.membershipDetails}>
                           <ul>
-                            <li>5 ads</li>
-                            <li>1 free ad promotion per month</li>
-                            <li>200 bonus rep per month</li>
+                            <li>5 oglasa</li>
+                            <li>1 besplatna promocija oglasa po mesecu</li>
+                            <li>200 bonus reputacije po mesecu</li>
                           </ul>
                         </div>
                       </div>
                     )}
                     {membership === "diamond" && (
                       <div>
-                        <div>Diamond plan:</div>
+                        <div>Dijamantski plan:</div>
                         <div className={styles.membershipDetails}>
                           <ul>
-                            <li>10 ads</li>
-                            <li>3 free ad promotion per month</li>
-                            <li>500 bonus rep per month</li>
+                            <li>10 oglasa</li>
+                            <li>3 besplatne promocije oglasa po mesecu</li>
+                            <li>500 bonus reputacije po mesecu</li>
                           </ul>
                         </div>
                       </div>
@@ -577,8 +601,8 @@ const Settings = ({ userData }) => {
                     onClick={() => setMembership("silver")}
                   >
                     <CardActionArea>
-                      <CardHeader title="Silver"></CardHeader>
-                      <CardContent>0 rsd/mo</CardContent>
+                      <CardHeader title="Srebrno"></CardHeader>
+                      <CardContent>0 rsd/mes</CardContent>
                     </CardActionArea>
                   </Card>
                   <Card
@@ -591,8 +615,8 @@ const Settings = ({ userData }) => {
                     onClick={() => setMembership("gold")}
                   >
                     <CardActionArea>
-                      <CardHeader title="Gold"></CardHeader>
-                      <CardContent>500 rsd/mo</CardContent>
+                      <CardHeader title="Zlatno"></CardHeader>
+                      <CardContent>500 rsd/mes</CardContent>
                     </CardActionArea>
                   </Card>
                   <Card
@@ -605,8 +629,8 @@ const Settings = ({ userData }) => {
                     onClick={() => setMembership("diamond")}
                   >
                     <CardActionArea>
-                      <CardHeader title="Diamond"></CardHeader>
-                      <CardContent>1000 rsd/mo</CardContent>
+                      <CardHeader title="Dijamantsko"></CardHeader>
+                      <CardContent>1000 rsd/mes</CardContent>
                     </CardActionArea>
                   </Card>
                 </Stack>
@@ -692,7 +716,7 @@ const Settings = ({ userData }) => {
                       root: styles.accordionSummaryRoot,
                     }}
                   >
-                    Change basic information
+                    Promena osnovnih podataka
                   </AccordionSummary>
                   <AccordionDetails className={styles.passwordDetailsWrapper}>
                     <Box
@@ -800,7 +824,7 @@ const Settings = ({ userData }) => {
                       root: styles.accordionSummaryRoot,
                     }}
                   >
-                    Change password
+                    Promena lozinke
                   </AccordionSummary>
                   <AccordionDetails className={styles.passwordDetailsWrapper}>
                     <Box
@@ -912,22 +936,21 @@ const Settings = ({ userData }) => {
                         color={emailChange ? "error" : "info"}
                         variant="contained"
                       >
-                        {emailChange ? "Confirm" : "Click to change"}
+                        {emailChange ? "Potvrdi" : "Promeni"}
                       </Button>
 
                       <CustomDialog // *Dialog for changing email
                         dialogOpen={emailDialogOpen}
                         dialogClose={closeEmailDialog}
                         dialogLoading={dialogLoading}
-                        title="Confirm delicate action"
-                        contentText="You are about to change email that is linked to this
-                            acount, enter your password to proceed."
+                        title="Potvrdite delikatnu operaciju"
+                        contentText="Da biste promenili email koji je povezan sa ovim nalogom, morate uneti Vasu lozinku:"
                       >
                         <TextField
                           autoFocus
                           margin="dense"
                           id="passwordConfirmationDialog"
-                          label="Password"
+                          label="Lozinka"
                           type="password"
                           fullWidth
                           inputRef={emailDialogPassword}
@@ -946,18 +969,18 @@ const Settings = ({ userData }) => {
                           htmlFor={selectId}
                           classes={{ root: styles.labelStyle }}
                         >
-                          Category
+                          Kategorija
                         </InputLabel>
                         <Select
                           className={styles.selectStyle}
                           inputProps={{ id: selectId, variant: "outlined" }}
                           defaultValue={userProfile?.category}
                           inputRef={category}
-                          label="Category"
+                          label="Kategorija"
                         >
-                          <MenuItem value={null}>None</MenuItem>
-                          <MenuItem value={"products"}>Products</MenuItem>
-                          <MenuItem value={"services"}>Services</MenuItem>
+                          <MenuItem value={null}>Nijedna</MenuItem>
+                          <MenuItem value={"products"}>Proizvodi</MenuItem>
+                          <MenuItem value={"services"}>Usluge</MenuItem>
                         </Select>
                       </FormControl>
                       <Button
@@ -969,25 +992,21 @@ const Settings = ({ userData }) => {
                         color={catChange ? "error" : "info"}
                         variant="contained"
                       >
-                        {catChange ? "Confirm" : "Click to change"}
+                        {catChange ? "Potvrdi" : "Promeni"}
                       </Button>
 
                       <CustomDialog // *Dialog for changing category
                         dialogOpen={catDialogOpen}
                         dialogClose={closeCatDialog}
                         dialogLoading={dialogLoading}
-                        title="Confirm delicate action"
-                        contentText=" You are about to change your account category. By
-                            proceeding with this action you will loose all your
-                            reputation, ratings and comments. Enter your
-                            password to continue:"
+                        title="Potvrdite delikatnu operaciju"
+                        contentText=" Ovom akcijom cete promeniti kategoriju ovog naloga. Ako nastavite saglasni ste da izgubite svu reputaciju, rejting i komentare. Morate uneti lozinku da biste nastavili:"
                       >
-                        {" "}
                         <TextField
                           autoFocus
                           margin="dense"
                           id="passwordConfirmationDialog"
-                          label="Password"
+                          label="Lozinka"
                           type="password"
                           fullWidth
                           size="small"
