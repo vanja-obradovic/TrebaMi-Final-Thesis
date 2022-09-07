@@ -93,7 +93,7 @@ export default function Home() {
   const productSubCategories = ["Hrana", "Tekstil", "Koza", "Drvo", "Hemija"];
   const serviceSubCategories = [
     "Transport",
-    "Gradjevinarstvo",
+    "Gradjevina",
     "Elektrika",
     "Vodovod",
   ];
