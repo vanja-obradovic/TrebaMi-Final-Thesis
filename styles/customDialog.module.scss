@@ -1,11 +1,11 @@
 @import "../styles/mixins.module.scss";
 .dialog {
-  border-radius: 0.75rem;
+  border-radius: 0.75rem !important;
   padding: 1rem 2rem;
   text-align: center;
 }
 .dialogActions {
-  justify-content: space-around;
+  justify-content: space-around !important;
   button {
     min-width: 33%;
   }
