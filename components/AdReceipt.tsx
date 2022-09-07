@@ -283,7 +283,10 @@ const AdReceipt = ({
   };
 
   const imageAsPromise = (baseRef, adRef, image: ImageFileUrl) => {
-    const ref = storage.ref(baseRef, `${adRef}/${uuidv4()}.${image.fileType}`);
+    const ref = storage.ref(
+      baseRef,
+      `${adRef}/${buyerID}/${uuidv4()}.${image.fileType}`
+    );
     return new Promise((resolve, reject) => {
       const uploadTask = storage.uploadBytesResumable(ref, image.file);
 

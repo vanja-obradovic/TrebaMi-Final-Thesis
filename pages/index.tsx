@@ -21,6 +21,14 @@ import SearchIcon from "@mui/icons-material/Search";
 
 import styles from "../styles/index.module.scss";
 import Image from "next/image";
+import clay from "../public/clay.jpg";
+import construction from "../public/construction.jpg";
+import electrician from "../public/electrician.jpg";
+import plumbing from "../public/plumbing.jpg";
+import veg from "../public/veg.jpg";
+import tex from "../public/tex.jpg";
+import wood from "../public/wood.jpg";
+import transport from "../public/transport.jpg";
 
 type FormData = {
   subcategory: string;
@@ -222,7 +230,7 @@ export default function Home() {
                       <div className={styles.first}>
                         <div>
                           <Image
-                            src="/veg.jpg"
+                            src={veg}
                             layout="fill"
                             placeholder="blur"
                           ></Image>
@@ -232,7 +240,7 @@ export default function Home() {
                       <div className={styles.second}>
                         <div>
                           <Image
-                            src="/wood.jpg"
+                            src={wood}
                             layout="fill"
                             placeholder="blur"
                           ></Image>
@@ -242,7 +250,7 @@ export default function Home() {
                       <div className={styles.third}>
                         <div>
                           <Image
-                            src="/clay.jpg"
+                            src={clay}
                             layout="fill"
                             placeholder="blur"
                           ></Image>
@@ -252,7 +260,7 @@ export default function Home() {
                       <div className={styles.fourth}>
                         <div>
                           <Image
-                            src="/tex.jpg"
+                            src={tex}
                             layout="fill"
                             placeholder="blur"
                           ></Image>
@@ -336,7 +344,7 @@ export default function Home() {
                       <div className={styles.first}>
                         <div>
                           <Image
-                            src="/construction.jpg"
+                            src={construction}
                             layout="fill"
                             placeholder="blur"
                           ></Image>
@@ -346,7 +354,7 @@ export default function Home() {
                       <div className={styles.second}>
                         <div>
                           <Image
-                            src="/transport.jpg"
+                            src={transport}
                             layout="fill"
                             placeholder="blur"
                           ></Image>
@@ -356,7 +364,7 @@ export default function Home() {
                       <div className={styles.third}>
                         <div>
                           <Image
-                            src="/electrician.jpg"
+                            src={electrician}
                             layout="fill"
                             placeholder="blur"
                           ></Image>
@@ -366,7 +374,7 @@ export default function Home() {
                       <div className={styles.fourth}>
                         <div>
                           <Image
-                            src="/plumbing.jpg"
+                            src={plumbing}
                             layout="fill"
                             placeholder="blur"
                           ></Image>
