@@ -3,13 +3,14 @@ import {
   Box,
   Button,
   Container,
+  IconButton,
   Paper,
   TextField,
   Tooltip,
 } from "@mui/material";
 import { arrayUnion, onSnapshot } from "firebase/firestore";
 import { useRouter } from "next/router";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Chat, chatSchema } from "../models/Chat";
 import { Message, messageSchema } from "../models/Message";
 import app, {
@@ -25,11 +26,17 @@ import { useAuth } from "../contexts/AuthContext";
 import { format, isToday } from "date-fns";
 import Link from "next/link";
 import { toast } from "react-toastify";
-import { Id, Toast } from "react-toastify/dist/types";
+import { Id } from "react-toastify/dist/types";
+import SendIcon from "@mui/icons-material/Send";
 
 export const getServerSideProps = async ({ query }) => {
   const chatID = query.id;
   const chat = await getChat(chatID);
+  if (chat.id === undefined) {
+    return {
+      notFound: true,
+    };
+  }
   const map = {};
   for (const user of chat.members) {
     map[user.uid] = {
@@ -56,12 +63,11 @@ const ChatPage = ({
   messageList: Message[];
   userMap;
 }) => {
-  const [rtmessages, setRtMessages] = useState<Message[]>();
+  const [rtmessages, setRtMessages] = useState<Message[]>(messageList);
   const [rtChat, setRtChat] = useState<Chat>();
   const { currUser } = useAuth();
   const toastRef = useRef<Id>();
 
-  const messages = rtmessages || messageList;
   const chat = rtChat || baseChat;
 
   const offerVisible =
@@ -162,6 +168,33 @@ const ChatPage = ({
     );
   };
 
+  const scrollRef = useRef<HTMLDivElement>();
+  const messageContainerRef = useRef<HTMLDivElement>();
+  const obeserver = useRef<IntersectionObserver>();
+  const [hasMore, setHasMore] = useState(true);
+
+  const lastMsgRef = useCallback(
+    (node) => {
+      if (obeserver.current) {
+        obeserver.current.disconnect();
+      }
+      obeserver.current = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting && hasMore) {
+            getChatMessages(chat.id, rtmessages[0]?.sentAt ?? 0).then((res) => {
+              if (res.length < 10) setHasMore(false);
+              setRtMessages((prev) => res.concat(prev));
+            });
+            obeserver.current.unobserve(entries[0].target);
+          }
+        },
+        { root: messageContainerRef.current, rootMargin: "250px" }
+      );
+      if (node) setTimeout(() => obeserver.current.observe(node), 500);
+    },
+    [rtmessages]
+  );
+
   useEffect(() => {
     const unsub = onSnapshot(
       firestore.query(
@@ -169,16 +202,30 @@ const ChatPage = ({
           firestore.getFirestore(app),
           `message/${router.query.id}/messages`
         ),
-        firestore.orderBy("sentAt")
+        firestore.orderBy("sentAt", "desc"),
+        firestore.endBefore(rtmessages[rtmessages.length - 1]?.sentAt ?? 0)
       ),
       (res) => {
-        const rtMessages = res.docs.map((doc) =>
-          messageSchema.cast(doc.data())
-        );
-        setRtMessages(rtMessages);
+        res.docChanges().map((item) => console.log(item.doc.data()));
+        const rtMessages = res
+          .docChanges()
+          .reverse()
+          .map((doc) => messageSchema.cast(doc.doc.data()));
+        setRtMessages((prev) => prev.concat(rtMessages));
+        setTimeout(() => {
+          scrollRef.current.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest",
+            inline: "start",
+          });
+        }, 1);
       }
     );
-
+    scrollRef.current.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "start",
+    });
     return unsub;
   }, []);
 
@@ -286,83 +333,167 @@ const ChatPage = ({
 
   return (
     <Container maxWidth="xl" className={styles.chatContainer}>
-      <Container maxWidth="xl" className={styles.messageContainer}>
-        {messages.map((message) => {
-          return (
-            <Box
-              className={[
-                styles.messageWrapper,
-                message.sentBy === currUser?.uid ? styles.right : "",
-              ].join(" ")}
-              key={message.sentAt}
-            >
-              <Link href={{ pathname: "/user", query: { id: message.sentBy } }}>
-                <Tooltip
-                  title={userMap[message.sentBy].displayName}
-                  placement="top"
-                  arrow
-                  style={{ cursor: "pointer" }}
-                >
-                  <Avatar src={userMap[message.sentBy].photoURL}>
-                    {userMap[message.sentBy].displayName.charAt(0)}
-                  </Avatar>
-                </Tooltip>
-              </Link>
-              <Paper elevation={4} className={styles.message}>
-                <div>{message.messageText}</div>
-                <div className={styles.time}>
-                  <div>
-                    {isToday(message.sentAt)
-                      ? "Danas,"
-                      : format(message.sentAt, "dd.MM.yyyy") + ","}
-                  </div>
-                  <div>{format(message.sentAt, "HH:mm")}</div>
-                </div>
-              </Paper>
-            </Box>
-          );
-        })}
-      </Container>
-      {offerVisible && !chat.closed && (
-        <Box
-          component="form"
-          className={styles.offer}
-          onSubmit={handleOffer(handleNewOffer, handleErrorOffer)}
-        >
-          <TextField
-            label="Ponuda"
-            {...registerOffer("offer", { valueAsNumber: true })}
-          ></TextField>
-          {chat.offer.amount === -1 && (
-            <Button color="success" variant="contained" type="submit">
-              Potvrdi
-            </Button>
-          )}
-          {chat.offer.amount !== -1 && (
-            <Button
-              color="error"
-              variant="contained"
-              type="button"
-              onClick={(e) => {
-                resetOffer();
+      <Paper className={styles.chatPaper}>
+        <span className={styles.chatHeader}>
+          <h3>
+            <Link
+              href={{
+                pathname: "ad",
+                query: {
+                  aID: chat.subject.aid,
+                  prov: Object.keys(userMap)[
+                    (Object.keys(userMap).indexOf(chat.createdBy) + 1) % 2
+                  ],
+                },
               }}
             >
-              Ponisti
-            </Button>
-          )}
+              {chat.subject.adTitle}
+            </Link>
+          </h3>
+        </span>
+        <Container
+          maxWidth="xl"
+          className={styles.messageContainer}
+          ref={messageContainerRef}
+        >
+          <Paper className={styles.messagesPaper}>
+            {rtmessages.map((message, index) => {
+              if (index === 0) {
+                return (
+                  <Box
+                    className={[
+                      styles.messageWrapper,
+                      message.sentBy === currUser?.uid ? styles.right : "",
+                    ].join(" ")}
+                    key={message.sentAt}
+                    ref={lastMsgRef}
+                  >
+                    <Link
+                      href={{
+                        pathname: "/user",
+                        query: { id: message.sentBy },
+                      }}
+                    >
+                      <Tooltip
+                        title={userMap[message.sentBy].displayName}
+                        placement="top"
+                        arrow
+                        style={{ cursor: "pointer" }}
+                      >
+                        <Avatar src={userMap[message.sentBy].photoURL}>
+                          {userMap[message.sentBy].displayName.charAt(0)}
+                        </Avatar>
+                      </Tooltip>
+                    </Link>
+                    <Paper elevation={4} className={styles.message}>
+                      <div>{message.messageText}</div>
+                      <div className={styles.time}>
+                        <div>
+                          {isToday(message.sentAt)
+                            ? "Danas,"
+                            : format(message.sentAt, "dd.MM.yyyy") + ","}
+                        </div>
+                        <div>{format(message.sentAt, "HH:mm")}</div>
+                      </div>
+                    </Paper>
+                  </Box>
+                );
+              } else
+                return (
+                  <Box
+                    className={[
+                      styles.messageWrapper,
+                      message.sentBy === currUser?.uid ? styles.right : "",
+                    ].join(" ")}
+                    key={message.sentAt}
+                  >
+                    <Link
+                      href={{
+                        pathname: "/user",
+                        query: { id: message.sentBy },
+                      }}
+                    >
+                      <Tooltip
+                        title={userMap[message.sentBy].displayName}
+                        placement="top"
+                        arrow
+                        style={{ cursor: "pointer" }}
+                      >
+                        <Avatar src={userMap[message.sentBy].photoURL}>
+                          {userMap[message.sentBy].displayName.charAt(0)}
+                        </Avatar>
+                      </Tooltip>
+                    </Link>
+                    <Paper elevation={4} className={styles.message}>
+                      <div>{message.messageText}</div>
+                      <div className={styles.time}>
+                        <div>
+                          {isToday(message.sentAt)
+                            ? "Danas,"
+                            : format(message.sentAt, "dd.MM.yyyy") + ","}
+                        </div>
+                        <div>{format(message.sentAt, "HH:mm")}</div>
+                      </div>
+                    </Paper>
+                  </Box>
+                );
+            })}
+            <div ref={scrollRef}></div>
+          </Paper>
+        </Container>
+        {offerVisible && !chat.closed && (
+          <Box
+            component="form"
+            className={styles.offer}
+            onSubmit={handleOffer(handleNewOffer, handleErrorOffer)}
+          >
+            <TextField
+              label="Ponuda"
+              {...registerOffer("offer", { valueAsNumber: true })}
+              InputLabelProps={{
+                className: styles.inputStyle,
+              }}
+              InputProps={{ className: styles.inputStyle }}
+            ></TextField>
+            {chat.offer.amount === -1 && (
+              <Button color="success" variant="contained" type="submit">
+                Potvrdi
+              </Button>
+            )}
+            {chat.offer.amount !== -1 && (
+              <Button
+                color="error"
+                variant="contained"
+                type="button"
+                onClick={(e) => {
+                  resetOffer();
+                }}
+              >
+                Ponisti
+              </Button>
+            )}
+          </Box>
+        )}
+        <Box
+          component="form"
+          onSubmit={handleMessage(handleNewMessage, handleError)}
+          className={styles.messageTextField}
+        >
+          <TextField
+            label="Nova poruka..."
+            fullWidth
+            {...registerMessage("message")}
+            disabled={chat.closed}
+            InputLabelProps={{
+              className: styles.inputStyle,
+            }}
+            InputProps={{ className: styles.inputStyle }}
+          ></TextField>
+          <IconButton type="submit" disabled={chat.closed}>
+            <SendIcon></SendIcon>
+          </IconButton>
         </Box>
-      )}
-      <Box
-        component="form"
-        onSubmit={handleMessage(handleNewMessage, handleError)}
-      >
-        <TextField
-          label="Nova poruka..."
-          fullWidth
-          {...registerMessage("message")}
-          disabled={chat.closed}
-        ></TextField>
-      </Box>
+      </Paper>
     </Container>
   );
 };

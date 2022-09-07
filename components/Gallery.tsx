@@ -7,6 +7,7 @@ import styles from "../styles/gallery.module.scss";
 
 interface GalleryProps {
   images: string[];
+  edit?: boolean;
 }
 
 const Gallery = (props: GalleryProps) => {

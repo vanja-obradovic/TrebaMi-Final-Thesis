@@ -7,6 +7,7 @@ import styles from "../styles/popup.module.scss";
 import { TextField } from "@mui/material";
 import { Box } from "@mui/system";
 import { useForm } from "react-hook-form";
+import { format, isBefore } from "date-fns";
 
 type FormData = {
   email: string;
@@ -20,13 +21,30 @@ const Login = ({ setPopup, setRegister }) => {
 
   const [loading, setLoading] = useState(false);
 
-  const { login } = useAuth();
+  const { login, signout } = useAuth();
 
   const handleLogin = async (data: FormData) => {
     setLoading(true);
     login?.(data.email, data.password)
-      .then((res) => {
-        if (res.user.displayName === null) Router.push("/setup");
+      .then((result) => {
+        result.user.getIdTokenResult().then((res) => {
+          const time = new Date().getTime();
+          if (
+            isBefore(time, +res.claims["disabledUntil"]?.toString() ?? time)
+          ) {
+            signout();
+            toast.error(
+              "Vas nalog je privremeno suspendovan do " +
+                format(
+                  +res.claims["disabledUntil"]?.toString(),
+                  "dd.MM.yy/HH:mm"
+                ),
+              { position: "top-center", autoClose: false }
+            );
+          } else {
+            if (result.user.displayName === null) Router.push("/setup");
+          }
+        });
       })
       .catch((err) => {
         console.log(err.message);

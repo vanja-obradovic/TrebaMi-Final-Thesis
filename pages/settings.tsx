@@ -287,6 +287,7 @@ const Settings = ({ userData }) => {
       currUser?.email,
       data.oldPassword
     );
+
     toast.promise(
       auth.reauthenticateWithCredential(currUser, credential).then(() => {
         toast.promise(
@@ -392,10 +393,13 @@ const Settings = ({ userData }) => {
           const docRef = firestore.doc(dbInstance, `users`, `${currUser?.uid}`);
           await firestore
             .updateDoc(docRef, {
-              category: category.current.value,
-              isProvider: category.current.value === "None" ? false : true,
+              changeInit: true,
             })
             .then(async () => {
+              firestore.setDoc(
+                firestore.doc(dbInstance, `catChange/${currUser?.uid}`),
+                { id: currUser?.uid }
+              );
               toast.success("Update successful!");
               setCatDialogOpen(false);
               const userDoc = await getUser(currUser?.uid);
@@ -974,7 +978,9 @@ const Settings = ({ userData }) => {
                         <Select
                           className={styles.selectStyle}
                           inputProps={{ id: selectId, variant: "outlined" }}
-                          defaultValue={userProfile?.category}
+                          defaultValue={
+                            userProfile?.changeInit ? "" : userProfile?.category
+                          }
                           inputRef={category}
                           label="Kategorija"
                         >
@@ -991,6 +997,7 @@ const Settings = ({ userData }) => {
                         }}
                         color={catChange ? "error" : "info"}
                         variant="contained"
+                        disabled={userProfile?.changeInit}
                       >
                         {catChange ? "Potvrdi" : "Promeni"}
                       </Button>

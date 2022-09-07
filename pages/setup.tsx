@@ -76,6 +76,7 @@ const Setup = () => {
         rating: null,
         reputation: null,
         membership: "silver",
+        commentsNumber: 0,
         isProvider: data.provider,
         location: data.location,
         category: data.category ?? null,

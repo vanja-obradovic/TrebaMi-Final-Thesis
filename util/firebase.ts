@@ -37,6 +37,12 @@ import {
   arrayUnion,
   arrayRemove,
   orderBy,
+  limit,
+  startAfter,
+  endAt,
+  endBefore,
+  startAt,
+  deleteDoc,
 } from "firebase/firestore";
 import { ngram } from "./ngram";
 import { commentSchema } from "../models/Comment";
@@ -164,20 +170,16 @@ export const getAdComments = async (adID: string) => {
       )
     );
   });
-  // docData.comments.forEach((item) => {
-  //   return commentSchema.cast(
-  //     {
-  //       ...item,
-  //       timestamp: item.timestamp.toDate().toString(),
-  //       commenter: docData.commenter,
-  //     },
-  //     { stripUnknown: true }
-  //   );
-  // });
-  // console.log(comments);
-  // return comments;
-  // return commentSchema.cast(comments, { stripUnknown: true });
-  // });
+};
+
+export const updateAd = (aid: string, uid: string, data) => {
+  const ref = doc(getFirestore(app), `/users/${uid}/ads/${aid}`);
+  return updateDoc(ref, {
+    quantity: data.editQuantity,
+    name: data.name,
+    price: data.price,
+    description: data.description,
+  });
 };
 
 export const getChat = async (chatID: string) => {
@@ -187,8 +189,14 @@ export const getChat = async (chatID: string) => {
 };
 
 export const newChat = async (chatDetails: Chat) => {
-  const ref = doc(getFirestore(app), `chat/${chatDetails.id}`);
-  return setDoc(ref, chatDetails);
+  const ref = collection(getFirestore(app), `chat`);
+  const tmp = addDoc(ref, chatDetails);
+  return tmp.then((res) => {
+    updateDoc(res, {
+      id: res.id,
+    });
+    return tmp;
+  });
 };
 
 export const getUserChats = async (member) => {
@@ -201,13 +209,15 @@ export const getUserChats = async (member) => {
   });
 };
 
-export const getChatMessages = async (chatID: string) => {
+export const getChatMessages = async (chatID: string, start?: number) => {
   const ref = query(
     collection(getFirestore(app), `message/${chatID}/messages`),
-    orderBy("sentAt")
+    orderBy("sentAt", "desc"),
+    limit(10)
   );
-  const messages = await getDocs(ref);
-  return messages.docs.map((doc) => {
+  const messages = await getDocs(start ? query(ref, startAfter(start)) : ref);
+  console.log("Dohvatio iz backa " + messages.docs.length);
+  return messages.docs.reverse().map((doc) => {
     return messageSchema.cast(doc.data(), { stripUnknown: true });
   });
 };
@@ -232,6 +242,20 @@ export const setOffer = (chatID: string, offer: number) => {
   const ref = doc(getFirestore(app), `chat/${chatID}`);
   return updateDoc(ref, {
     "offer.amount": offer,
+  });
+};
+
+export const deleteAd = (aid: string, uid: string, images: string[]) => {
+  const adRef = doc(getFirestore(app), `/users/${uid}/ads/${aid}`);
+  return deleteDoc(adRef).then(() => {
+    const storageInsance = getStorage(app);
+    for (const image of images) {
+      deleteObject(ref(storageInsance, image));
+    }
+    const userRef = doc(getFirestore(app), `/users/${uid}`);
+    updateDoc(userRef, {
+      "ad.count": increment(-1),
+    });
   });
 };
 
@@ -266,6 +290,10 @@ export const firestore = {
   arrayUnion,
   arrayRemove,
   orderBy,
+  limit,
+  startAfter,
+  endAt,
+  endBefore,
 };
 export const storage = {
   getStorage,

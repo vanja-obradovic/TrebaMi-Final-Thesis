@@ -1,7 +1,11 @@
+import { Box, Container, Paper } from "@mui/material";
 import React from "react";
 import AdCard from "../components/AdCard";
-import { adSchema } from "../models/Advertisement";
-import { getUserAds } from "../util/firebase";
+import UserDetails from "../components/UserDetails";
+import { adSchema, Advertisement } from "../models/Advertisement";
+import { getUser, getUserAds } from "../util/firebase";
+import styles from "../styles/user.module.scss";
+import { User, userSchema } from "../models/User";
 
 export const getServerSideProps = async ({ query }) => {
   const userAds = await getUserAds(query.id).then((res) => {
@@ -13,17 +17,57 @@ export const getServerSideProps = async ({ query }) => {
       };
     });
   });
-  return { props: { userAds: userAds } };
+
+  const user = await getUser(query.id).then((res) => {
+    if (res.data() === undefined) return undefined;
+    else return userSchema.cast(res.data());
+  });
+  if (user === undefined)
+    return {
+      notFound: true,
+    };
+  return {
+    props: {
+      userAds: userAds,
+      userDetails: {
+        membership: user.membership,
+        reputation: user.reputation,
+        rating: user.rating,
+      },
+    },
+  };
 };
 
-const User = ({ userAds }) => {
+const User = ({
+  userAds,
+  userDetails,
+}: {
+  userAds: Advertisement[];
+  userDetails: Partial<User>;
+}) => {
   return (
-    <div>
-      User
-      {userAds.map((val, index) => {
-        return <AdCard ad={val} key={index}></AdCard>;
-      })}
-    </div>
+    <Container component="div" maxWidth="xl" className={styles.container}>
+      <Paper elevation={4} className={styles.wrapper}>
+        <UserDetails
+          displayName={userAds[0].provider.displayName}
+          membership={userDetails.membership}
+          photoURL={userAds[0].provider.photoURL}
+          rating={userDetails.rating}
+          reputation={userDetails.reputation}
+        ></UserDetails>
+        <Box className={styles.cardWrapper}>
+          {userAds.map((val, index) => {
+            return <AdCard ad={val} key={index}></AdCard>;
+          })}
+        </Box>
+      </Paper>
+    </Container>
+    // <div>
+    //   User
+    //   {userAds.map((val, index) => {
+    //     return <AdCard ad={val} key={index}></AdCard>;
+    //   })}
+    // </div>
   );
 };
 

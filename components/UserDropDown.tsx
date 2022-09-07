@@ -36,9 +36,11 @@ const UserDropDown = () => {
             onClose={handleClose}
             TransitionComponent={Zoom}
             PaperProps={{ className: styles.dropDown }}
+            anchorOrigin={{ horizontal: "center", vertical: "bottom" }}
+            transformOrigin={{ vertical: "top", horizontal: "center" }}
           >
             <MenuItem classes={{ gutters: styles.item }} onClick={handleClose}>
-              <Link href={`/userProfile`} locale={false} prefetch>
+              <Link href={`/profile`} locale={false} prefetch>
                 My profile
               </Link>
             </MenuItem>

@@ -1,0 +1,32 @@
+.wrapper {
+  @extend .paper;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5vmin;
+  @media only screen and (max-width: 992px) {
+    flex-direction: column;
+  }
+}
+.container {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  min-height: inherit;
+}
+
+.paper {
+  height: 100%;
+  width: 100%;
+  border-radius: 0.75rem !important;
+  padding: 0.75rem !important;
+}
+
+.cardWrapper {
+  flex: 7;
+  max-height: 75vh;
+  min-height: 50vh;
+  overflow: auto;
+  padding: 0.75rem !important;
+}

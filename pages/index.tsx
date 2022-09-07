@@ -20,6 +20,7 @@ import useDebounce from "../hooks/useDebounce";
 import SearchIcon from "@mui/icons-material/Search";
 
 import styles from "../styles/index.module.scss";
+import Image from "next/image";
 
 type FormData = {
   subcategory: string;
@@ -69,7 +70,7 @@ export default function Home() {
   const [focusProducts, setFocusProducts] = useState(false);
   const [focusServices, setFocusServices] = useState(false);
   const [interactive, setInteractive] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   let loadingResults = fetching || active;
 
@@ -82,9 +83,9 @@ export default function Home() {
 
     window.addEventListener("resize", updateInteractivity);
 
-    setTimeout(() => {
-      setLoading(false);
-    }, 500);
+    // setTimeout(() => {
+    //   setLoading(false);
+    // }, 500);
 
     return () => window.removeEventListener("resize", updateInteractivity);
   }, []);
@@ -109,7 +110,10 @@ export default function Home() {
       </Head>
 
       <Backdrop
-        sx={{ backgroundColor: "black!important", zIndex: 99999 }}
+        sx={{
+          backgroundColor: "rgba(255,255,255,0.75)!important",
+          zIndex: 99999,
+        }}
         open={loading}
         transitionDuration={{ appear: 0, enter: 0, exit: 1500 }}
       >
@@ -216,28 +220,28 @@ export default function Home() {
                   interactive ? (
                     <div className={styles.productsInteractive}>
                       <div className={styles.first}>
-                        {/* <div>
-                      <Image src="/veg.jpg" layout="fill"></Image>
-                    </div> */}
-                        <img src="./veg.jpg"></img>
+                        <div>
+                          <Image src="/veg.jpg" layout="fill"></Image>
+                        </div>
+                        {/* <img src="./veg.jpg"></img> */}
                       </div>
                       <div className={styles.second}>
-                        {/* <div>
-                      <Image src="/wood.jpg" layout="fill"></Image>
-                    </div> */}
-                        <img src="./wood.jpg"></img>
+                        <div>
+                          <Image src="/wood.jpg" layout="fill"></Image>
+                        </div>
+                        {/* <img src="./wood.jpg"></img> */}
                       </div>
                       <div className={styles.third}>
-                        {/* <div>
-                      <Image src="/clay.jpg" layout="fill"></Image>
-                    </div> */}
-                        <img src="./clay.jpg"></img>
+                        <div>
+                          <Image src="/clay.jpg" layout="fill"></Image>
+                        </div>
+                        {/* <img src="./clay.jpg"></img> */}
                       </div>
                       <div className={styles.fourth}>
-                        {/* <div>
-                      <Image src="/tex.jpg" layout="fill"></Image>
-                    </div> */}
-                        <img src="./tex.jpg"></img>
+                        <div>
+                          <Image src="/tex.jpg" layout="fill"></Image>
+                        </div>
+                        {/* <img src="./tex.jpg"></img> */}
                       </div>
                     </div>
                   ) : (
@@ -314,28 +318,28 @@ export default function Home() {
                   interactive ? (
                     <div className={styles.servicesInteractive}>
                       <div className={styles.first}>
-                        {/* <div>
-                      <Image src="/construction.jpg" layout="fill"></Image>
-                    </div> */}
-                        <img src="./construction.jpg"></img>
+                        <div>
+                          <Image src="/construction.jpg" layout="fill"></Image>
+                        </div>
+                        {/* <img src="./construction.jpg"></img> */}
                       </div>
                       <div className={styles.second}>
-                        {/* <div>
-                      <Image src="/transport.jpg" layout="fill"></Image>
-                    </div> */}
-                        <img src="./transport.jpg"></img>
+                        <div>
+                          <Image src="/transport.jpg" layout="fill"></Image>
+                        </div>
+                        {/* <img src="./transport.jpg"></img> */}
                       </div>
                       <div className={styles.third}>
-                        {/* <div>
-                      <Image src="/electrician.jpg" layout="fill"></Image>
-                    </div> */}
-                        <img src="./electrician.jpg"></img>
+                        <div>
+                          <Image src="/electrician.jpg" layout="fill"></Image>
+                        </div>
+                        {/* <img src="./electrician.jpg"></img> */}
                       </div>
                       <div className={styles.fourth}>
-                        {/* <div>
-                      <Image src="/plumbing.jpg" layout="fill"></Image>
-                    </div> */}
-                        <img src="./plumbing.jpg"></img>
+                        <div>
+                          <Image src="/plumbing.jpg" layout="fill"></Image>
+                        </div>
+                        {/* <img src="./plumbing.jpg"></img> */}
                       </div>
                     </div>
                   ) : (

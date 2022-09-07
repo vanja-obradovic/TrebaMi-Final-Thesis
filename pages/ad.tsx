@@ -1,11 +1,22 @@
-import { Button, Paper, Rating, TextField, Typography } from "@mui/material";
+import {
+  Button,
+  IconButton,
+  Menu,
+  MenuItem,
+  Paper,
+  Rating,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { Box, Container } from "@mui/system";
-import React, { useEffect, useState } from "react";
+import React, { MouseEvent, useEffect, useRef, useState } from "react";
 import app, {
+  deleteAd,
   firestore,
   getAdByRef,
   getAdComments,
   newChat,
+  updateAd,
 } from "../util/firebase";
 import styles from "../styles/adDetails.module.scss";
 import UserDetails from "../components/UserDetails";
@@ -17,14 +28,21 @@ import AdCard from "../components/AdCard";
 import { adSchema, Advertisement } from "../models/Advertisement";
 import { Comment } from "../models/Comment";
 import AdComment from "../components/AdComment";
-import { compareDesc } from "date-fns";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { useAuth } from "../contexts/AuthContext";
-import { onSnapshot, serverTimestamp } from "firebase/firestore";
+import { onSnapshot } from "firebase/firestore";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import DoneOutlinedIcon from "@mui/icons-material/DoneOutlined";
+import CustomDialog from "../components/CustomDialog";
 
 export const getServerSideProps = async ({ query }) => {
   const adDoc = await getAdByRef(query.prov, query.aID);
+  if (adDoc.data() === undefined) {
+    return {
+      notFound: true,
+    };
+  }
   const ad = adSchema.cast(adDoc.data());
   const comments = await getAdComments(query.aID as string);
   return {
@@ -39,6 +57,13 @@ type FormData = {
   quantity: number;
 };
 
+type EditData = {
+  name: string;
+  editQuantity: number;
+  price: number;
+  description: string;
+};
+
 const AdDetails = ({
   adDetails,
   comments,
@@ -46,20 +71,8 @@ const AdDetails = ({
   adDetails: Advertisement;
   comments: Comment[];
 }) => {
-  // const {
-  //   name,
-  //   description,
-  //   provider,
-  //   price,
-  //   priceUnit,
-  //   images,
-  //   category,
-  //   quantity,
-  //   rating,
-  //   pendingUsers,
-  // } = adDetails;
-
   const { currUser } = useAuth();
+  const [ad, setRtAD] = useState<Advertisement>(adDetails);
 
   const router = useRouter();
   const {
@@ -68,7 +81,33 @@ const AdDetails = ({
     formState: { errors },
   } = useForm<FormData>({ defaultValues: { quantity: 1 } });
 
-  const [rtAD, setRtAD] = useState<Advertisement>();
+  const {
+    register: registerEdit,
+    handleSubmit: submitEdit,
+    formState: { errors: editErrors, isValid, isDirty },
+    reset: resetEdit,
+  } = useForm<EditData>({
+    mode: "onBlur",
+    defaultValues: {
+      name: ad.name,
+      description: ad.description,
+      price: ad.price,
+      editQuantity: ad.quantity,
+    },
+    shouldUnregister: true,
+  });
+
+  const [edit, setEdit] = useState(false);
+  const submitBtn = useRef<HTMLButtonElement>();
+
+  const [anchor, setAnchor] = useState<HTMLElement>();
+  const open = Boolean(anchor);
+  const handleClick = (e: MouseEvent<HTMLElement>) => {
+    setAnchor(e.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchor(null);
+  };
 
   const handlePurchase = (formdata: FormData) => {
     const buyerRef = firestore.collection(
@@ -192,15 +231,59 @@ const AdDetails = ({
         category: ad.category,
         subcategory: ad.subcategory,
       },
-    }).then(() =>
+    }).then((res) =>
       router.push({
         pathname: "chat",
-        query: { id: router.query.aID as string },
+        query: { id: res.id },
       })
     );
   };
 
-  const ad = rtAD || adDetails;
+  const handleEdit = (data: EditData) => {
+    if (isDirty) {
+      toast.promise(
+        updateAd(router.query.aID as string, router.query.prov as string, data),
+        {
+          pending: "U toku...",
+          error: "Greska, pokusajte ponovo",
+          success: "Uspeh!",
+        }
+      );
+      resetEdit();
+    }
+  };
+  const handleEditError = () => {};
+
+  const [deleteDialog, setDeleteDialog] = useState(false);
+
+  const closeDeleteDialog = (state: boolean) => {
+    if (state === true) {
+      const imageRefs = [];
+      for (const image of ad.images) {
+        imageRefs.push(
+          image
+            .slice(image.indexOf("user"), image.indexOf("jpeg") + 4)
+            .replaceAll("%2F", "/")
+        );
+      }
+      toast.promise(
+        deleteAd(
+          router.query.aID as string,
+          router.query.prov as string,
+          imageRefs
+        ),
+        {
+          pending: "U toku...",
+          error: "Greska, pokusajte ponovo",
+          success: "Uspeh!",
+        }
+      );
+      router.replace("/profile");
+      setDeleteDialog(false);
+    } else {
+      setDeleteDialog(false);
+    }
+  };
 
   return (
     <Container maxWidth="xl" className={styles.container}>
@@ -222,93 +305,276 @@ const AdDetails = ({
           </Box>
         </Box>
         <Paper className={styles.adInfo} elevation={4}>
-          <span className={styles.adTitle}>
-            <h1>{ad.name}</h1>{" "}
-            <Rating
-              value={ad.rating}
-              precision={0.5}
-              readOnly
-              size="medium"
-              classes={{ root: styles.rating }}
-            />
-          </span>
-          <Gallery images={ad.images}></Gallery>
-          <Paper className={styles.actionWrapper} elevation={4}>
-            <Box className={styles.actionInfo}>
-              <h4>Cena:</h4>
-              <div>
-                {ad.price === -1 ? "Po dogovoru" : ad.price}
-                {ad.priceUnit}
-              </div>
-            </Box>
+          {currUser?.uid === router.query.prov ? (
             <Box
               component="form"
-              className={styles.action}
-              onSubmit={handleSubmit(handlePurchase, handleErrors)}
+              onSubmit={submitEdit(handleEdit, handleEditError)}
+              name="edit"
+              className={styles.editForm}
             >
-              {ad.category === "products" && (
-                <div className={styles.actionInput}>
-                  <div className={styles.actionInputLegend}>
-                    {ad.category === "products" &&
-                      `Raspolozivo: ${ad.quantity}`}
-                  </div>
+              <button hidden ref={submitBtn} type="submit"></button>
+              <span className={styles.adTitle}>
+                {!edit ? (
+                  <h1>{ad.name}</h1>
+                ) : (
                   <TextField
-                    label="Kolicina"
-                    size="small"
-                    {...register("quantity", {
-                      required: "Morate uneti kolicinu!",
-                      min: {
-                        value: 1,
-                        message: "Kolicina mora biti pozitivna!",
+                    label="Naziv"
+                    error={!!editErrors.name}
+                    {...registerEdit("name", {
+                      required: "Naziv je obavezan",
+                      minLength: {
+                        value: 3,
+                        message: "Minimalno 3 karaktera za naziv",
                       },
-                      max: {
-                        value: ad.quantity,
-                        message: "Uneta kolicina je veca od raspolozive!",
+                      maxLength: {
+                        value: 25,
+                        message: "Maksimalno 25 karaktera za naziv",
                       },
-                      valueAsNumber: true,
                     })}
-                    type="number"
-                    error={!!errors.quantity}
-                  />
-                </div>
-              )}
-              {ad.pendingUsers.includes(currUser?.uid) &&
-                "Poslednja kupovina nije potvrdjena"}
-              <div className={styles.actionButtons}>
-                {ad.category === "products" && (
-                  <Button
-                    variant="contained"
-                    type="submit"
-                    disabled={
-                      !!errors.quantity ||
-                      ad.pendingUsers.includes(currUser?.uid)
-                    }
-                  >
-                    Kupi
-                  </Button>
+                    InputLabelProps={{
+                      className: styles.inputStyle,
+                    }}
+                    InputProps={{ className: styles.inputStyle }}
+                  ></TextField>
                 )}
-                <Button
-                  variant="outlined"
-                  color="secondary"
-                  type="button"
-                  onClick={(e) => {
-                    startChat();
-                  }}
-                  disabled={
-                    !!errors.quantity || ad.pendingUsers.includes(currUser?.uid)
-                  }
+                <Rating
+                  value={ad.rating}
+                  precision={0.5}
+                  readOnly
+                  size="medium"
+                  classes={{ root: styles.rating }}
+                />
+                {!edit ? (
+                  <>
+                    <IconButton onClick={handleClick} className={styles.more}>
+                      <MoreVertIcon />
+                    </IconButton>
+                    <Menu
+                      open={open}
+                      anchorEl={anchor}
+                      onClose={handleClose}
+                      // TransitionComponent={Zoom}
+                      PaperProps={{ className: styles.menu }}
+                      anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+                      transformOrigin={{ vertical: "top", horizontal: "right" }}
+                    >
+                      <MenuItem onClick={() => setEdit(true)}>Izmeni</MenuItem>
+                      <MenuItem
+                        sx={{ color: "red" }}
+                        onClick={() => setDeleteDialog(true)}
+                      >
+                        Obrisi
+                      </MenuItem>
+                    </Menu>
+                    <CustomDialog
+                      dialogOpen={deleteDialog}
+                      dialogClose={closeDeleteDialog}
+                      title="Potvrdite delikatnu operaciju"
+                      contentText="Da li ste sigrurni da zelite da obriste ovaj oglas?"
+                    >
+                      <div hidden></div>
+                    </CustomDialog>
+                  </>
+                ) : (
+                  <IconButton
+                    onClick={(e: any) => {
+                      if (isValid) setEdit(false);
+                      setAnchor(null);
+                      submitBtn?.current.click();
+                    }}
+                    className={styles.more}
+                  >
+                    <DoneOutlinedIcon />
+                  </IconButton>
+                )}
+              </span>
+
+              <Gallery images={ad.images}></Gallery>
+
+              <Paper className={styles.actionWrapper} elevation={4}>
+                <Box className={styles.ownerAdInfo}>
+                  {!edit ? (
+                    <div>
+                      <h4>Cena:&nbsp;</h4>
+                      <div>
+                        {ad.price === -1 ? "Po dogovoru" : ad.price}
+                        {ad.priceUnit}
+                      </div>
+                    </div>
+                  ) : (
+                    <TextField
+                      label="Cena"
+                      error={!!editErrors.price}
+                      type="number"
+                      {...registerEdit("price", {
+                        required: "Cena je obavezna",
+                        min: {
+                          value: 1,
+                          message: "Cena ne moze biti manja od 1",
+                        },
+                        valueAsNumber: true,
+                      })}
+                      InputLabelProps={{
+                        className: styles.inputStyle,
+                      }}
+                      InputProps={{ className: styles.inputStyle }}
+                    ></TextField>
+                  )}
+                  {!edit ? (
+                    <div>
+                      <h4>Raspolozivo:&nbsp;</h4>
+                      <div>{ad.quantity}</div>
+                    </div>
+                  ) : (
+                    <TextField
+                      label="Kolicina"
+                      error={!!editErrors.editQuantity}
+                      type="number"
+                      {...registerEdit("editQuantity", {
+                        required: "Kolicina je obavezna",
+                        min: {
+                          value: 0,
+                          message: "Kolicina ne moze biti manja od 0",
+                        },
+                        valueAsNumber: true,
+                      })}
+                      InputLabelProps={{
+                        className: styles.inputStyle,
+                      }}
+                      InputProps={{ className: styles.inputStyle }}
+                    ></TextField>
+                  )}
+                </Box>
+              </Paper>
+              {!edit ? (
+                <Typography
+                  variant="body1"
+                  classes={{ body1: styles.description }}
                 >
-                  Pregovaraj
-                </Button>
-              </div>
+                  {ad.description}
+                </Typography>
+              ) : (
+                <TextField
+                  label="Opis"
+                  error={!!editErrors.description}
+                  multiline
+                  minRows={3}
+                  fullWidth
+                  {...registerEdit("description", {
+                    required: "Opis je obavezan",
+                  })}
+                  InputLabelProps={{
+                    className: styles.inputStyle,
+                  }}
+                  InputProps={{ className: styles.inputStyle }}
+                ></TextField>
+              )}
+
+              {comments.map((item, index) => {
+                return <AdComment {...item} key={index}></AdComment>;
+              })}
             </Box>
-          </Paper>
-          <Typography variant="body1" classes={{ body1: styles.description }}>
-            {ad.description}
-          </Typography>
-          {comments.map((item, index) => {
-            return <AdComment {...item} key={index}></AdComment>;
-          })}
+          ) : (
+            <>
+              <span className={styles.adTitle}>
+                <h1>{ad.name}</h1>
+                <Rating
+                  value={ad.rating}
+                  precision={0.5}
+                  readOnly
+                  size="medium"
+                  classes={{ root: styles.rating }}
+                />
+              </span>
+              <Gallery images={ad.images}></Gallery>
+              <Paper className={styles.actionWrapper} elevation={4}>
+                <Box className={styles.actionInfo}>
+                  <h4>Cena:</h4>
+                  <div>
+                    {ad.price === -1 ? "Po dogovoru" : ad.price}
+                    {ad.priceUnit}
+                  </div>
+                </Box>
+                <Box
+                  component="form"
+                  className={styles.action}
+                  onSubmit={handleSubmit(handlePurchase, handleErrors)}
+                  name="buy"
+                >
+                  {ad.category === "products" && (
+                    <div className={styles.actionInput}>
+                      <div className={styles.actionInputLegend}>
+                        {ad.category === "products" &&
+                          `Raspolozivo: ${ad.quantity}`}
+                      </div>
+                      <TextField
+                        label="Kolicina"
+                        size="small"
+                        {...register("quantity", {
+                          required: "Morate uneti kolicinu!",
+                          min: {
+                            value: 1,
+                            message: "Kolicina mora biti pozitivna!",
+                          },
+                          max: {
+                            value: ad.quantity,
+                            message: "Uneta kolicina je veca od raspolozive!",
+                          },
+                          valueAsNumber: true,
+                        })}
+                        InputLabelProps={{
+                          className: styles.inputStyle,
+                        }}
+                        InputProps={{ className: styles.inputStyle }}
+                        type="number"
+                        error={!!errors.quantity}
+                      />
+                    </div>
+                  )}
+                  {ad.pendingUsers.includes(currUser?.uid) &&
+                    "Poslednja kupovina nije potvrdjena"}
+                  <div className={styles.actionButtons}>
+                    {ad.category === "products" && (
+                      <Button
+                        variant="contained"
+                        type="submit"
+                        disabled={
+                          !!errors.quantity ||
+                          ad.pendingUsers.includes(currUser?.uid)
+                        }
+                      >
+                        Kupi
+                      </Button>
+                    )}
+                    <Button
+                      variant="outlined"
+                      color="secondary"
+                      type="button"
+                      onClick={(e) => {
+                        startChat();
+                      }}
+                      disabled={
+                        !!errors.quantity ||
+                        ad.pendingUsers.includes(currUser?.uid)
+                      }
+                    >
+                      Pregovaraj
+                    </Button>
+                  </div>
+                </Box>
+              </Paper>
+              <Typography
+                variant="body1"
+                classes={{ body1: styles.description }}
+              >
+                {ad.description}
+              </Typography>
+
+              {comments.map((item, index) => {
+                return <AdComment {...item} key={index}></AdComment>;
+              })}
+            </>
+          )}
         </Paper>
       </Paper>
     </Container>

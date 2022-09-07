@@ -55,3 +55,27 @@
     justify-content: center;
   }
 }
+
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+  align-items: center;
+  margin-block: 1rem;
+
+  .imageWrapper {
+    position: relative;
+    min-width: 75%;
+    aspect-ratio: 3/2;
+  }
+
+  .imageClear {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    &:hover {
+      cursor: pointer;
+    }
+  }
+}

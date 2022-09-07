@@ -157,24 +157,24 @@
     );
   }
 
-  div {
-    img {
-      aspect-ratio: 1.5;
-      height: 100%;
-    }
-    position: absolute;
-    height: 100%;
-  }
-
-  // > div {
+  // div {
+  //   img {
+  //     aspect-ratio: 1.5;
+  //     height: 100%;
+  //   }
   //   position: absolute;
   //   height: 100%;
-  //   > div {
-  //     height: 100%;
-  //     aspect-ratio: 1.5;
-  //     position: relative;
-  //   }
   // }
+
+  > div {
+    position: absolute;
+    height: 100%;
+    > div {
+      height: 100%;
+      aspect-ratio: 1.5;
+      position: relative;
+    }
+  }
   .first {
     clip-path: polygon(0 0, 75% 0, 50% 100%, 0 100%);
     transition: all 500ms ease-out;
@@ -240,26 +240,26 @@
     );
   }
 
-  div {
-    img {
-      aspect-ratio: 1.5;
-      height: 100%;
-    }
-    position: absolute;
-    height: 100%;
-    text-align: right;
-  }
-
-  // > div {
+  // div {
+  //   img {
+  //     aspect-ratio: 1.5;
+  //     height: 100%;
+  //   }
   //   position: absolute;
   //   height: 100%;
   //   text-align: right;
-  //   > div {
-  //     height: 100%;
-  //     aspect-ratio: 1.5;
-  //     position: relative;
-  //   }
   // }
+
+  > div {
+    position: absolute;
+    height: 100%;
+    text-align: right;
+    > div {
+      height: 100%;
+      aspect-ratio: 1.5;
+      position: relative;
+    }
+  }
   .first {
     clip-path: polygon(50% 0, 100% 0, 100% 100%, 25% 100%);
     transition: all 500ms ease-out;

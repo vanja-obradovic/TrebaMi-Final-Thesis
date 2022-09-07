@@ -25,7 +25,7 @@ const AdCard = (props: CardProps) => {
   const { ad, search, small, disabled, mapCard } = props;
 
   return !mapCard ? (
-    <Card variant="elevation" className={styles.card} elevation={2}>
+    <Card variant="elevation" className={styles.card} elevation={4}>
       <CardActionArea
         disableRipple
         onClick={() => {

@@ -79,6 +79,7 @@ const UserDashboard = () => {
       price: 0,
       priceUnit: "rsd",
     },
+    shouldUnregister: true,
   });
 
   const [userProfile, setUserProfile] = useState<User>();
@@ -103,7 +104,7 @@ const UserDashboard = () => {
   const storageInstance = storage.getStorage(app);
 
   const [tabValue, setTabValue] = useState(0);
-  const [updateReceipts, forceUpdate] = useReducer((x) => x + 1, 0);
+  const [update, forceUpdate] = useReducer((x) => x + 1, 0);
 
   const tabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -111,8 +112,6 @@ const UserDashboard = () => {
 
   useEffect(() => {
     const currentDate = new Date().getTime();
-    // switch (tabValue) {
-    //   case 3: {
     getUserReceipts(currUser?.uid, "purchases").then((res) => {
       setUserPurchases(res);
       setMonthPurchases(
@@ -123,9 +122,6 @@ const UserDashboard = () => {
 
       setSubCatSpending(getSubcatStatistic(res));
     });
-    //   break;
-    // }
-    // case 4: {
     getUserReceipts(currUser?.uid, "sales").then((res) => {
       setUserSales(res);
       setMonthSales(
@@ -145,11 +141,7 @@ const UserDashboard = () => {
         console.log(res);
         setUserChats(res);
       });
-
-    //     break;
-    //   }
-    // }
-  }, [tabValue, updateReceipts, currUser?.uid]);
+  }, [tabValue, update, currUser?.uid]);
 
   const [newAdDialog, setNewAdDialog] = useState(false);
   const [dialogLoading, setDialogLoading] = useState(false);
@@ -178,7 +170,7 @@ const UserDashboard = () => {
     };
 
     getUserDoc();
-  }, [currUser?.uid]);
+  }, [currUser?.uid, update]);
 
   const adSubmitHandler = (data: adFormData) => {
     const adCollection = firestore.collection(
@@ -208,9 +200,11 @@ const UserDashboard = () => {
         })
         .then(async (docRef) => {
           setAdRef(docRef);
-          await firestore.updateDoc(userDoc, {
-            "ad.count": firestore.increment(1),
-          });
+          await firestore
+            .updateDoc(userDoc, {
+              "ad.count": firestore.increment(1),
+            })
+            .then(() => forceUpdate());
         }),
       {
         success: "Oglas uspesno dodat!",
@@ -233,12 +227,16 @@ const UserDashboard = () => {
 
   const imageInput = useRef<HTMLInputElement>();
   const [photoURLs, setPhotoURLs] = useState<string[]>([]);
-  // const [croppedImages, setCroppedImage] = useState<ImageFileUrl[]>([]);
   const {
     array: croppedImages,
     set: setCroppedImages,
-    remove: removeImage,
+    remove: removeImg,
   } = useArray<ImageFileUrl>([]);
+
+  const removeImage = (index: number) => {
+    window.URL.revokeObjectURL(croppedImages[index].url);
+    removeImg(index);
+  };
 
   const fileChosen = (e) => {
     const input = e.target as HTMLInputElement;
@@ -247,7 +245,6 @@ const UserDashboard = () => {
       for (const file of fileArr) {
         setPhotoURLs((prev) => [...prev, window.URL.createObjectURL(file)]);
       }
-      // window.URL.revokeObjectURL(croppedImage?.url); //!moraju svi da se revokeuju
       input.value = "";
     }
   };
@@ -289,7 +286,11 @@ const UserDashboard = () => {
           firestore.updateDoc(adRef, { images: urls });
           console.log(urls);
         }),
-        { success: "Jupi", pending: "U toku...", error: "Greska" }
+        {
+          success: "Uspeh!",
+          pending: "U toku...",
+          error: "Greska, pokusajte ponovo",
+        }
       );
     } else {
       firestore.updateDoc(adRef, { images: [] });
@@ -359,18 +360,6 @@ const UserDashboard = () => {
               <TabPanel value={tabValue} index={0}>
                 <Container maxWidth="md" className={styles.dashboard}>
                   <Container maxWidth="md" className={styles.economy}>
-                    <Box>
-                      <PieChart
-                        dataset={{
-                          labels: ["Raspolozivo", "Iskorisceno"],
-                          data: [
-                            userProfile?.ad.permitted - userProfile?.ad.count,
-                            userProfile?.ad.count,
-                          ],
-                          title: "Raspolozivi/iskorisceni oglasi",
-                        }}
-                      ></PieChart>
-                    </Box>
                     <Box>
                       <PieChart
                         dataset={{
@@ -525,7 +514,7 @@ const UserDashboard = () => {
                           ></TextField>
                           {userProfile?.category === "products" ? (
                             <>
-                              <div>
+                              <div className={styles.priceUnit}>
                                 <TextField
                                   variant="outlined"
                                   label="Cena"

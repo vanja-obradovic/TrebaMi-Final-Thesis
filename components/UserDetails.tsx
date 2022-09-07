@@ -10,6 +10,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
 import { FiSettings } from "react-icons/fi";
+import { useAuth } from "../contexts/AuthContext";
 import styles from "../styles/userDetails.module.scss";
 
 interface userDetailsProps {
@@ -34,6 +35,7 @@ const UserDetails = (props: userDetailsProps) => {
   } = props;
 
   const router = useRouter();
+  const { currUser } = useAuth();
 
   const dashboard =
     (rating !== undefined ||
@@ -49,7 +51,11 @@ const UserDetails = (props: userDetailsProps) => {
       <CardActionArea
         disabled={dashboard}
         onClick={() => {
-          router.push({ pathname: "/user", query: { id: userLink } });
+          router.push(
+            currUser?.uid === userLink
+              ? { pathname: "/profile" }
+              : { pathname: "/user", query: { id: userLink } }
+          );
         }}
       >
         <CardContent>

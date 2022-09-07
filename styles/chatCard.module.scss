@@ -40,11 +40,25 @@
     .cardDetails {
       @media only screen and (max-width: 544px) {
         font-size: 100%;
+        flex-direction: column;
       }
       flex: 4;
       display: flex;
-      flex-direction: column;
-      justify-content: space-between;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+      font-style: italic;
+
+      .time {
+        display: flex;
+      }
     }
+  }
+}
+
+.pending {
+  font-weight: bold;
+  h3 {
+    font-weight: bold !important;
   }
 }

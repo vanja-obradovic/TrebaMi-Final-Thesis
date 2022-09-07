@@ -17,6 +17,7 @@ export const userSchema = yup.object({
   rating: yup.number().nullable(),
   reputation: yup.number().nullable(),
   surname: yup.string(),
+  commentsNumber: yup.number(),
 });
 
 export type User = yup.InferType<typeof userSchema>;

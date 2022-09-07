@@ -20,7 +20,7 @@ export const chatSchema = yup.object({
   }),
   recentMessage: yup.object({
     messageText: yup.string().nullable(),
-    readBy: yup.array().of(yup.string()).notRequired(),
+    readBy: yup.array().of(yup.string()),
     sentAt: yup.number().nullable(),
     sentBy: yup.string().nullable(),
   }),

@@ -33,6 +33,7 @@ import useArray from "../hooks/useArray";
 import useTimeout from "../hooks/useTimeout";
 import { Controller, useForm } from "react-hook-form";
 import { watch } from "fs";
+import Link from "next/link";
 
 export const getServerSideProps = async ({ query }) => {
   const calculatePriceRange = (prices): [number, number] => {
@@ -41,7 +42,8 @@ export const getServerSideProps = async ({ query }) => {
 
     return [minPrice, maxPrice];
   };
-  if (query.keyword) {
+  console.log(query);
+  if (query.keyword !== undefined) {
     const prices: number[] = [];
     const keyword = query.keyword;
     const allAds = await getAdsByKeyword(keyword).then((res) => {
@@ -53,6 +55,11 @@ export const getServerSideProps = async ({ query }) => {
         });
       else return [];
     });
+    // if (allAds.length === 0) {
+    //   return {
+    //     notFound: true,
+    //   };
+    // }
     return {
       props: { allAds: allAds, priceRange: calculatePriceRange(prices) },
     };
@@ -183,273 +190,282 @@ const Search = ({
 
   return (
     <Container maxWidth={false} className={styles.outerContainer}>
-      <Paper className={styles.filter}>
-        {drawerButton && (
-          <Box className={styles.collapsed}>
-            <Button onClick={() => toggleDrawer(true)}>
-              <MenuIcon />
-              Meni
-            </Button>
-            <FormControl classes={{ root: styles.formControl }}>
-              <InputLabel id="sort-label">Sortiraj po...</InputLabel>
-              <Controller
-                name="sort"
-                control={sortControl}
-                render={({ field: { onChange, ...props } }) => (
-                  <Select
-                    onChange={(e) => {
-                      onChange(e.target.value);
-                      handleSort();
-                    }}
-                    label="Sortiraj po..."
-                    id="sort-label"
-                    value={watchSort("sort") ?? ""}
-                  >
-                    <MenuItem value="priceAsc">Ceni rastuce</MenuItem>
-                    <MenuItem value="priceDesc">Ceni opadajuce</MenuItem>
-                    {/* <MenuItem value="priceDesc">Ceni opadajuce</MenuItem>
+      {allAds.length === 0 ? (
+        <div className={styles.noContent}>
+          <span>Nema oglasa za unete kriterijume pretrage</span>
+          <Link href={"/"}>Idi nazad</Link>
+        </div>
+      ) : (
+        <>
+          <Paper className={styles.filter}>
+            {drawerButton && (
+              <Box className={styles.collapsed}>
+                <Button onClick={() => toggleDrawer(true)}>
+                  <MenuIcon />
+                  Meni
+                </Button>
+                <FormControl classes={{ root: styles.formControl }}>
+                  <InputLabel id="sort-label">Sortiraj po...</InputLabel>
+                  <Controller
+                    name="sort"
+                    control={sortControl}
+                    render={({ field: { onChange, ...props } }) => (
+                      <Select
+                        onChange={(e) => {
+                          onChange(e.target.value);
+                          handleSort();
+                        }}
+                        label="Sortiraj po..."
+                        id="sort-label"
+                        value={watchSort("sort") ?? ""}
+                      >
+                        <MenuItem value="priceAsc">Ceni rastuce</MenuItem>
+                        <MenuItem value="priceDesc">Ceni opadajuce</MenuItem>
+                        {/* <MenuItem value="priceDesc">Ceni opadajuce</MenuItem>
                     <MenuItem value="priceDesc">Ceni opadajuce</MenuItem> */}
-                  </Select>
-                )}
-              />
-            </FormControl>
-          </Box>
-        )}
-        {!drawerButton && (
-          <>
-            <FormControl
-              component="fieldset"
-              variant="standard"
-              classes={{ root: styles.formControl }}
-            >
-              <FormLabel component="legend" className={styles.formLabel}>
-                Opstina
-              </FormLabel>
-              <FormGroup classes={{ root: styles.formGroup }}>
-                {removePrimitiveDuplicates(
-                  allAds.map((ad) => ad.provider.location.municipality)
-                ).map((item, index) => {
-                  return (
-                    <FormControlLabel
-                      key={index}
-                      control={
-                        <Controller
-                          name={item}
-                          control={control}
-                          defaultValue={false}
-                          render={({ field: props }) => (
-                            <Checkbox
-                              {...props}
-                              checked={!!props.value}
-                              onChange={(e) => {
-                                props.onChange(e.target.checked);
-                                handleMunicipalityFilter();
-                              }}
-                            />
-                          )}
-                        />
-                      }
-                      label={item}
-                    />
-                  );
-                })}
-              </FormGroup>
-            </FormControl>
-
-            <FormControl classes={{ root: styles.formControl }}>
-              <FormLabel component="legend" className={styles.formLabel}>
-                Opseg cene
-              </FormLabel>
-              <Controller
-                name="priceRange"
-                control={priceControl}
-                defaultValue={priceRangeClient}
-                render={({ field: { onChange, ...props } }) => (
-                  <Slider
-                    {...props}
-                    value={props.value}
-                    onChange={(e, data) => {
-                      onChange(data);
-                      handlePriceRangeFilter();
-                    }}
-                    valueLabelDisplay={
-                      priceRangeClient.every((item) => item === -1)
-                        ? "off"
-                        : "on"
-                    }
-                    min={priceRangeClient[0]}
-                    max={priceRangeClient[1]}
-                    classes={{
-                      root: styles.slider,
-                      valueLabel: styles.label,
-                    }}
-                    disabled={priceRangeClient[0] === priceRangeClient[1]}
+                      </Select>
+                    )}
                   />
-                )}
-              />
-              <FormHelperText className={styles.formHelperText}>
-                Promenom izbora opstine se resetuje filter cene
-              </FormHelperText>
-            </FormControl>
-            <FormControl classes={{ root: styles.formControl }}>
-              <InputLabel id="sort-label">Sortiraj po...</InputLabel>
-              <Controller
-                name="sort"
-                control={sortControl}
-                render={({ field: { onChange, ...props } }) => (
-                  <Select
-                    onChange={(e) => {
-                      onChange(e.target.value);
-                      handleSort();
-                    }}
-                    label="Sortiraj po..."
-                    id="sort-label"
-                    value={watchSort("sort") ?? ""}
-                  >
-                    <MenuItem value="priceAsc">Ceni rastuce</MenuItem>
-                    <MenuItem value="priceDesc">Ceni opadajuce</MenuItem>
-                    {/* <MenuItem value="priceDesc">Ceni opadajuce</MenuItem>
+                </FormControl>
+              </Box>
+            )}
+            {!drawerButton && (
+              <>
+                <FormControl
+                  component="fieldset"
+                  variant="standard"
+                  classes={{ root: styles.formControl }}
+                >
+                  <FormLabel component="legend" className={styles.formLabel}>
+                    Opstina
+                  </FormLabel>
+                  <FormGroup classes={{ root: styles.formGroup }}>
+                    {removePrimitiveDuplicates(
+                      allAds.map((ad) => ad.provider.location.municipality)
+                    ).map((item, index) => {
+                      return (
+                        <FormControlLabel
+                          key={index}
+                          control={
+                            <Controller
+                              name={item}
+                              control={control}
+                              defaultValue={false}
+                              render={({ field: props }) => (
+                                <Checkbox
+                                  {...props}
+                                  checked={!!props.value}
+                                  onChange={(e) => {
+                                    props.onChange(e.target.checked);
+                                    handleMunicipalityFilter();
+                                  }}
+                                />
+                              )}
+                            />
+                          }
+                          label={item}
+                        />
+                      );
+                    })}
+                  </FormGroup>
+                </FormControl>
+
+                <FormControl classes={{ root: styles.formControl }}>
+                  <FormLabel component="legend" className={styles.formLabel}>
+                    Opseg cene
+                  </FormLabel>
+                  <Controller
+                    name="priceRange"
+                    control={priceControl}
+                    defaultValue={priceRangeClient}
+                    render={({ field: { onChange, ...props } }) => (
+                      <Slider
+                        {...props}
+                        value={props.value}
+                        onChange={(e, data) => {
+                          onChange(data);
+                          handlePriceRangeFilter();
+                        }}
+                        valueLabelDisplay={
+                          priceRangeClient.every((item) => item === -1)
+                            ? "off"
+                            : "on"
+                        }
+                        min={priceRangeClient[0]}
+                        max={priceRangeClient[1]}
+                        classes={{
+                          root: styles.slider,
+                          valueLabel: styles.label,
+                        }}
+                        disabled={priceRangeClient[0] === priceRangeClient[1]}
+                      />
+                    )}
+                  />
+                  <FormHelperText className={styles.formHelperText}>
+                    Promenom izbora opstine se resetuje filter cene
+                  </FormHelperText>
+                </FormControl>
+                <FormControl classes={{ root: styles.formControl }}>
+                  <InputLabel id="sort-label">Sortiraj po...</InputLabel>
+                  <Controller
+                    name="sort"
+                    control={sortControl}
+                    render={({ field: { onChange, ...props } }) => (
+                      <Select
+                        onChange={(e) => {
+                          onChange(e.target.value);
+                          handleSort();
+                        }}
+                        label="Sortiraj po..."
+                        id="sort-label"
+                        value={watchSort("sort") ?? ""}
+                      >
+                        <MenuItem value="priceAsc">Ceni rastuce</MenuItem>
+                        <MenuItem value="priceDesc">Ceni opadajuce</MenuItem>
+                        {/* <MenuItem value="priceDesc">Ceni opadajuce</MenuItem>
                     <MenuItem value="priceDesc">Ceni opadajuce</MenuItem> */}
-                  </Select>
-                )}
-              />
-              {/* <FormHelperText className={styles.formHelperText}>
+                      </Select>
+                    )}
+                  />
+                  {/* <FormHelperText className={styles.formHelperText}>
                 Sortiranje se resetuje promenom filtera
               </FormHelperText> */}
-            </FormControl>
-            <Map
-              locationMarker={false}
-              markersWPopups={ads.map((ad) =>
-                adSchemaCard.cast(ad, { stripUnknown: true })
-              )}
-            ></Map>
-          </>
-        )}
-      </Paper>
+                </FormControl>
+                <Map
+                  locationMarker={false}
+                  markersWPopups={ads.map((ad) =>
+                    adSchemaCard.cast(ad, { stripUnknown: true })
+                  )}
+                ></Map>
+              </>
+            )}
+          </Paper>
 
-      <Drawer
-        anchor="left"
-        open={drawer}
-        onClose={() => toggleDrawer(false)}
-        hideBackdrop
-        classes={{ paper: styles.drawer }}
-      >
-        <Button
-          onClick={() => toggleDrawer(false)}
-          variant="outlined"
-          color="secondary"
-          disableRipple
-        >
-          <ClearOutlinedIcon />
-        </Button>
-        <ClickAwayListener onClickAway={() => toggleDrawer(false)}>
-          <div className={styles.drawerInner}>
-            <FormControl
-              component="fieldset"
-              variant="filled"
-              classes={{ root: styles.formControl }}
+          <Drawer
+            anchor="left"
+            open={drawer}
+            onClose={() => toggleDrawer(false)}
+            hideBackdrop
+            classes={{ paper: styles.drawer }}
+          >
+            <Button
+              onClick={() => toggleDrawer(false)}
+              variant="outlined"
+              color="secondary"
+              disableRipple
             >
-              <FormLabel component="legend" className={styles.formLabel}>
-                Opstina
-              </FormLabel>
-              <FormGroup classes={{ root: styles.formGroup }}>
-                {removePrimitiveDuplicates(
-                  allAds.map((ad) => ad.provider.location.municipality)
-                ).map((item, index) => {
-                  return (
-                    <FormControlLabel
-                      key={index}
-                      control={
-                        <Controller
-                          name={item}
-                          control={control}
-                          defaultValue={false}
-                          render={({ field: props }) => (
-                            <Checkbox
-                              {...props}
-                              checked={!!props.value}
-                              onChange={(e) => {
-                                props.onChange(e.target.checked);
-                                handleMunicipalityFilter();
-                              }}
+              <ClearOutlinedIcon />
+            </Button>
+            <ClickAwayListener onClickAway={() => toggleDrawer(false)}>
+              <div className={styles.drawerInner}>
+                <FormControl
+                  component="fieldset"
+                  variant="filled"
+                  classes={{ root: styles.formControl }}
+                >
+                  <FormLabel component="legend" className={styles.formLabel}>
+                    Opstina
+                  </FormLabel>
+                  <FormGroup classes={{ root: styles.formGroup }}>
+                    {removePrimitiveDuplicates(
+                      allAds.map((ad) => ad.provider.location.municipality)
+                    ).map((item, index) => {
+                      return (
+                        <FormControlLabel
+                          key={index}
+                          control={
+                            <Controller
+                              name={item}
+                              control={control}
+                              defaultValue={false}
+                              render={({ field: props }) => (
+                                <Checkbox
+                                  {...props}
+                                  checked={!!props.value}
+                                  onChange={(e) => {
+                                    props.onChange(e.target.checked);
+                                    handleMunicipalityFilter();
+                                  }}
+                                />
+                              )}
                             />
-                          )}
+                          }
+                          label={item}
                         />
-                      }
-                      label={item}
-                    />
-                  );
-                })}
-              </FormGroup>
-            </FormControl>
-            <FormControl classes={{ root: styles.formControl }}>
-              <FormLabel component="legend" className={styles.formLabel}>
-                Opseg cene
-              </FormLabel>
-              <Controller
-                name="priceRange"
-                control={priceControl}
-                defaultValue={priceRangeClient}
-                render={({ field: { onChange, ...props } }) => (
-                  <Slider
-                    {...props}
-                    value={props.value}
-                    onChange={(e, data) => {
-                      onChange(data);
-                      handlePriceRangeFilter();
-                    }}
-                    valueLabelDisplay={
-                      priceRangeClient.every((item) => item === -1)
-                        ? "off"
-                        : "on"
-                    }
-                    min={priceRangeClient[0]}
-                    max={priceRangeClient[1]}
-                    classes={{
-                      root: styles.slider,
-                      valueLabel: styles.label,
-                    }}
-                    disabled={priceRangeClient[0] === priceRangeClient[1]}
+                      );
+                    })}
+                  </FormGroup>
+                </FormControl>
+                <FormControl classes={{ root: styles.formControl }}>
+                  <FormLabel component="legend" className={styles.formLabel}>
+                    Opseg cene
+                  </FormLabel>
+                  <Controller
+                    name="priceRange"
+                    control={priceControl}
+                    defaultValue={priceRangeClient}
+                    render={({ field: { onChange, ...props } }) => (
+                      <Slider
+                        {...props}
+                        value={props.value}
+                        onChange={(e, data) => {
+                          onChange(data);
+                          handlePriceRangeFilter();
+                        }}
+                        valueLabelDisplay={
+                          priceRangeClient.every((item) => item === -1)
+                            ? "off"
+                            : "on"
+                        }
+                        min={priceRangeClient[0]}
+                        max={priceRangeClient[1]}
+                        classes={{
+                          root: styles.slider,
+                          valueLabel: styles.label,
+                        }}
+                        disabled={priceRangeClient[0] === priceRangeClient[1]}
+                      />
+                    )}
                   />
-                )}
-              />
-              <FormHelperText className={styles.formHelperText}>
-                Promenom izbora opstine se resetuje filter cene
-              </FormHelperText>
-            </FormControl>
-            <Map
-              locationMarker={false}
-              markersWPopups={ads.map((ad) =>
-                adSchemaCard.cast(ad, { stripUnknown: true })
-              )}
-            ></Map>
-          </div>
-        </ClickAwayListener>
-      </Drawer>
+                  <FormHelperText className={styles.formHelperText}>
+                    Promenom izbora opstine se resetuje filter cene
+                  </FormHelperText>
+                </FormControl>
+                <Map
+                  locationMarker={false}
+                  markersWPopups={ads.map((ad) =>
+                    adSchemaCard.cast(ad, { stripUnknown: true })
+                  )}
+                ></Map>
+              </div>
+            </ClickAwayListener>
+          </Drawer>
 
-      <Container maxWidth="lg" className={styles.innerContainer}>
-        {ads.map((item, index) => {
-          return (
-            <AdCard
-              key={index}
-              // description={item.description}
-              // name={item.name}
-              // price={item.price}
-              // priceUnit={item.priceUnit}
-              // images={item.images}
-              // quantity={item.quantity}
-              // link={isLoggedIn() ? item.link : ""}
-              // subcategory={item.subcategory}
-              ad={adSchemaCard.cast(
-                { ...item, link: isLoggedIn() ? item.link : "" },
-                { stripUnknown: true }
-              )}
-              disabled={!isLoggedIn()}
-              // small={drawerButton}
-            ></AdCard>
-          );
-        })}
-      </Container>
+          <Container maxWidth="lg" className={styles.innerContainer}>
+            {ads.map((item, index) => {
+              return (
+                <AdCard
+                  key={index}
+                  // description={item.description}
+                  // name={item.name}
+                  // price={item.price}
+                  // priceUnit={item.priceUnit}
+                  // images={item.images}
+                  // quantity={item.quantity}
+                  // link={isLoggedIn() ? item.link : ""}
+                  // subcategory={item.subcategory}
+                  ad={adSchemaCard.cast(
+                    { ...item, link: isLoggedIn() ? item.link : "" },
+                    { stripUnknown: true }
+                  )}
+                  disabled={!isLoggedIn()}
+                  // small={drawerButton}
+                ></AdCard>
+              );
+            })}
+          </Container>
+        </>
+      )}
     </Container>
   );
 };
