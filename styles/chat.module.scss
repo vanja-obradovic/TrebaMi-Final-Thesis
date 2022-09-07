@@ -1,6 +1,6 @@
 .chatContainer {
   min-height: inherit;
-  display: flex;
+  display: flex !important;
   flex-direction: column;
   justify-content: center;
 }

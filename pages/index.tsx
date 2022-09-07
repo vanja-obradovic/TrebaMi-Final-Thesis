@@ -221,32 +221,48 @@ export default function Home() {
                     <div className={styles.productsInteractive}>
                       <div className={styles.first}>
                         <div>
-                          <Image src="/veg.jpg" layout="fill"></Image>
+                          <Image
+                            src="/veg.jpg"
+                            layout="fill"
+                            placeholder="blur"
+                          ></Image>
                         </div>
                         {/* <img src="./veg.jpg"></img> */}
                       </div>
                       <div className={styles.second}>
                         <div>
-                          <Image src="/wood.jpg" layout="fill"></Image>
+                          <Image
+                            src="/wood.jpg"
+                            layout="fill"
+                            placeholder="blur"
+                          ></Image>
                         </div>
                         {/* <img src="./wood.jpg"></img> */}
                       </div>
                       <div className={styles.third}>
                         <div>
-                          <Image src="/clay.jpg" layout="fill"></Image>
+                          <Image
+                            src="/clay.jpg"
+                            layout="fill"
+                            placeholder="blur"
+                          ></Image>
                         </div>
                         {/* <img src="./clay.jpg"></img> */}
                       </div>
                       <div className={styles.fourth}>
                         <div>
-                          <Image src="/tex.jpg" layout="fill"></Image>
+                          <Image
+                            src="/tex.jpg"
+                            layout="fill"
+                            placeholder="blur"
+                          ></Image>
                         </div>
                         {/* <img src="./tex.jpg"></img> */}
                       </div>
                     </div>
                   ) : (
                     <div className={styles.productsBasic}>
-                      <img src="./products.jpg" alt="" />
+                      <img src="./products.jpg" alt="" placeholder="blur" />
                     </div>
                   )
                 ) : (
@@ -319,32 +335,48 @@ export default function Home() {
                     <div className={styles.servicesInteractive}>
                       <div className={styles.first}>
                         <div>
-                          <Image src="/construction.jpg" layout="fill"></Image>
+                          <Image
+                            src="/construction.jpg"
+                            layout="fill"
+                            placeholder="blur"
+                          ></Image>
                         </div>
                         {/* <img src="./construction.jpg"></img> */}
                       </div>
                       <div className={styles.second}>
                         <div>
-                          <Image src="/transport.jpg" layout="fill"></Image>
+                          <Image
+                            src="/transport.jpg"
+                            layout="fill"
+                            placeholder="blur"
+                          ></Image>
                         </div>
                         {/* <img src="./transport.jpg"></img> */}
                       </div>
                       <div className={styles.third}>
                         <div>
-                          <Image src="/electrician.jpg" layout="fill"></Image>
+                          <Image
+                            src="/electrician.jpg"
+                            layout="fill"
+                            placeholder="blur"
+                          ></Image>
                         </div>
                         {/* <img src="./electrician.jpg"></img> */}
                       </div>
                       <div className={styles.fourth}>
                         <div>
-                          <Image src="/plumbing.jpg" layout="fill"></Image>
+                          <Image
+                            src="/plumbing.jpg"
+                            layout="fill"
+                            placeholder="blur"
+                          ></Image>
                         </div>
                         {/* <img src="./plumbing.jpg"></img> */}
                       </div>
                     </div>
                   ) : (
                     <div className={styles.servicesBasic}>
-                      <img src="./services.jpg" alt="" />
+                      <img src="./services.jpg" alt="" placeholder="blur" />
                     </div>
                   )
                 ) : (
