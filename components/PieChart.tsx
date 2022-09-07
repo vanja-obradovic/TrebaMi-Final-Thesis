@@ -32,8 +32,6 @@ const PieChart = ({ dataset }) => {
   const backgroudColors = [];
   const borderColors = [];
 
-  console.log(dataset);
-
   const generateColors = (dataset) => {
     for (const elem of dataset.data) {
       const base = Math.round(0xffffff * Math.random());
