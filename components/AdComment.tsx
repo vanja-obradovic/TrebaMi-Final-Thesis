@@ -18,7 +18,6 @@ interface CommentProps {
 
 const AdComment = (props: CommentProps) => {
   const { comment, commenter, rating, timestamp, title } = props;
-  console.log(props);
   return (
     <Paper className={styles.commentWrapper} elevation={2}>
       <span className={styles.commenter}>

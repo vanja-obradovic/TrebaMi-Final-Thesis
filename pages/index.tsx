@@ -29,6 +29,8 @@ import veg from "../public/veg.jpg";
 import tex from "../public/tex.jpg";
 import wood from "../public/wood.jpg";
 import transport from "../public/transport.jpg";
+import services from "../public/services.jpg";
+import products from "../public/products.jpg";
 
 type FormData = {
   subcategory: string;
@@ -270,7 +272,14 @@ export default function Home() {
                     </div>
                   ) : (
                     <div className={styles.productsBasic}>
-                      <img src="./products.jpg" alt="" placeholder="blur" />
+                      {/* <img src="./products.jpg" alt="" placeholder="blur" /> */}
+                      <div>
+                        <Image
+                          src={products}
+                          layout="fill"
+                          placeholder="blur"
+                        ></Image>
+                      </div>
                     </div>
                   )
                 ) : (
@@ -384,7 +393,14 @@ export default function Home() {
                     </div>
                   ) : (
                     <div className={styles.servicesBasic}>
-                      <img src="./services.jpg" alt="" placeholder="blur" />
+                      {/* <img src="./services.jpg" alt="" placeholder="blur" /> */}
+                      <div>
+                        <Image
+                          src={services}
+                          layout="fill"
+                          placeholder="blur"
+                        ></Image>
+                      </div>
                     </div>
                   )
                 ) : (
