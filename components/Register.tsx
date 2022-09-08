@@ -1,3 +1,4 @@
+import ClearOutlinedIcon from "@mui/icons-material/ClearOutlined";
 import { LoadingButton } from "@mui/lab";
 import { TextField } from "@mui/material";
 import Router from "next/router";
@@ -93,7 +94,7 @@ const Register = ({ setPopup, setRegister }) => {
             required: "Morate uneti lozinku",
           })}
           required
-          label="Password"
+          label="Lozinka"
           error={errors[1]}
           helperText={errors[1] ? "Ovo polje je obavezno" : ""}
           size="small"
@@ -113,7 +114,7 @@ const Register = ({ setPopup, setRegister }) => {
             required: "Morate uneti potvrdu lozinke",
           })}
           required
-          label="Confirm Password"
+          label="Potvrda lozinke"
           error={errors[2]}
           helperText={errors[2] ? "Ovo polje je obavezno" : ""}
           size="small"
@@ -129,13 +130,6 @@ const Register = ({ setPopup, setRegister }) => {
         >
           Potvrdi
         </LoadingButton>
-        {/* <button
-          disabled={loading}
-          className={loading ? styles.loading : ""}
-          onClick={() => (toastId.current = null)}
-        >
-          <span className={styles.btnText}>Potvrdi</span>
-        </button> */}
         <div>
           Vec imate nalog?
           <br />
@@ -144,14 +138,26 @@ const Register = ({ setPopup, setRegister }) => {
         </div>
       </form>
       {/* <div>OR sign in with google</div> */}
-      <a
+      <ClearOutlinedIcon
+        onClick={() => {
+          setPopup(false);
+          setRegister(false);
+        }}
+        sx={{
+          cursor: "pointer",
+          position: "absolute",
+          top: "0.75rem",
+          right: "0.75rem",
+        }}
+      ></ClearOutlinedIcon>
+      {/* <a
         onClick={() => {
           setPopup(false);
           setRegister(false);
         }}
       >
-        &times;
-      </a>
+        
+      </a> */}
     </div>
   );
 };

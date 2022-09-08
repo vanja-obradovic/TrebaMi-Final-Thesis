@@ -29,7 +29,7 @@ export default function AuthCheck({
           if (Router.pathname !== "/") {
             toastId.current =
               toastId.current ??
-              toast.error("You must be signed in to continue", {
+              toast.error("Morate biti prijavljeni da biste nastavili", {
                 closeButton: false,
                 closeOnClick: false,
                 position: "top-center",

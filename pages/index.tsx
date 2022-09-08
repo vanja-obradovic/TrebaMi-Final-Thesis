@@ -36,6 +36,7 @@ import wood from "../public/wood.jpg";
 import transport from "../public/transport.jpg";
 import services from "../public/services.jpg";
 import products from "../public/products.jpg";
+import { toast } from "react-toastify";
 
 type FormData = {
   subcategory: string;
@@ -137,7 +138,15 @@ export default function Home() {
               component="form"
               onSubmit={(e) => {
                 e.preventDefault();
-                router.push({ pathname: "/search", query: { keyword: input } });
+                if (input.length >= 3)
+                  router.push({
+                    pathname: "/search",
+                    query: { keyword: input },
+                  });
+                else
+                  toast.warning(
+                    "Neophodno je uneti makar 3 karaktera za pretragu"
+                  );
               }}
               className={styles.searchWrapper}
             >

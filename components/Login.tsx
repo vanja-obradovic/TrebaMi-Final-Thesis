@@ -95,7 +95,7 @@ const Login = ({ setPopup, setRegister }) => {
           name="pass"
           id={`${id}-password`}
           {...register("password", { required: "Morate uneti sifru" })}
-          label="Password"
+          label="Lozinka"
           variant="outlined"
           size="small"
           InputProps={{ className: styles.inputStyle }}
