@@ -34,7 +34,11 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import DoneOutlinedIcon from "@mui/icons-material/DoneOutlined";
 import CustomDialog from "../components/CustomDialog";
 
-export const getServerSideProps = async ({ query }) => {
+export const getServerSideProps = async ({ query, res }) => {
+  res.setHeader(
+    "Cache-Control",
+    "public, s-maxage=10, stale-while-revalidate=59"
+  );
   const adDoc = await getAdByRef(query.prov, query.aID);
   if (adDoc.data() === undefined) {
     return {
@@ -445,12 +449,10 @@ const AdDetails = ({
                 </Box>
               </Paper>
               {!edit ? (
-                <Typography
-                  variant="body1"
-                  classes={{ body1: styles.description }}
-                >
+                <Paper className={styles.description} elevation={4}>
+                  <h3>Opis:</h3>
                   {ad.description}
-                </Typography>
+                </Paper>
               ) : (
                 <TextField
                   label="Opis"
@@ -561,16 +563,17 @@ const AdDetails = ({
                   </div>
                 </Box>
               </Paper>
-              <Typography
-                variant="body1"
-                classes={{ body1: styles.description }}
-              >
-                {ad.description}
-              </Typography>
+              <Paper className={styles.description} elevation={4}>
+                <h3>Opis:</h3>
+                <div>{ad.description}</div>
+              </Paper>
 
-              {comments.map((item, index) => {
-                return <AdComment {...item} key={index}></AdComment>;
-              })}
+              <Paper elevation={4} className={styles.commentWrapper}>
+                <h3>Komentari:</h3>
+                {comments.map((item, index) => {
+                  return <AdComment {...item} key={index}></AdComment>;
+                })}
+              </Paper>
             </>
           )}
         </Paper>

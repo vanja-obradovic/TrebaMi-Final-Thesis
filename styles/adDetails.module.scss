@@ -37,6 +37,7 @@
   max-height: 100vh;
   overflow: auto;
   flex-direction: column;
+  row-gap: 1rem;
 
   .actionWrapper {
     @extend .paper;
@@ -48,7 +49,7 @@
     display: flex;
     justify-content: space-around;
     align-items: center;
-    margin-top: 1rem;
+    // margin-top: 1rem;
     .actionInfo {
       @media only screen and (max-width: 544px) {
         display: flex;
@@ -104,8 +105,27 @@
 }
 
 .description {
-  margin-top: 1rem;
-  padding-left: 1rem;
+  @extend .paper;
+  display: flex;
+  flex-direction: column;
+  > h3 {
+    margin-block: 0.25rem;
+  }
+  > div {
+    font-size: medium;
+    &::first-letter {
+      margin-left: 1rem;
+    }
+  }
+}
+
+.commentWrapper {
+  @extend .paper;
+  > h3 {
+    margin-block: 0.25rem;
+  }
+  display: flex;
+  flex-direction: column;
 }
 
 .userDetails {

@@ -35,7 +35,11 @@ import { Controller, useForm } from "react-hook-form";
 import { watch } from "fs";
 import Link from "next/link";
 
-export const getServerSideProps = async ({ query }) => {
+export const getServerSideProps = async ({ query, res }) => {
+  res.setHeader(
+    "Cache-Control",
+    "public, s-maxage=10, stale-while-revalidate=59"
+  );
   const calculatePriceRange = (prices): [number, number] => {
     const minPrice = Math.min(...prices);
     const maxPrice = Math.max(...prices);

@@ -7,7 +7,11 @@ import { getUser, getUserAds } from "../util/firebase";
 import styles from "../styles/user.module.scss";
 import { User, userSchema } from "../models/User";
 
-export const getServerSideProps = async ({ query }) => {
+export const getServerSideProps = async ({ query, res }) => {
+  res.setHeader(
+    "Cache-Control",
+    "public, s-maxage=10, stale-while-revalidate=59"
+  );
   const userAds = await getUserAds(query.id).then((res) => {
     return res.docs.map((ad, index) => {
       const temp = adSchema.cast(ad.data(), { stripUnknown: true });
