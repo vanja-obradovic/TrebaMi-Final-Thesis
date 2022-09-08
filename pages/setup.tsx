@@ -62,7 +62,7 @@ const Setup = () => {
   }, [isLoggedIn, router, currUser]);
 
   const handleSetup = async (data: FormData) => {
-    if (data.location === undefined) {
+    if (data.location === undefined && data.provider) {
       toast.error("Niste postavili lokaciju!");
       return;
     }
