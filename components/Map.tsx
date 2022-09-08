@@ -125,7 +125,6 @@ const Map = (props: mapProps) => {
       if (locationMarker) {
         mapObject?.on("dblclick", (e) => {
           e.preventDefault();
-          // setMarkerCoords(new GeoPoint(e.lngLat.lat, e.lngLat.lng));
           services
             .reverseGeocode({ ...options, position: e.lngLat })
             .then((res) => {
@@ -157,8 +156,40 @@ const Map = (props: mapProps) => {
                   });
                 });
             });
-          // .setPopup(new tt.Popup().setDOMContent(popupDiv).addTo(mapObject))
-          // .togglePopup();
+        });
+        mapObject?.on("touchend", (e) => {
+          e.preventDefault();
+          services
+            .reverseGeocode({ ...options, position: e.lngLat })
+            .then((res) => {
+              const locationInfo = res.addresses[0];
+              setLocation({
+                coords: locationInfo.position,
+                countrySecondarySubdivision:
+                  locationInfo.address.countrySecondarySubdivision,
+                municipality: locationInfo.address.municipality,
+              });
+            });
+          marker.current?.remove();
+          marker.current = new tt.Marker({
+            draggable: true,
+          })
+            .setLngLat(e.lngLat)
+            .addTo(mapObject)
+            .on("dragend", (e: any) => {
+              services
+                .reverseGeocode({ ...options, position: e.target._lngLat })
+                .then((res) => {
+                  // console.log(res);
+                  const locationInfo = res.addresses[0];
+                  setLocation({
+                    coords: locationInfo.position,
+                    countrySecondarySubdivision:
+                      locationInfo.address.countrySecondarySubdivision,
+                    municipality: locationInfo.address.municipality,
+                  });
+                });
+            });
         });
       }
 

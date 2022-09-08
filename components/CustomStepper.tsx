@@ -54,9 +54,8 @@ const CustomStepper = (props: stepperProps) => {
 
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
       setSkipped(newSkipped);
-
-      if (isFinalStep()) closeDialog(false);
     }
+    if (isFinalStep()) closeDialog(false);
   };
 
   const handleBack = () => {

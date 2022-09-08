@@ -244,6 +244,11 @@ const UserDashboard = () => {
     removeImg(index);
   };
 
+  const removeAllImages = () => {
+    croppedImages.forEach((item) => window.URL.revokeObjectURL(item.url));
+    setCroppedImages([]);
+  };
+
   const fileChosen = (e) => {
     const input = e.target as HTMLInputElement;
     const fileArr = input.files;
@@ -291,6 +296,7 @@ const UserDashboard = () => {
         Promise.all(promises).then((urls) => {
           firestore.updateDoc(adRef, { images: urls });
           console.log(urls);
+          removeAllImages();
         }),
         {
           success: "Uspeh!",
@@ -413,7 +419,7 @@ const UserDashboard = () => {
                           ></PieChart>
                         </Box>
                       )}
-                    {monthPurchases.length > 0 && monthSales.length > 0 ? (
+                    {monthPurchases.length > 0 || monthSales.length > 0 ? (
                       <>
                         <Box>
                           <PieChart
@@ -716,30 +722,67 @@ const UserDashboard = () => {
                   })}
                 </TabPanel>
               )}
-              <TabPanel value={tabValue} index={2}>
-                <h3>Poruke</h3>
-                <Container maxWidth="md">
-                  {userChats?.map((chat) => {
-                    return <ChatCard {...chat} key={chat.id}></ChatCard>;
-                  })}
-                </Container>
-              </TabPanel>
-              <TabPanel value={tabValue} index={3}>
-                <Container maxWidth="lg" className={styles.receiptContainer}>
-                  {userPurchases?.map((item, index) => {
-                    if (item) {
-                      return (
-                        <AdReceipt
-                          key={index}
-                          props={item}
-                          type="purchases"
-                          refetch={forceUpdate}
-                        ></AdReceipt>
-                      );
-                    }
-                  })}
-                </Container>
-              </TabPanel>
+              {userProfile?.isProvider ? (
+                <>
+                  <TabPanel value={tabValue} index={2}>
+                    <h3>Poruke</h3>
+                    <Container maxWidth="md">
+                      {userChats?.map((chat) => {
+                        return <ChatCard {...chat} key={chat.id}></ChatCard>;
+                      })}
+                    </Container>
+                  </TabPanel>
+                  <TabPanel value={tabValue} index={3}>
+                    <Container
+                      maxWidth="lg"
+                      className={styles.receiptContainer}
+                    >
+                      {userPurchases?.map((item, index) => {
+                        if (item) {
+                          return (
+                            <AdReceipt
+                              key={index}
+                              props={item}
+                              type="purchases"
+                              refetch={forceUpdate}
+                            ></AdReceipt>
+                          );
+                        }
+                      })}
+                    </Container>
+                  </TabPanel>
+                </>
+              ) : (
+                <>
+                  <TabPanel value={tabValue} index={1}>
+                    <h3>Poruke</h3>
+                    <Container maxWidth="md">
+                      {userChats?.map((chat) => {
+                        return <ChatCard {...chat} key={chat.id}></ChatCard>;
+                      })}
+                    </Container>
+                  </TabPanel>
+                  <TabPanel value={tabValue} index={2}>
+                    <Container
+                      maxWidth="lg"
+                      className={styles.receiptContainer}
+                    >
+                      {userPurchases?.map((item, index) => {
+                        if (item) {
+                          return (
+                            <AdReceipt
+                              key={index}
+                              props={item}
+                              type="purchases"
+                              refetch={forceUpdate}
+                            ></AdReceipt>
+                          );
+                        }
+                      })}
+                    </Container>
+                  </TabPanel>
+                </>
+              )}
               {userProfile?.isProvider && (
                 <TabPanel value={tabValue} index={4}>
                   <Container maxWidth="lg" className={styles.receiptContainer}>
