@@ -8,6 +8,7 @@ import { TextField } from "@mui/material";
 import { Box } from "@mui/system";
 import { useForm } from "react-hook-form";
 import { format, isBefore } from "date-fns";
+import loginPic from "../public/loginPic.webp";
 
 type FormData = {
   email: string;
@@ -62,11 +63,13 @@ const Login = ({ setPopup, setRegister }) => {
     <div className={styles.login}>
       <div>
         <Image
-          src={"/loginPic.webp"}
+          src={loginPic}
           width="300px"
           height="200px"
           layout="fill"
           objectFit="cover"
+          placeholder="blur"
+          alt="login"
         ></Image>
       </div>
       <Box

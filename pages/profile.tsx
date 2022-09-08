@@ -33,7 +33,11 @@ import {
 import ClearOutlinedIcon from "@mui/icons-material/ClearOutlined";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import TabPanel from "../components/TabPanel";
-import { adSchemaCard } from "../models/Advertisement";
+import {
+  adSchemaCard,
+  productSubCategories,
+  serviceSubCategories,
+} from "../models/Advertisement";
 import CustomDialog from "../components/CustomDialog";
 import CustomStepper from "../components/CustomStepper";
 import { Controller, useForm } from "react-hook-form";
@@ -152,14 +156,6 @@ const UserDashboard = () => {
   const newAdDialogClose = (state?: boolean) => {
     setNewAdDialog(false);
   };
-
-  const productSubCategories = ["Hrana", "Tekstil", "Koza", "Drvo", "Hemija"];
-  const serviceSubCategories = [
-    "Transport",
-    "Gradjevinarstvo",
-    "Elektrika",
-    "Vodovod",
-  ];
 
   useEffect(() => {
     const getUserDoc = async () => {

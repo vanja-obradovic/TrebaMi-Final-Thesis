@@ -44,3 +44,17 @@ export type ServiceSubCat =
   | "Transport"
   | "Vodovod"
   | "Elektrika";
+
+export const productSubCategories = [
+  "Hrana",
+  "Tekstil",
+  "Koza",
+  "Drvo",
+  "Hemija",
+];
+export const serviceSubCategories = [
+  "Transport",
+  "Gradjevina",
+  "Elektrika",
+  "Vodovod",
+];

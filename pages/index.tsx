@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 import Head from "next/head";
 import { getAdsByKeyword } from "../util/firebase";
-import { adSchema, Advertisement } from "../models/Advertisement";
+import {
+  adSchema,
+  Advertisement,
+  productSubCategories,
+  serviceSubCategories,
+} from "../models/Advertisement";
 import {
   Autocomplete,
   Backdrop,
@@ -99,14 +104,6 @@ export default function Home() {
 
     return () => window.removeEventListener("resize", updateInteractivity);
   }, []);
-
-  const productSubCategories = ["Hrana", "Tekstil", "Koza", "Drvo", "Hemija"];
-  const serviceSubCategories = [
-    "Transport",
-    "Gradjevina",
-    "Elektrika",
-    "Vodovod",
-  ];
 
   const { control, register, handleSubmit } = useForm<FormData>({
     shouldUnregister: true,
@@ -235,6 +232,8 @@ export default function Home() {
                             src={veg}
                             layout="fill"
                             placeholder="blur"
+                            priority
+                            alt="food"
                           ></Image>
                         </div>
                         {/* <img src="./veg.jpg"></img> */}
@@ -245,6 +244,8 @@ export default function Home() {
                             src={wood}
                             layout="fill"
                             placeholder="blur"
+                            priority
+                            alt="wood"
                           ></Image>
                         </div>
                         {/* <img src="./wood.jpg"></img> */}
@@ -255,6 +256,8 @@ export default function Home() {
                             src={clay}
                             layout="fill"
                             placeholder="blur"
+                            priority
+                            alt="clay"
                           ></Image>
                         </div>
                         {/* <img src="./clay.jpg"></img> */}
@@ -265,6 +268,8 @@ export default function Home() {
                             src={tex}
                             layout="fill"
                             placeholder="blur"
+                            priority
+                            alt="textile"
                           ></Image>
                         </div>
                         {/* <img src="./tex.jpg"></img> */}
@@ -278,6 +283,8 @@ export default function Home() {
                           src={products}
                           layout="fill"
                           placeholder="blur"
+                          priority
+                          alt="products"
                         ></Image>
                       </div>
                     </div>
@@ -356,6 +363,8 @@ export default function Home() {
                             src={construction}
                             layout="fill"
                             placeholder="blur"
+                            priority
+                            alt="construction"
                           ></Image>
                         </div>
                         {/* <img src="./construction.jpg"></img> */}
@@ -366,6 +375,8 @@ export default function Home() {
                             src={transport}
                             layout="fill"
                             placeholder="blur"
+                            priority
+                            alt="transport"
                           ></Image>
                         </div>
                         {/* <img src="./transport.jpg"></img> */}
@@ -376,6 +387,8 @@ export default function Home() {
                             src={electrician}
                             layout="fill"
                             placeholder="blur"
+                            priority
+                            alt="electrician"
                           ></Image>
                         </div>
                         {/* <img src="./electrician.jpg"></img> */}
@@ -386,6 +399,8 @@ export default function Home() {
                             src={plumbing}
                             layout="fill"
                             placeholder="blur"
+                            priority
+                            alt="plumbing"
                           ></Image>
                         </div>
                         {/* <img src="./plumbing.jpg"></img> */}
@@ -399,6 +414,8 @@ export default function Home() {
                           src={services}
                           layout="fill"
                           placeholder="blur"
+                          priority
+                          alt="services"
                         ></Image>
                       </div>
                     </div>
@@ -407,6 +424,7 @@ export default function Home() {
                   <Box
                     component="form"
                     onSubmit={handleSubmit((data: FormData) => {
+                      setLoading(true);
                       router.push({
                         pathname: "/search",
                         query: {
