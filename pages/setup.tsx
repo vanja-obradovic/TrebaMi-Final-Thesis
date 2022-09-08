@@ -78,7 +78,7 @@ const Setup = () => {
         membership: "silver",
         commentsNumber: 0,
         isProvider: data.provider,
-        location: data.location,
+        location: data.location ?? null,
         category: data.category ?? null,
         ad: { count: 0, permitted: 2 },
         adPromotion: { count: 0, permitted: 0 },
