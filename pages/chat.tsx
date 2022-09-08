@@ -32,7 +32,7 @@ import SendIcon from "@mui/icons-material/Send";
 export const getServerSideProps = async ({ query, res }) => {
   res.setHeader(
     "Cache-Control",
-    "public, s-maxage=10, stale-while-revalidate=59"
+    "public, s-maxage=20, stale-while-revalidate=119"
   );
   const chatID = query.id;
   const chat = await getChat(chatID);

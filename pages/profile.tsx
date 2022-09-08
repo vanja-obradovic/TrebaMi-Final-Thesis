@@ -179,8 +179,7 @@ const UserDashboard = () => {
         .addDoc(adCollection, {
           name: data.name,
           description: data.description,
-          price:
-            userProfile?.category === "products" ? data.price : "Po dogovoru",
+          price: userProfile?.category === "products" ? data.price : -1,
           quantity: userProfile?.category === "products" ? data.quantity : null,
           subcategory: data.subcategory,
           category: userProfile?.category,

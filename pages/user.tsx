@@ -10,7 +10,7 @@ import { User, userSchema } from "../models/User";
 export const getServerSideProps = async ({ query, res }) => {
   res.setHeader(
     "Cache-Control",
-    "public, s-maxage=10, stale-while-revalidate=59"
+    "public, s-maxage=10, stale-while-revalidate=89"
   );
   const userAds = await getUserAds(query.id).then((res) => {
     return res.docs.map((ad, index) => {
