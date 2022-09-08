@@ -62,21 +62,21 @@ const Login = ({ setPopup, setRegister }) => {
 
   return (
     <div className={styles.login}>
-      <div>
+      {/* <div>
         <Image
           src={loginPic}
           layout="fill"
           objectFit="cover"
           placeholder="blur"
           alt="login"
-        ></Image>
-      </div>
+        ></Image> */}
+      {/* </div> */}
       <Box
         component="form"
         onSubmit={handleSubmit(handleLogin, handleErrors)}
         noValidate
       >
-        <h2>Prijavi se</h2>,
+        <h2>Prijavi se</h2>
         <TextField
           type="email"
           id={`${id}-email`}
@@ -84,7 +84,6 @@ const Login = ({ setPopup, setRegister }) => {
             required: "Morate uneti ispravnu email adresu",
           })}
           label="Email"
-          required
           variant="outlined"
           size="small"
           InputProps={{ className: styles.inputStyle }}
@@ -97,7 +96,6 @@ const Login = ({ setPopup, setRegister }) => {
           id={`${id}-password`}
           {...register("password", { required: "Morate uneti sifru" })}
           label="Password"
-          required
           variant="outlined"
           size="small"
           InputProps={{ className: styles.inputStyle }}

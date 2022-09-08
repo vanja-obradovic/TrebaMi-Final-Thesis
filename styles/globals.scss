@@ -54,7 +54,7 @@ header {
 
   z-index: 1000;
 
-  span:first-child {
+  > span:first-child {
     grid-column-start: 2;
     font-family: "Comfortaa", cursive;
     font-size: x-large;

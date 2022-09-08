@@ -1,3 +1,4 @@
+import { LoadingButton } from "@mui/lab";
 import { TextField } from "@mui/material";
 import Router from "next/router";
 import React, { useId, useRef, useState } from "react";
@@ -120,13 +121,21 @@ const Register = ({ setPopup, setRegister }) => {
           InputLabelProps={{ className: styles.inputStyle }}
         />
 
-        <button
+        <LoadingButton
+          loading={loading}
+          variant="contained"
+          type="submit"
+          onClick={() => (toastId.current = null)}
+        >
+          Potvrdi
+        </LoadingButton>
+        {/* <button
           disabled={loading}
           className={loading ? styles.loading : ""}
           onClick={() => (toastId.current = null)}
         >
           <span className={styles.btnText}>Potvrdi</span>
-        </button>
+        </button> */}
         <div>
           Vec imate nalog?
           <br />
