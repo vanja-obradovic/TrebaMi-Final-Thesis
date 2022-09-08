@@ -6,6 +6,7 @@ import { adSchema, Advertisement } from "../models/Advertisement";
 import { getUser, getUserAds } from "../util/firebase";
 import styles from "../styles/user.module.scss";
 import { User, userSchema } from "../models/User";
+import AuthCheck from "../components/AuthCheck";
 
 export const getServerSideProps = async ({ query, res }) => {
   res.setHeader(
