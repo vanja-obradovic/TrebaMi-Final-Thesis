@@ -11,6 +11,7 @@ export const receiptSchema = yup.object({
   timestamp: yup.number(),
   buyerID: yup.string(),
   sellerID: yup.string(),
+  isProvider: yup.boolean(),
   subcategory: yup.string(),
 });
 

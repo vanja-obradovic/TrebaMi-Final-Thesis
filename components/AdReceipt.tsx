@@ -48,6 +48,7 @@ const AdReceipt = ({
     sellerID,
     buyerID,
     displayName,
+    isProvider,
   } = props;
 
   const { currUser } = useAuth();
@@ -380,9 +381,13 @@ const AdReceipt = ({
         {currUser?.uid === sellerID && (
           <span>
             Kupac:&nbsp;
-            <Link href={{ pathname: "/user", query: { id: buyerID } }}>
-              {displayName}
-            </Link>
+            {isProvider ? (
+              <Link href={{ pathname: "/user", query: { id: buyerID } }}>
+                {displayName}
+              </Link>
+            ) : (
+              displayName
+            )}
           </span>
         )}
         <div className={styles.receiptDetails}>

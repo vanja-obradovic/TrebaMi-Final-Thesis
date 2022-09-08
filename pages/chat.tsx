@@ -17,6 +17,7 @@ import app, {
   firestore,
   getChat,
   getChatMessages,
+  getUser,
   sendMessage,
   setOffer,
 } from "../util/firebase";
@@ -112,65 +113,68 @@ const ChatPage = ({
       `users/${sellerID}/ads/${chat.subject.aid}`
     );
 
-    const batch = firestore.writeBatch(firestore.getFirestore(app));
-    const time = new Date().getTime();
+    getUser(currUser.uid).then((user) => {
+      const batch = firestore.writeBatch(firestore.getFirestore(app));
+      const time = new Date().getTime();
 
-    batch.set(
-      firestore.doc(buyerRef, chat.subject.aid),
-      {
-        receipts: firestore.arrayUnion({
-          aid: chat.subject.aid,
-          adTitle: chat.subject.adTitle,
-          commented: false,
-          completed: true,
-          amount: chat.offer.amount,
-          quantity: 1,
-          displayName: userMap[buyerID].displayName,
-          buyerID: buyerID,
-          sellerID: sellerID,
-          timestamp: time,
-          subcategory: chat.subject.subcategory,
+      batch.set(
+        firestore.doc(buyerRef, chat.subject.aid),
+        {
+          receipts: firestore.arrayUnion({
+            aid: chat.subject.aid,
+            adTitle: chat.subject.adTitle,
+            commented: false,
+            completed: true,
+            amount: chat.offer.amount,
+            quantity: 1,
+            displayName: userMap[buyerID].displayName,
+            isProvider: user.data().isProvider,
+            buyerID: buyerID,
+            sellerID: sellerID,
+            timestamp: time,
+            subcategory: chat.subject.subcategory,
+          }),
+        },
+        { merge: true }
+      );
+      batch.set(
+        firestore.doc(sellerRef, chat.subject.aid),
+        {
+          receipts: firestore.arrayUnion({
+            aid: chat.subject.aid,
+            adTitle: chat.subject.adTitle,
+            commented: false,
+            completed: true,
+            amount: chat.offer.amount,
+            quantity: 1,
+            displayName: userMap[buyerID].displayName,
+            buyerID: buyerID,
+            sellerID: sellerID,
+            timestamp: time,
+            subcategory: chat.subject.subcategory,
+          }),
+        },
+        { merge: true }
+      );
+
+      batch.update(
+        firestore.doc(firestore.getFirestore(app), `chat/${chat.id}`),
+        {
+          closed: true,
+        }
+      );
+
+      toast.promise(
+        batch.commit().then(() => {
+          toast.dismiss(toastRef.current);
         }),
-      },
-      { merge: true }
-    );
-    batch.set(
-      firestore.doc(sellerRef, chat.subject.aid),
-      {
-        receipts: firestore.arrayUnion({
-          aid: chat.subject.aid,
-          adTitle: chat.subject.adTitle,
-          commented: false,
-          completed: true,
-          amount: chat.offer.amount,
-          quantity: 1,
-          displayName: userMap[buyerID].displayName,
-          buyerID: buyerID,
-          sellerID: sellerID,
-          timestamp: time,
-          subcategory: chat.subject.subcategory,
-        }),
-      },
-      { merge: true }
-    );
-
-    batch.update(
-      firestore.doc(firestore.getFirestore(app), `chat/${chat.id}`),
-      {
-        closed: true,
-      }
-    );
-
-    toast.promise(
-      batch.commit().then(() => {
-        toast.dismiss(toastRef.current);
-      }),
-      {
-        pending: "U toku...",
-        error: "Greska, pokusajte ponovo",
-        success: "Uspeh!",
-      }
-    );
+        {
+          pending: "U toku...",
+          error: "Greska, pokusajte ponovo",
+          success: "Uspeh!",
+        }
+      );
+    });
   };
 
   const scrollRef = useRef<HTMLDivElement>();

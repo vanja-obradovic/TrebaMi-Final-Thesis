@@ -340,7 +340,7 @@ const UserDashboard = () => {
 
   const getFavourites = (arr: Receipt[]) => {
     const reduced: any = arr.reduce((output, curr) => {
-      if (curr.sellerID !== currUser.uid)
+      if (curr?.sellerID !== currUser.uid)
         output[curr.sellerID] = (output[curr.sellerID] || 0) + 1;
       return output;
     }, {});

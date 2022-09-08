@@ -8,7 +8,7 @@ import { Button, TextField } from "@mui/material";
 import { Box } from "@mui/system";
 import { useForm } from "react-hook-form";
 import { format, isBefore } from "date-fns";
-import loginPic from "../public/loginPic.webp";
+import ClearOutlinedIcon from "@mui/icons-material/ClearOutlined";
 import { LoadingButton } from "@mui/lab";
 
 type FormData = {
@@ -110,14 +110,18 @@ const Login = ({ setPopup, setRegister }) => {
           {"."}
         </div>
       </Box>
-      <a
+      <ClearOutlinedIcon
         onClick={() => {
           setPopup(false);
           setRegister(false);
         }}
-      >
-        &times;
-      </a>
+        sx={{
+          cursor: "pointer",
+          position: "absolute",
+          top: "0.75rem",
+          right: "0.75rem",
+        }}
+      ></ClearOutlinedIcon>
     </div>
   );
 };

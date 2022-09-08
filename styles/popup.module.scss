@@ -8,10 +8,6 @@
   background-color: rgba(131, 130, 130, 0.8);
   z-index: 150;
 
-  // &:target {
-  //   display: flex;
-  // }
-
   .popupWrapper {
     position: relative;
     // max-width: 70vw;
@@ -50,7 +46,7 @@
       }
 
       > form {
-        width: 40%;
+        width: 100%;
         display: flex;
         flex-direction: column;
         justify-content: center;

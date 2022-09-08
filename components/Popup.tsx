@@ -32,7 +32,7 @@ const Popup = () => {
               setRegister(false);
             }}
           >
-            <Container maxWidth="md" className={styles.popupWrapper}>
+            <Container maxWidth="sm" className={styles.popupWrapper}>
               {/* <div className={styles.popupWrapper}> */}
               {!register && (
                 <Login setPopup={setPopup} setRegister={setRegister} />

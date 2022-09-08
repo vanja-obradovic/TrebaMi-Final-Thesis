@@ -6,7 +6,6 @@ import {
   Paper,
   Rating,
   TextField,
-  Typography,
 } from "@mui/material";
 import { Box, Container } from "@mui/system";
 import React, { MouseEvent, useEffect, useRef, useState } from "react";
@@ -15,6 +14,7 @@ import app, {
   firestore,
   getAdByRef,
   getAdComments,
+  getUser,
   newChat,
   updateAd,
 } from "../util/firebase";
@@ -47,11 +47,11 @@ export const getServerSideProps = async ({ query, res }) => {
     };
   }
   const ad = adSchema.cast(adDoc.data());
-  const comments = await getAdComments(query.aID as string);
+  // const comments = await getAdComments(query.aID as string);
   return {
     props: {
       adDetails: ad,
-      comments: comments.sort((a, b) => b.timestamp - a.timestamp),
+      // comments: comments.sort((a, b) => b.timestamp - a.timestamp),
     },
   };
 };
@@ -69,13 +69,14 @@ type EditData = {
 
 const AdDetails = ({
   adDetails,
-  comments,
-}: {
+}: // comments,
+{
   adDetails: Advertisement;
-  comments: Comment[];
+  // comments: Comment[];
 }) => {
   const { currUser } = useAuth();
   const [ad, setRtAD] = useState<Advertisement>(adDetails);
+  const [comments, setComments] = useState<Comment[]>([]);
 
   const router = useRouter();
   const {
@@ -126,59 +127,62 @@ const AdDetails = ({
       `users/${router.query.prov as string}/ads/${router.query.aID as string}`
     );
 
-    const batch = firestore.writeBatch(firestore.getFirestore(app));
-    const time = new Date().getTime();
+    getUser(currUser.uid).then((user) => {
+      const batch = firestore.writeBatch(firestore.getFirestore(app));
+      const time = new Date().getTime();
 
-    batch.set(
-      firestore.doc(buyerRef, router.query.aID as string),
-      {
-        receipts: firestore.arrayUnion({
-          aid: router.query.aID as string,
-          adTitle: ad.name,
-          commented: false,
-          completed: false,
-          amount: ad.price,
-          quantity: formdata.quantity,
-          displayName: currUser.displayName,
-          buyerID: currUser.uid,
-          sellerID: router.query.prov as string,
-          timestamp: time,
-          subcategory: ad.subcategory,
-        }),
-        // spent: firestore.increment(price * data.quantity),
-      },
-      { merge: true }
-    );
-    batch.set(
-      firestore.doc(sellerRef, router.query.aID as string),
-      {
-        // profit: firestore.increment(price*),
-        receipts: firestore.arrayUnion({
-          aid: router.query.aID as string,
-          adTitle: ad.name,
-          commented: false,
-          completed: false,
-          amount: ad.price,
-          quantity: formdata.quantity,
-          displayName: currUser.displayName,
-          buyerID: currUser.uid,
-          sellerID: router.query.prov as string,
-          timestamp: time,
-          subcategory: ad.subcategory,
-        }),
-      },
-      { merge: true }
-    );
+      batch.set(
+        firestore.doc(buyerRef, router.query.aID as string),
+        {
+          receipts: firestore.arrayUnion({
+            aid: router.query.aID as string,
+            adTitle: ad.name,
+            commented: false,
+            completed: false,
+            amount: ad.price,
+            quantity: formdata.quantity,
+            displayName: currUser.displayName,
+            buyerID: currUser.uid,
+            isProvider: user.data().isProvider,
+            sellerID: router.query.prov as string,
+            timestamp: time,
+            subcategory: ad.subcategory,
+          }),
+          // spent: firestore.increment(price * data.quantity),
+        },
+        { merge: true }
+      );
+      batch.set(
+        firestore.doc(sellerRef, router.query.aID as string),
+        {
+          // profit: firestore.increment(price*),
+          receipts: firestore.arrayUnion({
+            aid: router.query.aID as string,
+            adTitle: ad.name,
+            commented: false,
+            completed: false,
+            amount: ad.price,
+            quantity: formdata.quantity,
+            displayName: currUser.displayName,
+            buyerID: currUser.uid,
+            sellerID: router.query.prov as string,
+            timestamp: time,
+            subcategory: ad.subcategory,
+          }),
+        },
+        { merge: true }
+      );
 
-    batch.update(adRef, {
-      quantity: firestore.increment(-formdata.quantity),
-      pendingUsers: firestore.arrayUnion(currUser.uid),
-    });
+      batch.update(adRef, {
+        quantity: firestore.increment(-formdata.quantity),
+        pendingUsers: firestore.arrayUnion(currUser.uid),
+      });
 
-    toast.promise(batch.commit(), {
-      pending: "U toku...",
-      error: "Greska, pokusajte ponovo",
-      success: "Uspeh!",
+      toast.promise(batch.commit(), {
+        pending: "U toku...",
+        error: "Greska, pokusajte ponovo",
+        success: "Uspeh!",
+      });
     });
   };
   const handleErrors = (err) => {
@@ -193,6 +197,10 @@ const AdDetails = ({
       ),
       (data) => setRtAD(adSchema.cast(data.data()))
     );
+
+    getAdComments(router.query.aID as string).then((res) => {
+      setComments(res.sort((a, b) => b.timestamp - a.timestamp));
+    });
 
     return unsub;
   }, []);

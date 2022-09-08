@@ -56,21 +56,6 @@ type passFormData = {
   confirmPassword: string;
 };
 
-// export const getServerSideProps = async (context) => {
-//   const userToken = parseCookies(context).userToken;
-
-//   try {
-//     const user = await verifyToken(userToken);
-//     const userDoc = await getUser(user.uid);
-//     return { props: { userData: "abc" } };
-//   } catch (err) {
-//     console.log(err);
-//     // context.res.writeHead(302, { location: "/settings" });
-//     // context.res.end();
-//     // return { props: [] };
-//   }
-// };
-
 const Settings = ({ userData }) => {
   const dbInstance = firestore.getFirestore(app);
   const storageInstance = storage.getStorage(app);
