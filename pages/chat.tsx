@@ -28,6 +28,7 @@ import Link from "next/link";
 import { toast } from "react-toastify";
 import { Id } from "react-toastify/dist/types";
 import SendIcon from "@mui/icons-material/Send";
+import AuthCheck from "../components/AuthCheck";
 
 export const getServerSideProps = async ({ query, res }) => {
   res.setHeader(
@@ -217,7 +218,7 @@ const ChatPage = ({
           .map((doc) => messageSchema.cast(doc.doc.data()));
         setRtMessages((prev) => prev.concat(rtMessages));
         setTimeout(() => {
-          scrollRef.current.scrollIntoView({
+          scrollRef.current?.scrollIntoView({
             behavior: "smooth",
             block: "nearest",
             inline: "start",
@@ -225,13 +226,13 @@ const ChatPage = ({
         }, 1);
       }
     );
-    scrollRef.current.scrollIntoView({
+    scrollRef.current?.scrollIntoView({
       behavior: "smooth",
       block: "nearest",
       inline: "start",
     });
     return unsub;
-  }, []);
+  }, [currUser]);
 
   useEffect(() => {
     const unsub = onSnapshot(
@@ -336,169 +337,171 @@ const ChatPage = ({
   const handleErrorOffer = () => {};
 
   return (
-    <Container maxWidth="xl" className={styles.chatContainer}>
-      <Paper className={styles.chatPaper}>
-        <span className={styles.chatHeader}>
-          <h3>
-            <Link
-              href={{
-                pathname: "ad",
-                query: {
-                  aID: chat.subject.aid,
-                  prov: Object.keys(userMap)[
-                    (Object.keys(userMap).indexOf(chat.createdBy) + 1) % 2
-                  ],
-                },
-              }}
+    <AuthCheck checkWith={Object.keys(userMap)}>
+      <Container maxWidth="xl" className={styles.chatContainer}>
+        <Paper className={styles.chatPaper}>
+          <span className={styles.chatHeader}>
+            <h3>
+              <Link
+                href={{
+                  pathname: "ad",
+                  query: {
+                    aID: chat.subject.aid,
+                    prov: Object.keys(userMap)[
+                      (Object.keys(userMap).indexOf(chat.createdBy) + 1) % 2
+                    ],
+                  },
+                }}
+              >
+                {chat.subject.adTitle}
+              </Link>
+            </h3>
+          </span>
+          <Container
+            maxWidth="xl"
+            className={styles.messageContainer}
+            ref={messageContainerRef}
+          >
+            <Paper className={styles.messagesPaper}>
+              {rtmessages.map((message, index) => {
+                if (index === 0) {
+                  return (
+                    <Box
+                      className={[
+                        styles.messageWrapper,
+                        message.sentBy === currUser?.uid ? styles.right : "",
+                      ].join(" ")}
+                      key={message.sentAt}
+                      ref={lastMsgRef}
+                    >
+                      <Link
+                        href={{
+                          pathname: "/user",
+                          query: { id: message.sentBy },
+                        }}
+                      >
+                        <Tooltip
+                          title={userMap[message.sentBy].displayName}
+                          placement="top"
+                          arrow
+                          style={{ cursor: "pointer" }}
+                        >
+                          <Avatar src={userMap[message.sentBy].photoURL}>
+                            {userMap[message.sentBy].displayName.charAt(0)}
+                          </Avatar>
+                        </Tooltip>
+                      </Link>
+                      <Paper elevation={4} className={styles.message}>
+                        <div>{message.messageText}</div>
+                        <div className={styles.time}>
+                          <div>
+                            {isToday(message.sentAt)
+                              ? "Danas,"
+                              : format(message.sentAt, "dd.MM.yyyy") + ","}
+                          </div>
+                          <div>{format(message.sentAt, "HH:mm")}</div>
+                        </div>
+                      </Paper>
+                    </Box>
+                  );
+                } else
+                  return (
+                    <Box
+                      className={[
+                        styles.messageWrapper,
+                        message.sentBy === currUser?.uid ? styles.right : "",
+                      ].join(" ")}
+                      key={message.sentAt}
+                    >
+                      <Link
+                        href={{
+                          pathname: "/user",
+                          query: { id: message.sentBy },
+                        }}
+                      >
+                        <Tooltip
+                          title={userMap[message.sentBy].displayName}
+                          placement="top"
+                          arrow
+                          style={{ cursor: "pointer" }}
+                        >
+                          <Avatar src={userMap[message.sentBy].photoURL}>
+                            {userMap[message.sentBy].displayName.charAt(0)}
+                          </Avatar>
+                        </Tooltip>
+                      </Link>
+                      <Paper elevation={4} className={styles.message}>
+                        <div>{message.messageText}</div>
+                        <div className={styles.time}>
+                          <div>
+                            {isToday(message.sentAt)
+                              ? "Danas,"
+                              : format(message.sentAt, "dd.MM.yyyy") + ","}
+                          </div>
+                          <div>{format(message.sentAt, "HH:mm")}</div>
+                        </div>
+                      </Paper>
+                    </Box>
+                  );
+              })}
+              <div ref={scrollRef}></div>
+            </Paper>
+          </Container>
+          {offerVisible && !chat.closed && (
+            <Box
+              component="form"
+              className={styles.offer}
+              onSubmit={handleOffer(handleNewOffer, handleErrorOffer)}
             >
-              {chat.subject.adTitle}
-            </Link>
-          </h3>
-        </span>
-        <Container
-          maxWidth="xl"
-          className={styles.messageContainer}
-          ref={messageContainerRef}
-        >
-          <Paper className={styles.messagesPaper}>
-            {rtmessages.map((message, index) => {
-              if (index === 0) {
-                return (
-                  <Box
-                    className={[
-                      styles.messageWrapper,
-                      message.sentBy === currUser?.uid ? styles.right : "",
-                    ].join(" ")}
-                    key={message.sentAt}
-                    ref={lastMsgRef}
-                  >
-                    <Link
-                      href={{
-                        pathname: "/user",
-                        query: { id: message.sentBy },
-                      }}
-                    >
-                      <Tooltip
-                        title={userMap[message.sentBy].displayName}
-                        placement="top"
-                        arrow
-                        style={{ cursor: "pointer" }}
-                      >
-                        <Avatar src={userMap[message.sentBy].photoURL}>
-                          {userMap[message.sentBy].displayName.charAt(0)}
-                        </Avatar>
-                      </Tooltip>
-                    </Link>
-                    <Paper elevation={4} className={styles.message}>
-                      <div>{message.messageText}</div>
-                      <div className={styles.time}>
-                        <div>
-                          {isToday(message.sentAt)
-                            ? "Danas,"
-                            : format(message.sentAt, "dd.MM.yyyy") + ","}
-                        </div>
-                        <div>{format(message.sentAt, "HH:mm")}</div>
-                      </div>
-                    </Paper>
-                  </Box>
-                );
-              } else
-                return (
-                  <Box
-                    className={[
-                      styles.messageWrapper,
-                      message.sentBy === currUser?.uid ? styles.right : "",
-                    ].join(" ")}
-                    key={message.sentAt}
-                  >
-                    <Link
-                      href={{
-                        pathname: "/user",
-                        query: { id: message.sentBy },
-                      }}
-                    >
-                      <Tooltip
-                        title={userMap[message.sentBy].displayName}
-                        placement="top"
-                        arrow
-                        style={{ cursor: "pointer" }}
-                      >
-                        <Avatar src={userMap[message.sentBy].photoURL}>
-                          {userMap[message.sentBy].displayName.charAt(0)}
-                        </Avatar>
-                      </Tooltip>
-                    </Link>
-                    <Paper elevation={4} className={styles.message}>
-                      <div>{message.messageText}</div>
-                      <div className={styles.time}>
-                        <div>
-                          {isToday(message.sentAt)
-                            ? "Danas,"
-                            : format(message.sentAt, "dd.MM.yyyy") + ","}
-                        </div>
-                        <div>{format(message.sentAt, "HH:mm")}</div>
-                      </div>
-                    </Paper>
-                  </Box>
-                );
-            })}
-            <div ref={scrollRef}></div>
-          </Paper>
-        </Container>
-        {offerVisible && !chat.closed && (
+              <TextField
+                label="Ponuda"
+                {...registerOffer("offer", { valueAsNumber: true })}
+                InputLabelProps={{
+                  className: styles.inputStyle,
+                }}
+                InputProps={{ className: styles.inputStyle }}
+              ></TextField>
+              {chat.offer.amount === -1 && (
+                <Button color="success" variant="contained" type="submit">
+                  Potvrdi
+                </Button>
+              )}
+              {chat.offer.amount !== -1 && (
+                <Button
+                  color="error"
+                  variant="contained"
+                  type="button"
+                  onClick={(e) => {
+                    resetOffer();
+                  }}
+                >
+                  Ponisti
+                </Button>
+              )}
+            </Box>
+          )}
           <Box
             component="form"
-            className={styles.offer}
-            onSubmit={handleOffer(handleNewOffer, handleErrorOffer)}
+            onSubmit={handleMessage(handleNewMessage, handleError)}
+            className={styles.messageTextField}
           >
             <TextField
-              label="Ponuda"
-              {...registerOffer("offer", { valueAsNumber: true })}
+              label="Nova poruka..."
+              fullWidth
+              {...registerMessage("message")}
+              disabled={chat.closed}
               InputLabelProps={{
                 className: styles.inputStyle,
               }}
               InputProps={{ className: styles.inputStyle }}
             ></TextField>
-            {chat.offer.amount === -1 && (
-              <Button color="success" variant="contained" type="submit">
-                Potvrdi
-              </Button>
-            )}
-            {chat.offer.amount !== -1 && (
-              <Button
-                color="error"
-                variant="contained"
-                type="button"
-                onClick={(e) => {
-                  resetOffer();
-                }}
-              >
-                Ponisti
-              </Button>
-            )}
+            <IconButton type="submit" disabled={chat.closed}>
+              <SendIcon></SendIcon>
+            </IconButton>
           </Box>
-        )}
-        <Box
-          component="form"
-          onSubmit={handleMessage(handleNewMessage, handleError)}
-          className={styles.messageTextField}
-        >
-          <TextField
-            label="Nova poruka..."
-            fullWidth
-            {...registerMessage("message")}
-            disabled={chat.closed}
-            InputLabelProps={{
-              className: styles.inputStyle,
-            }}
-            InputProps={{ className: styles.inputStyle }}
-          ></TextField>
-          <IconButton type="submit" disabled={chat.closed}>
-            <SendIcon></SendIcon>
-          </IconButton>
-        </Box>
-      </Paper>
-    </Container>
+        </Paper>
+      </Container>
+    </AuthCheck>
   );
 };
 

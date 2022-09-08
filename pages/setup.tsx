@@ -32,6 +32,7 @@ import { useForm } from "react-hook-form";
 import CustomDialog from "../components/CustomDialog";
 import Map from "../components/Map";
 import { Location } from "../models/Location";
+import AuthCheck from "../components/AuthCheck";
 
 type FormData = {
   name: string;
@@ -232,7 +233,7 @@ const Setup = () => {
   };
 
   return (
-    <>
+    <AuthCheck>
       <Container maxWidth="lg" className={styles.setupWrapper}>
         <Paper elevation={8} className={styles.paper}>
           <Typography variant="h6" marginY="1rem">
@@ -409,7 +410,7 @@ const Setup = () => {
           />
         )}
       </Container>
-    </>
+    </AuthCheck>
   );
 };
 

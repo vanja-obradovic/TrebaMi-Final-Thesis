@@ -182,7 +182,9 @@ export default function Home() {
                           {params.InputProps.endAdornment}
                         </>
                       ),
+                      className: styles.inputStyle,
                     }}
+                    InputLabelProps={{ className: styles.inputStyle }}
                   />
                 )}
                 freeSolo

@@ -340,7 +340,8 @@ const UserDashboard = () => {
 
   const getFavourites = (arr: Receipt[]) => {
     const reduced: any = arr.reduce((output, curr) => {
-      output[curr.sellerID] = (output[curr.sellerID] || 0) + 1;
+      if (curr.sellerID !== currUser.uid)
+        output[curr.sellerID] = (output[curr.sellerID] || 0) + 1;
       return output;
     }, {});
 
@@ -349,7 +350,9 @@ const UserDashboard = () => {
         .sort((a: any, b: any) => b[1] - a[1])
         .slice(0, 3)
         .flatMap((item) => item[0])
-    ).then((res) => setFavourites(res));
+    ).then((res) => {
+      setFavourites(res);
+    });
   };
 
   return (
@@ -472,27 +475,31 @@ const UserDashboard = () => {
                   <Container maxWidth="md" className={styles.favourites}>
                     <h3>Top 3 korisnika po broju saradnji:</h3>
                     <Container maxWidth="xl">
-                      {favourites?.map((item) => {
-                        return (
-                          <Link
-                            href={{
-                              pathname: "/user",
-                              query: { id: item.uid },
-                            }}
-                            key={item.uid}
-                          >
-                            <Tooltip
-                              title={item.displayName}
-                              arrow
-                              sx={{ cursor: "pointer" }}
+                      {!!favourites.length ? (
+                        favourites.map((item) => {
+                          return (
+                            <Link
+                              href={{
+                                pathname: "/user",
+                                query: { id: item.uid },
+                              }}
+                              key={item.uid}
                             >
-                              <Avatar src={item.photoURL}>
-                                {item.displayName.charAt(0)}
-                              </Avatar>
-                            </Tooltip>
-                          </Link>
-                        );
-                      })}
+                              <Tooltip
+                                title={item.displayName}
+                                arrow
+                                sx={{ cursor: "pointer" }}
+                              >
+                                <Avatar src={item.photoURL}>
+                                  {item.displayName.charAt(0)}
+                                </Avatar>
+                              </Tooltip>
+                            </Link>
+                          );
+                        })
+                      ) : (
+                        <div></div>
+                      )}
                     </Container>
                   </Container>
                 </Container>

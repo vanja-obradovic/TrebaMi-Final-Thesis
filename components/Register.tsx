@@ -134,7 +134,7 @@ const Register = ({ setPopup, setRegister }) => {
           {"."}
         </div>
       </form>
-      <div>OR sign in with google</div>
+      {/* <div>OR sign in with google</div> */}
       <a
         onClick={() => {
           setPopup(false);

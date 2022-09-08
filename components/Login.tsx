@@ -4,11 +4,12 @@ import React, { useId, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { useAuth } from "../contexts/AuthContext";
 import styles from "../styles/popup.module.scss";
-import { TextField } from "@mui/material";
+import { Button, TextField } from "@mui/material";
 import { Box } from "@mui/system";
 import { useForm } from "react-hook-form";
 import { format, isBefore } from "date-fns";
 import loginPic from "../public/loginPic.webp";
+import { LoadingButton } from "@mui/lab";
 
 type FormData = {
   email: string;
@@ -64,8 +65,6 @@ const Login = ({ setPopup, setRegister }) => {
       <div>
         <Image
           src={loginPic}
-          width="300px"
-          height="200px"
           layout="fill"
           objectFit="cover"
           placeholder="blur"
@@ -104,13 +103,9 @@ const Login = ({ setPopup, setRegister }) => {
           InputProps={{ className: styles.inputStyle }}
           InputLabelProps={{ className: styles.inputStyle }}
         />
-        <button
-          disabled={loading}
-          className={loading ? styles.loading : ""}
-          type="submit"
-        >
-          <span className={styles.btnText}>Potvrdi</span>
-        </button>
+        <LoadingButton loading={loading} variant="contained" type="submit">
+          Potvrdi
+        </LoadingButton>
         <div>
           Nemate nalog?
           <br /> Regstrujte se <a onClick={() => setRegister(true)}>ovde</a>

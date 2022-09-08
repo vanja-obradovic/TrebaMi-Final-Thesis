@@ -89,6 +89,7 @@ export const getUserReceipts = async (
 };
 
 export const getUserFavourites = (arr: any) => {
+  if (arr.length === 0) return new Promise<any[]>((res, rej) => res([]));
   const ref = collection(getFirestore(app), "users");
   const q = query(ref, where(documentId(), "in", arr));
   return getDocs(q).then((res) => {

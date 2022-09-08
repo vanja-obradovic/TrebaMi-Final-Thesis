@@ -56,9 +56,14 @@ header {
 
   span:first-child {
     grid-column-start: 2;
+    font-family: "Comfortaa", cursive;
+    font-size: x-large;
+    font-weight: 600;
+    > a {
+    }
   }
 
-  a {
+  > a {
     border-radius: 0.5rem;
     border: none;
     background-color: inherit;

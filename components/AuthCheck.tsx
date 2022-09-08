@@ -1,12 +1,23 @@
-import { Box, Container } from "@mui/system";
+import { CircularProgress, Paper } from "@mui/material";
 import Image from "next/image";
+import Router from "next/router";
 import { useEffect, useRef } from "react";
 import { toast } from "react-toastify";
 import Toast from "react-toastify/dist/types";
 import { useAuth } from "../contexts/AuthContext";
 import styles from "../styles/authFallback.module.scss";
 
-export default function AuthCheck(props) {
+interface AuthCheckProps {
+  children;
+  fallback?: React.ReactNode;
+  checkWith?: string[];
+}
+
+export default function AuthCheck({
+  children,
+  checkWith,
+  fallback,
+}: AuthCheckProps) {
   const { currUser } = useAuth();
 
   const toastId = useRef<Toast.Id>(null);
@@ -14,34 +25,59 @@ export default function AuthCheck(props) {
   useEffect(() => {
     if (currUser !== undefined) {
       if (currUser === null) {
-        toastId.current =
-          toastId.current ??
-          toast.error("You must be signed in to continue", {
-            closeButton: false,
-            closeOnClick: false,
-            position: "top-center",
-            style: { marginTop: "2.5vmin" },
-            draggable: false,
-          });
-        document.getElementById("loginPopup").click();
+        setTimeout(() => {
+          if (Router.pathname !== "/") {
+            toastId.current =
+              toastId.current ??
+              toast.error("You must be signed in to continue", {
+                closeButton: false,
+                closeOnClick: false,
+                position: "top-center",
+                style: { marginTop: "2.5vmin" },
+                draggable: false,
+              });
+            document.getElementById("loginPopup").click();
+          }
+        }, 500);
       }
     }
   }, [currUser]);
 
-  return currUser !== null
-    ? props.children
-    : props.fallback || (
-        <div className={styles.messageWrapper}>
-          <div className={styles.message}>
-            <div>
-              Don&apos;t want to sign in?
-              <br />
-              Fine, here&apos;s a random picture so you don&apos;t get bored.
-            </div>
-            <div className={styles.image}>
-              <img src="https://picsum.photos/500/300" />
-            </div>
+  return currUser === undefined ? (
+    <></>
+  ) : currUser !== null ? (
+    (!!checkWith?.length ? checkWith.includes(currUser.uid) : true) ? (
+      children
+    ) : (
+      <div className={styles.messageWrapper}>
+        <Paper className={styles.message} elevation={4}>
+          <div>
+            Pokusali ste da pristupite necemu sto nije Vase,
+            <br />
+            ali neko je to ocekivao pa niste uspeli.
+            <br /> Vise srece drugi put 🍀
           </div>
-        </div>
-      );
+        </Paper>
+      </div>
+    )
+  ) : (
+    fallback || (
+      <div className={styles.messageWrapper}>
+        <Paper className={styles.message} elevation={4}>
+          <div>
+            Ne zelite da se ulogujete?
+            <br />
+            Dobro, evo jedne slike da Vam ne bude dosadno 😊
+          </div>
+          <div className={styles.image}>
+            <Image
+              src="https://picsum.photos/500/300"
+              layout="fill"
+              alt="randomImg"
+            />
+          </div>
+        </Paper>
+      </div>
+    )
+  );
 }

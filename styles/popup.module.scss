@@ -76,19 +76,19 @@
 
           margin-block: 1.5vmin;
 
-          > .input {
-            @include roundedInput(1rem, 100%);
-          }
+          //   > .input {
+          //     @include roundedInput(1rem, 100%);
+          //   }
 
-          .inputStyle {
-            font-size: inherit;
-          }
+          //   .inputStyle {
+          //     font-size: inherit;
+          //   }
         }
 
         > button {
-          @include button($baseColor, white, 1vmin, 2.5vmin);
-          position: relative;
-          margin-block: 2vmin;
+          // @include button($baseColor, white, 1vmin, 2.5vmin);
+          // position: relative;
+          // margin-block: 2vmin;
         }
         .loading {
           .btnText {
@@ -123,10 +123,10 @@
   }
   .signup {
     @extend .login;
-    justify-content: flex-start !important;
+    justify-content: center !important;
 
     form {
-      width: 50% !important;
+      width: 100% !important;
       > div {
         margin-block: 1vmin !important;
       }
@@ -141,4 +141,8 @@
       align-items: center;
     }
   }
+}
+
+.inputStyle {
+  border-radius: 0.75rem !important;
 }

@@ -36,8 +36,8 @@ export const AuthProvider = ({ children }) => {
   }
 
   function signout() {
-    authInstance.signOut();
     router.replace("/");
+    authInstance.signOut();
   }
 
   useEffect(() => {

@@ -50,22 +50,24 @@ const User = ({
   userDetails: Partial<User>;
 }) => {
   return (
-    <Container component="div" maxWidth="xl" className={styles.container}>
-      <Paper elevation={4} className={styles.wrapper}>
-        <UserDetails
-          displayName={userAds[0].provider.displayName}
-          membership={userDetails.membership}
-          photoURL={userAds[0].provider.photoURL}
-          rating={userDetails.rating}
-          reputation={userDetails.reputation}
-        ></UserDetails>
-        <Box className={styles.cardWrapper}>
-          {userAds.map((val, index) => {
-            return <AdCard ad={val} key={index}></AdCard>;
-          })}
-        </Box>
-      </Paper>
-    </Container>
+    <AuthCheck>
+      <Container component="div" maxWidth="xl" className={styles.container}>
+        <Paper elevation={4} className={styles.wrapper}>
+          <UserDetails
+            displayName={userAds[0].provider.displayName}
+            membership={userDetails.membership}
+            photoURL={userAds[0].provider.photoURL}
+            rating={userDetails.rating}
+            reputation={userDetails.reputation}
+          ></UserDetails>
+          <Box className={styles.cardWrapper}>
+            {userAds.map((val, index) => {
+              return <AdCard ad={val} key={index}></AdCard>;
+            })}
+          </Box>
+        </Paper>
+      </Container>
+    </AuthCheck>
     // <div>
     //   User
     //   {userAds.map((val, index) => {
