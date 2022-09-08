@@ -12,6 +12,7 @@ import app, {
   getUser,
   getUserAds,
   getUserChats,
+  getUserFavourites,
   getUserReceipts,
   storage,
 } from "../util/firebase";
@@ -29,6 +30,7 @@ import {
   Tab,
   Tabs,
   TextField,
+  Tooltip,
 } from "@mui/material";
 import ClearOutlinedIcon from "@mui/icons-material/ClearOutlined";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
@@ -57,6 +59,7 @@ import { User, userSchema } from "../models/User";
 import { Chat, chatSchema } from "../models/Chat";
 import PieChart from "../components/PieChart";
 import { isSameMonth } from "date-fns";
+import Link from "next/link";
 
 type adFormData = {
   name: string;
@@ -103,6 +106,7 @@ const UserDashboard = () => {
     labels: string[];
     data: number[];
   }>();
+  const [favourites, setFavourites] = useState([]);
 
   const dbInstance = firestore.getFirestore(app);
   const storageInstance = storage.getStorage(app);
@@ -114,6 +118,8 @@ const UserDashboard = () => {
     setTabValue(newValue);
   };
 
+  // const favourites = {};
+
   useEffect(() => {
     const currentDate = new Date().getTime();
     getUserReceipts(currUser?.uid, "purchases").then((res) => {
@@ -123,7 +129,6 @@ const UserDashboard = () => {
           (item) => isSameMonth(currentDate, item.timestamp) && item.completed
         )
       );
-
       setSubCatSpending(getSubcatStatistic(res));
     });
     getUserReceipts(currUser?.uid, "sales").then((res) => {
@@ -146,6 +151,12 @@ const UserDashboard = () => {
         setUserChats(res);
       });
   }, [tabValue, update, currUser?.uid]);
+
+  useEffect(() => {
+    const joined = userPurchases?.concat(userSales);
+    console.log(joined);
+    if (joined?.length > 0) getFavourites(joined);
+  }, [userSales, userPurchases]);
 
   const [newAdDialog, setNewAdDialog] = useState(false);
   const [dialogLoading, setDialogLoading] = useState(false);
@@ -321,6 +332,20 @@ const UserDashboard = () => {
     return { labels: labels, data: data };
   };
 
+  const getFavourites = (arr: Receipt[]) => {
+    const reduced: any = arr.reduce((output, curr) => {
+      output[curr.sellerID] = (output[curr.sellerID] || 0) + 1;
+      return output;
+    }, {});
+
+    getUserFavourites(
+      Object.entries(reduced)
+        .sort((a: any, b: any) => b[1] - a[1])
+        .slice(0, 3)
+        .flatMap((item) => item[0])
+    ).then((res) => setFavourites(res));
+  };
+
   return (
     <AuthCheck>
       <Container component="div" maxWidth="xl" className={styles.container}>
@@ -343,7 +368,10 @@ const UserDashboard = () => {
                 TabIndicatorProps={{ children: <span></span> }}
               >
                 <Tab label="Dashboard" classes={{ root: styles.tabs }} />
-                <Tab label="Moji oglasi" classes={{ root: styles.tabs }} />
+
+                {userProfile?.isProvider && (
+                  <Tab label="Moji oglasi" classes={{ root: styles.tabs }} />
+                )}
                 <Tab label="Poruke" classes={{ root: styles.tabs }} />
                 <Tab label="Moje kupovine" classes={{ root: styles.tabs }} />
                 {userProfile?.isProvider && (
@@ -355,34 +383,37 @@ const UserDashboard = () => {
               <TabPanel value={tabValue} index={0}>
                 <Container maxWidth="md" className={styles.dashboard}>
                   <Container maxWidth="md" className={styles.economy}>
-                    <Box>
-                      <PieChart
-                        dataset={{
-                          labels: ["Raspolozivo", "Iskorisceno"],
-                          data: [
-                            userProfile?.ad.permitted - userProfile?.ad.count,
-                            userProfile?.ad.count,
-                          ],
-                          title: "Raspolozivi/iskorisceni oglasi",
-                        }}
-                      ></PieChart>
-                    </Box>
-                    {userProfile?.adPromotion.permitted !== 0 && (
+                    {userProfile?.isProvider && (
                       <Box>
                         <PieChart
                           dataset={{
                             labels: ["Raspolozivo", "Iskorisceno"],
                             data: [
-                              userProfile?.adPromotion.permitted -
-                                userProfile?.adPromotion.count,
-                              userProfile?.adPromotion.count,
+                              userProfile?.ad.permitted - userProfile?.ad.count,
+                              userProfile?.ad.count,
                             ],
-                            title: "Raspolozive/iskoriscene promocije",
+                            title: "Raspolozivi/iskorisceni oglasi",
                           }}
                         ></PieChart>
                       </Box>
                     )}
-                    {monthPurchases.length > 0 && monthSales.length > 0 && (
+                    {userProfile?.adPromotion.permitted !== 0 &&
+                      userProfile?.isProvider && (
+                        <Box>
+                          <PieChart
+                            dataset={{
+                              labels: ["Raspolozivo", "Iskorisceno"],
+                              data: [
+                                userProfile?.adPromotion.permitted -
+                                  userProfile?.adPromotion.count,
+                                userProfile?.adPromotion.count,
+                              ],
+                              title: "Raspolozive/iskoriscene promocije",
+                            }}
+                          ></PieChart>
+                        </Box>
+                      )}
+                    {monthPurchases.length > 0 && monthSales.length > 0 ? (
                       <>
                         <Box>
                           <PieChart
@@ -403,6 +434,10 @@ const UserDashboard = () => {
                           ></PieChart>
                         </Box>
                       </>
+                    ) : (
+                      !userProfile?.isProvider && (
+                        <span className={styles.noData}>Nema podataka</span>
+                      )
                     )}
                     {subCatSpending?.data.length > 0 && (
                       <Box>
@@ -429,238 +464,258 @@ const UserDashboard = () => {
                       )}
                   </Container>
                   <Container maxWidth="md" className={styles.favourites}>
-                    <div>
-                      Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                      Quos iusto sed id minus unde neque quod temporibus at! Eum
-                      tempore iure velit harum provident dolorum nisi. Omnis
-                      culpa delectus quod.
-                    </div>
+                    <h3>Top 3 korisnika po broju saradnji:</h3>
+                    <Container maxWidth="xl">
+                      {favourites?.map((item) => {
+                        return (
+                          <Link
+                            href={{
+                              pathname: "/user",
+                              query: { id: item.uid },
+                            }}
+                            key={item.uid}
+                          >
+                            <Tooltip
+                              title={item.displayName}
+                              arrow
+                              sx={{ cursor: "pointer" }}
+                            >
+                              <Avatar src={item.photoURL}>
+                                {item.displayName.charAt(0)}
+                              </Avatar>
+                            </Tooltip>
+                          </Link>
+                        );
+                      })}
+                    </Container>
                   </Container>
                 </Container>
               </TabPanel>
-              <TabPanel value={tabValue} index={1}>
-                {userProfile?.ad.count !== userProfile?.ad.permitted && (
-                  <Paper elevation={2} className={styles.actions}>
-                    <Button onClick={() => newAdDialogOpen()}>
-                      <AddOutlinedIcon />
-                      <span> Dodaj oglas</span>
-                    </Button>
+              {userProfile?.isProvider && (
+                <TabPanel value={tabValue} index={1}>
+                  {userProfile?.ad.count !== userProfile?.ad.permitted && (
+                    <Paper elevation={2} className={styles.actions}>
+                      <Button onClick={() => newAdDialogOpen()}>
+                        <AddOutlinedIcon />
+                        <span> Dodaj oglas</span>
+                      </Button>
 
-                    <CustomDialog
-                      title="Dodavanje novog oglasa"
-                      dialogClose={newAdDialogClose}
-                      dialogOpen={newAdDialog}
-                      dialogLoading={dialogLoading}
-                      isStepperDialog={true} //TODO srediti ovo kako treba
-                    >
-                      <CustomStepper
-                        titles={[
-                          { title: "Podaci", submitBtn: buttonRef },
-                          {
-                            title: "Slike",
-                            optional: true,
-                            action: uploadImages,
-                          },
-                        ]}
-                        canTransition={isValid}
+                      <CustomDialog
+                        title="Dodavanje novog oglasa"
+                        dialogClose={newAdDialogClose}
+                        dialogOpen={newAdDialog}
+                        dialogLoading={dialogLoading}
+                        isStepperDialog={true} //TODO srediti ovo kako treba
                       >
-                        <Box
-                          component="form"
-                          className={styles.newAdForm}
-                          noValidate
-                          onKeyDown={(e) => {
-                            e.key === "Enter" && e.preventDefault();
-                          }}
+                        <CustomStepper
+                          titles={[
+                            { title: "Podaci", submitBtn: buttonRef },
+                            {
+                              title: "Slike",
+                              optional: true,
+                              action: uploadImages,
+                            },
+                          ]}
+                          canTransition={isValid}
                         >
-                          <TextField
-                            variant="outlined"
-                            label="Naziv"
-                            type="text"
-                            required
-                            {...register("name", {
-                              required: "Morate uneti naziv oglasa",
-                              minLength: {
-                                value: 3,
-                                message:
-                                  "Naziv ne moze imati manje od 3 karaktera",
-                              },
-                              maxLength: {
-                                value: 25,
-                                message:
-                                  "Naziv ne moze imati vise od 25 karaktera",
-                              },
-                            })}
-                          ></TextField>
-                          <TextField
-                            variant="outlined"
-                            label="Opis"
-                            required
-                            multiline
-                            minRows={5}
-                            {...register("description", {
-                              required: "Morate uneti opis",
-                              minLength: {
-                                value: 25,
-                                message:
-                                  "Opis ne moze imati manje od 25 karaktera",
-                              },
-                            })}
-                            type="text"
-                          ></TextField>
-                          {userProfile?.category === "products" ? (
-                            <>
-                              <div className={styles.priceUnit}>
-                                <TextField
-                                  variant="outlined"
-                                  label="Cena"
-                                  type="number"
-                                  required
-                                  {...register("price", {
-                                    required: "Morate uneti cenu",
-                                    valueAsNumber: true,
-                                  })}
-                                  InputProps={{
-                                    endAdornment: (
-                                      <InputAdornment position="end">
-                                        {watch("priceUnit")}
-                                      </InputAdornment>
-                                    ),
-                                  }}
-                                ></TextField>
-                                <FormControl>
-                                  <InputLabel id="priceUnit">
-                                    Jedinica
-                                  </InputLabel>
-                                  <Select
-                                    labelId="priceUnit"
-                                    id="priceUnit"
-                                    {...register("priceUnit")}
-                                    label="Jedinica"
-                                    value={watch("priceUnit")}
-                                  >
-                                    <MenuItem value="rsd">rsd</MenuItem>
-                                    <MenuItem value="rsd/kg">rsd/kg</MenuItem>
-                                    <MenuItem value="rsd/g">rsd/g</MenuItem>
-                                  </Select>
-                                </FormControl>
-                              </div>
-                              <TextField
-                                variant="outlined"
-                                label="Kolicina"
-                                type="number"
-                                required
-                                {...register("quantity", {
-                                  required: "Morate uneti kolicinu",
-                                  valueAsNumber: true,
-                                })}
-                              ></TextField>
-                            </>
-                          ) : (
+                          <Box
+                            component="form"
+                            className={styles.newAdForm}
+                            noValidate
+                            onKeyDown={(e) => {
+                              e.key === "Enter" && e.preventDefault();
+                            }}
+                          >
                             <TextField
                               variant="outlined"
-                              label="Cena"
+                              label="Naziv"
                               type="text"
-                              disabled
-                              {...register("price")}
-                              InputLabelProps={{ shrink: true }}
-                              value="Po dogovoru"
+                              required
+                              {...register("name", {
+                                required: "Morate uneti naziv oglasa",
+                                minLength: {
+                                  value: 3,
+                                  message:
+                                    "Naziv ne moze imati manje od 3 karaktera",
+                                },
+                                maxLength: {
+                                  value: 25,
+                                  message:
+                                    "Naziv ne moze imati vise od 25 karaktera",
+                                },
+                              })}
                             ></TextField>
-                          )}
-                          <Controller
-                            name="subcategory"
-                            control={control}
-                            rules={{ required: "Morate uneti podkategoriju" }}
-                            render={({ field: { onChange, ...props } }) => (
-                              <Autocomplete
-                                {...props}
-                                disablePortal
-                                id="combo-box-demo"
-                                options={
-                                  userProfile?.category === "products"
-                                    ? productSubCategories
-                                    : serviceSubCategories
-                                }
-                                onChange={(e, data) => onChange(data)}
-                                renderInput={(params) => (
+                            <TextField
+                              variant="outlined"
+                              label="Opis"
+                              required
+                              multiline
+                              minRows={5}
+                              {...register("description", {
+                                required: "Morate uneti opis",
+                                minLength: {
+                                  value: 25,
+                                  message:
+                                    "Opis ne moze imati manje od 25 karaktera",
+                                },
+                              })}
+                              type="text"
+                            ></TextField>
+                            {userProfile?.category === "products" ? (
+                              <>
+                                <div className={styles.priceUnit}>
                                   <TextField
-                                    {...params}
-                                    label="Podkategorija"
+                                    variant="outlined"
+                                    label="Cena"
+                                    type="number"
                                     required
-                                  />
-                                )}
-                              />
-                            )}
-                          />
-                          <button
-                            hidden
-                            ref={buttonRef}
-                            onClick={handleSubmit(
-                              adSubmitHandler,
-                              adErrorHandler
-                            )}
-                          ></button>
-                        </Box>
-                        <>
-                          <input
-                            type="file"
-                            name="fileInput"
-                            id="fileInput"
-                            hidden
-                            ref={imageInput}
-                            onChange={fileChosen}
-                            accept="image/jpeg, image/jpg, image/png, image/webp"
-                            multiple
-                          />
-                          <GalleryCropper
-                            aspect={3 / 2}
-                            images={photoURLs}
-                            setCroppedImage={setCroppedImages}
-                            setPhotoURLs={setPhotoURLs}
-                            inputRef={imageInput}
-                          ></GalleryCropper>
-                          <Box className={styles.gallery}>
-                            {croppedImages.map((img, index) => {
-                              return (
-                                <Box
-                                  key={index}
-                                  className={styles.imageWrapper}
-                                >
-                                  <Image
-                                    key={index}
-                                    src={img.url}
-                                    layout="fill"
-                                  ></Image>
-                                  <ClearOutlinedIcon
-                                    onClick={() => {
-                                      removeImage(index);
+                                    {...register("price", {
+                                      required: "Morate uneti cenu",
+                                      valueAsNumber: true,
+                                    })}
+                                    InputProps={{
+                                      endAdornment: (
+                                        <InputAdornment position="end">
+                                          {watch("priceUnit")}
+                                        </InputAdornment>
+                                      ),
                                     }}
-                                    className={styles.imageClear}
-                                    color="warning"
-                                  />
-                                </Box>
-                              );
-                            })}
+                                  ></TextField>
+                                  <FormControl>
+                                    <InputLabel id="priceUnit">
+                                      Jedinica
+                                    </InputLabel>
+                                    <Select
+                                      labelId="priceUnit"
+                                      id="priceUnit"
+                                      {...register("priceUnit")}
+                                      label="Jedinica"
+                                      value={watch("priceUnit")}
+                                    >
+                                      <MenuItem value="rsd">rsd</MenuItem>
+                                      <MenuItem value="rsd/kg">rsd/kg</MenuItem>
+                                      <MenuItem value="rsd/g">rsd/g</MenuItem>
+                                    </Select>
+                                  </FormControl>
+                                </div>
+                                <TextField
+                                  variant="outlined"
+                                  label="Kolicina"
+                                  type="number"
+                                  required
+                                  {...register("quantity", {
+                                    required: "Morate uneti kolicinu",
+                                    valueAsNumber: true,
+                                  })}
+                                ></TextField>
+                              </>
+                            ) : (
+                              <TextField
+                                variant="outlined"
+                                label="Cena"
+                                type="text"
+                                disabled
+                                {...register("price")}
+                                InputLabelProps={{ shrink: true }}
+                                value="Po dogovoru"
+                              ></TextField>
+                            )}
+                            <Controller
+                              name="subcategory"
+                              control={control}
+                              rules={{ required: "Morate uneti podkategoriju" }}
+                              render={({ field: { onChange, ...props } }) => (
+                                <Autocomplete
+                                  {...props}
+                                  disablePortal
+                                  id="combo-box-demo"
+                                  options={
+                                    userProfile?.category === "products"
+                                      ? productSubCategories
+                                      : serviceSubCategories
+                                  }
+                                  onChange={(e, data) => onChange(data)}
+                                  renderInput={(params) => (
+                                    <TextField
+                                      {...params}
+                                      label="Podkategorija"
+                                      required
+                                    />
+                                  )}
+                                />
+                              )}
+                            />
+                            <button
+                              hidden
+                              ref={buttonRef}
+                              onClick={handleSubmit(
+                                adSubmitHandler,
+                                adErrorHandler
+                              )}
+                            ></button>
                           </Box>
-                        </>
-                      </CustomStepper>
-                    </CustomDialog>
-                  </Paper>
-                )}
+                          <>
+                            <input
+                              type="file"
+                              name="fileInput"
+                              id="fileInput"
+                              hidden
+                              ref={imageInput}
+                              onChange={fileChosen}
+                              accept="image/jpeg, image/jpg, image/png, image/webp"
+                              multiple
+                            />
+                            <GalleryCropper
+                              aspect={3 / 2}
+                              images={photoURLs}
+                              setCroppedImage={setCroppedImages}
+                              setPhotoURLs={setPhotoURLs}
+                              inputRef={imageInput}
+                            ></GalleryCropper>
+                            <Box className={styles.gallery}>
+                              {croppedImages.map((img, index) => {
+                                return (
+                                  <Box
+                                    key={index}
+                                    className={styles.imageWrapper}
+                                  >
+                                    <Image
+                                      key={index}
+                                      src={img.url}
+                                      layout="fill"
+                                    ></Image>
+                                    <ClearOutlinedIcon
+                                      onClick={() => {
+                                        removeImage(index);
+                                      }}
+                                      className={styles.imageClear}
+                                      color="warning"
+                                    />
+                                  </Box>
+                                );
+                              })}
+                            </Box>
+                          </>
+                        </CustomStepper>
+                      </CustomDialog>
+                    </Paper>
+                  )}
 
-                {userAds?.map((item, index) => {
-                  return (
-                    <AdCard
-                      ad={adSchemaCard.cast(
-                        { ...item.data(), link: item.ref.path },
-                        {
-                          stripUnknown: true,
-                        }
-                      )}
-                      key={index}
-                    />
-                  );
-                })}
-              </TabPanel>
+                  {userAds?.map((item, index) => {
+                    return (
+                      <AdCard
+                        ad={adSchemaCard.cast(
+                          { ...item.data(), link: item.ref.path },
+                          {
+                            stripUnknown: true,
+                          }
+                        )}
+                        key={index}
+                      />
+                    );
+                  })}
+                </TabPanel>
+              )}
               <TabPanel value={tabValue} index={2}>
                 <h3>Poruke</h3>
                 <Container maxWidth="md">

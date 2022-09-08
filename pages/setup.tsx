@@ -120,9 +120,19 @@ const Setup = () => {
                     photoURL: url,
                   })
                   .then(() => {
-                    setLoading(false);
-                    window.URL.revokeObjectURL(croppedImage?.url);
-                    router.replace("/");
+                    firestore
+                      .updateDoc(
+                        firestore.doc(
+                          firestore.getFirestore(app),
+                          `users/${currUser?.uid}`
+                        ),
+                        { photoURL: url }
+                      )
+                      .then(() => {
+                        setLoading(false);
+                        window.URL.revokeObjectURL(croppedImage?.url);
+                        router.replace("/profile");
+                      });
                   });
               });
             }
@@ -138,8 +148,18 @@ const Setup = () => {
                 data.surname.slice(1),
             })
             .then(() => {
-              setLoading(false);
-              router.replace("/");
+              firestore
+                .updateDoc(
+                  firestore.doc(
+                    firestore.getFirestore(app),
+                    `users/${currUser?.uid}`
+                  ),
+                  { photoURL: null }
+                )
+                .then(() => {
+                  setLoading(false);
+                  router.replace("/profile");
+                });
             });
         }
       })

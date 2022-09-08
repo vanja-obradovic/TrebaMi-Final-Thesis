@@ -43,6 +43,7 @@ import {
   endBefore,
   startAt,
   deleteDoc,
+  documentId,
 } from "firebase/firestore";
 import { ngram } from "./ngram";
 import { commentSchema } from "../models/Comment";
@@ -84,6 +85,20 @@ export const getUserReceipts = async (
   return userPurchases.docs.flatMap((doc) => {
     const docData = doc.data();
     return docData.receipts.map((receipt) => receiptSchema.cast(receipt));
+  });
+};
+
+export const getUserFavourites = (arr: any) => {
+  const ref = collection(getFirestore(app), "users");
+  const q = query(ref, where(documentId(), "in", arr));
+  return getDocs(q).then((res) => {
+    return res.docs.map((doc) => {
+      return {
+        uid: doc.id,
+        displayName: doc.data().name + " " + doc.data().surname,
+        photoURL: doc.data().photoURL,
+      };
+    });
   });
 };
 
