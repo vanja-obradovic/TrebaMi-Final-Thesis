@@ -141,7 +141,7 @@ const UserDashboard = () => {
       setSubCatEarnings(getSubcatStatistic(res));
     });
 
-    if (tabValue === 2)
+    if (tabValue === 2 && userProfile?.isProvider || tabValue === 1)
       getUserChats({
         uid: currUser?.uid,
         displayName: currUser?.displayName,
