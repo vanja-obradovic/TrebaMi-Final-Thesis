@@ -220,7 +220,6 @@ export default function Home() {
             <ClickAwayListener
               onClickAway={() => {
                 setFocusProducts(false);
-                console.log("blur");
               }}
             >
               <Box
@@ -349,21 +348,21 @@ export default function Home() {
             <ClickAwayListener
               onClickAway={() => {
                 setFocusServices(false);
-                console.log("blur");
+                
               }}
             >
               <Box
                 className={styles.services}
                 onFocus={(e) => {
-                  console.log("focus");
+                  
                   setFocusServices(true);
                 }}
                 onKeyDown={(e) => {
-                  console.log(e);
+                  
                   if (e.key === "Escape" && e.target.localName === "div") {
                     e.target.blur();
                     setFocusServices(false);
-                    console.log("blur");
+                    
                   }
                 }}
                 tabIndex={-1}
