@@ -408,7 +408,7 @@ const UserDashboard = () => {
                         ></PieChart>
                       </Box>
                     )}
-                    {userProfile?.adPromotion.permitted !== 0 &&
+                    {/*userProfile?.adPromotion.permitted !== 0 &&
                       userProfile?.isProvider && (
                         <Box>
                           <PieChart
@@ -423,7 +423,7 @@ const UserDashboard = () => {
                             }}
                           ></PieChart>
                         </Box>
-                      )}
+                      )*/}
                     {monthPurchases.length > 0 || monthSales.length > 0 ? (
                       <>
                         <Box>
