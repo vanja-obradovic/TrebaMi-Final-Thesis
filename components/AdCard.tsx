@@ -11,7 +11,10 @@ import Router from "next/router";
 import React from "react";
 import styles from "../styles/adCard.module.scss";
 import PlaceIcon from "@mui/icons-material/Place";
-import { AdvertisementCard } from "../models/Advertisement";
+import {
+  AdvertisementCard,
+  productSubCategories,
+} from "../models/Advertisement";
 
 interface CardProps {
   ad: AdvertisementCard;
@@ -74,9 +77,12 @@ const AdCard = (props: CardProps) => {
                   " "
                 )}
               >
-                {!search && <div>Raspolozivo:{ad.quantity}</div>}
+                {!search && productSubCategories.includes(ad.subcategory) && (
+                  <div>Raspolozivo:{ad.quantity}</div>
+                )}
                 <div>
-                  {ad.price === -1 ? "Po dogovoru" : ad.price} {ad.priceUnit}
+                  {ad.price === -1 ? "Cena: Po dogovoru" : ad.price}{" "}
+                  {ad.priceUnit}
                 </div>
               </Box>
             </Box>

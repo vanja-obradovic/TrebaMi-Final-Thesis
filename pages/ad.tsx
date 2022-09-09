@@ -23,7 +23,11 @@ import UserDetails from "../components/UserDetails";
 import Map from "../components/Map";
 import { useRouter } from "next/router";
 import Gallery from "../components/Gallery";
-import { adSchema, Advertisement } from "../models/Advertisement";
+import {
+  adSchema,
+  Advertisement,
+  productSubCategories,
+} from "../models/Advertisement";
 import { Comment } from "../models/Comment";
 import AdComment from "../components/AdComment";
 import { useForm } from "react-hook-form";
@@ -421,7 +425,7 @@ const AdDetails = ({
                           {ad.priceUnit}
                         </div>
                       </div>
-                    ) : (
+                    ) : ad.category === "products" ? (
                       <TextField
                         label="Cena"
                         error={!!editErrors.price}
@@ -439,8 +443,12 @@ const AdDetails = ({
                         }}
                         InputProps={{ className: styles.inputStyle }}
                       ></TextField>
+                    ) : (
+                      <></>
                     )}
-                    {!edit ? (
+                    {ad.category === "services" ? (
+                      <></>
+                    ) : !edit ? (
                       <div>
                         <h4>Raspolozivo:&nbsp;</h4>
                         <div>{ad.quantity}</div>

@@ -37,6 +37,7 @@ import transport from "../public/transport.jpg";
 import services from "../public/services.jpg";
 import products from "../public/products.jpg";
 import { toast } from "react-toastify";
+import { useAuth } from "../contexts/AuthContext";
 
 type FormData = {
   subcategory: string;
@@ -45,6 +46,7 @@ type FormData = {
 
 export default function Home() {
   const router = useRouter();
+  const { currUser } = useAuth();
 
   const [open, setOpen] = useState(false);
   const [fetching, setFetching] = useState(false);
@@ -204,6 +206,7 @@ export default function Home() {
                     key={option.link}
                     search={true}
                     small={true}
+                    disabled={currUser?.uid ? false : true}
                   ></AdCard>
                 )}
               />

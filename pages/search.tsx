@@ -16,8 +16,6 @@ import {
   Paper,
   Select,
   Slider,
-  TextField,
-  Typography,
 } from "@mui/material";
 import { QuerySnapshot } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
@@ -32,7 +30,6 @@ import Map from "../components/Map";
 import useArray from "../hooks/useArray";
 import useTimeout from "../hooks/useTimeout";
 import { Controller, useForm } from "react-hook-form";
-import { watch } from "fs";
 import Link from "next/link";
 
 export const getServerSideProps = async ({ query, res }) => {
@@ -59,11 +56,6 @@ export const getServerSideProps = async ({ query, res }) => {
         });
       else return [];
     });
-    // if (allAds.length === 0) {
-    //   return {
-    //     notFound: true,
-    //   };
-    // }
     return {
       props: { allAds: allAds, priceRange: calculatePriceRange(prices) },
     };

@@ -41,16 +41,16 @@ const UserDropDown = () => {
           >
             <MenuItem classes={{ gutters: styles.item }} onClick={handleClose}>
               <Link href={`/profile`} locale={false} prefetch>
-                My profile
+                Moj profil
               </Link>
             </MenuItem>
             <MenuItem classes={{ gutters: styles.item }} onClick={handleClose}>
               <Link href={`/settings`} locale={false} prefetch>
-                Settings
+                Podesavanja
               </Link>
             </MenuItem>
             <MenuItem onClick={signout} classes={{ gutters: styles.item }}>
-              Logout
+              Odjavi se
             </MenuItem>
           </Menu>
         </>

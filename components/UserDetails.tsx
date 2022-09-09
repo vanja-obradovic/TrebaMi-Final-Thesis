@@ -66,14 +66,14 @@ const UserDetails = (props: userDetailsProps) => {
             <h2>{displayName}</h2>
             {dashboard && (
               <div className={styles.stats}>
-                <div>
+                {/* <div>
                   <span>Rating:</span>
                   <span>{rating ?? "N/A"}</span>
                 </div>
                 <div>
                   <span>Reputation:</span>
                   <span>{reputation ?? "N/A"}</span>
-                </div>
+                </div> */}
                 <div>
                   <span>Membership:</span>
                   <span

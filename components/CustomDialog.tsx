@@ -41,7 +41,9 @@ const CustomDialog = (props: dialogProps) => {
   return (
     <Dialog
       open={dialogOpen}
-      onClose={() => dialogClose(false)}
+      onClose={(e, reason) => {
+        if (!reason) dialogClose(false);
+      }}
       classes={{ paper: [styles.dialog, dialogStyle].join(" ") }}
     >
       <DialogTitle>{title}</DialogTitle>

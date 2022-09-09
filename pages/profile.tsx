@@ -153,9 +153,11 @@ const UserDashboard = () => {
   }, [tabValue, update, currUser?.uid]);
 
   useEffect(() => {
-    const joined = userPurchases?.concat(userSales);
-    console.log(joined);
-    if (joined?.length > 0) getFavourites(joined);
+    if (userPurchases !== undefined && userSales !== undefined) {
+      const joined = userPurchases?.concat(userSales);
+      console.log(joined);
+      if (joined?.length > 0) getFavourites(joined);
+    }
   }, [userSales, userPurchases]);
 
   const [newAdDialog, setNewAdDialog] = useState(false);
@@ -340,7 +342,7 @@ const UserDashboard = () => {
 
   const getFavourites = (arr: Receipt[]) => {
     const reduced: any = arr.reduce((output, curr) => {
-      if (curr?.sellerID !== currUser.uid)
+      if (curr.sellerID !== currUser.uid)
         output[curr.sellerID] = (output[curr.sellerID] || 0) + 1;
       return output;
     }, {});
@@ -498,7 +500,7 @@ const UserDashboard = () => {
                           );
                         })
                       ) : (
-                        <div></div>
+                        <div>Nema dovoljno podataka</div>
                       )}
                     </Container>
                   </Container>

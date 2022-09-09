@@ -558,8 +558,8 @@ const Settings = ({ userData }) => {
                         <div className={styles.membershipDetails}>
                           <ul>
                             <li>5 oglasa</li>
-                            <li>1 besplatna promocija oglasa po mesecu</li>
-                            <li>200 bonus reputacije po mesecu</li>
+                            {/* <li>1 besplatna promocija oglasa po mesecu</li>
+                            <li>200 bonus reputacije po mesecu</li> */}
                           </ul>
                         </div>
                       </div>
@@ -570,8 +570,8 @@ const Settings = ({ userData }) => {
                         <div className={styles.membershipDetails}>
                           <ul>
                             <li>10 oglasa</li>
-                            <li>3 besplatne promocije oglasa po mesecu</li>
-                            <li>500 bonus reputacije po mesecu</li>
+                            {/* <li>3 besplatne promocije oglasa po mesecu</li>
+                            <li>500 bonus reputacije po mesecu</li> */}
                           </ul>
                         </div>
                       </div>
