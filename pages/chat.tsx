@@ -249,6 +249,19 @@ const ChatPage = ({
   }, []);
 
   useEffect(() => {
+    const removeToast = () => {
+      toast.dismiss(toastRef.current);
+      console.log("unload");
+    };
+
+    router.events.on("routeChangeStart", removeToast);
+
+    return () => {
+      router.events.off("routeChangeStart", removeToast);
+    };
+  });
+
+  useEffect(() => {
     if (currUser && !chat.closed)
       if (chat.offer.amount !== -1) {
         if (offerVisible) {

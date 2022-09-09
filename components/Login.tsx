@@ -51,8 +51,8 @@ const Login = ({ setPopup, setRegister }) => {
       .catch((err) => {
         console.log(err.message);
         toast.error("Pogresan email ili sifra!");
-      });
-    setLoading(false);
+      })
+      .finally(() => setLoading(false));
   };
 
   const handleErrors = (err) => {

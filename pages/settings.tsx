@@ -952,65 +952,69 @@ const Settings = ({ userData }) => {
                         />
                       </CustomDialog>
                     </span>
-                    <span>
-                      <FormControl disabled={!catChange} size="small">
-                        <InputLabel
-                          htmlFor={selectId}
-                          classes={{ root: styles.labelStyle }}
-                        >
-                          Kategorija
-                        </InputLabel>
-                        <Select
-                          className={styles.selectStyle}
-                          inputProps={{ id: selectId, variant: "outlined" }}
-                          defaultValue={
-                            userProfile?.changeInit ? "" : userProfile?.category
-                          }
-                          inputRef={category}
-                          label="Kategorija"
-                        >
-                          <MenuItem value={null}>Nijedna</MenuItem>
-                          <MenuItem value={"products"}>Proizvodi</MenuItem>
-                          <MenuItem value={"services"}>Usluge</MenuItem>
-                        </Select>
-                      </FormControl>
-                      <Button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setCatChange(!catChange);
-                          if (catChange) openCatDialog();
-                        }}
-                        color={catChange ? "error" : "info"}
-                        variant="contained"
-                        disabled={userProfile?.changeInit}
-                      >
-                        {catChange ? "Potvrdi" : "Promeni"}
-                      </Button>
-
-                      <CustomDialog // *Dialog for changing category
-                        dialogOpen={catDialogOpen}
-                        dialogClose={closeCatDialog}
-                        dialogLoading={dialogLoading}
-                        title="Potvrdite delikatnu operaciju"
-                        contentText=" Ovom akcijom cete promeniti kategoriju ovog naloga. Ako nastavite saglasni ste da izgubite svu reputaciju, rejting i komentare. Morate uneti lozinku da biste nastavili:"
-                      >
-                        <TextField
-                          autoFocus
-                          margin="dense"
-                          id="passwordConfirmationDialog"
-                          label="Lozinka"
-                          type="password"
-                          fullWidth
-                          size="small"
-                          variant="outlined"
-                          inputRef={catDialogPassword}
-                          InputLabelProps={{
-                            className: styles.inputStyle,
+                    {userProfile?.isProvider && (
+                      <span>
+                        <FormControl disabled={!catChange} size="small">
+                          <InputLabel
+                            htmlFor={selectId}
+                            classes={{ root: styles.labelStyle }}
+                          >
+                            Kategorija
+                          </InputLabel>
+                          <Select
+                            className={styles.selectStyle}
+                            inputProps={{ id: selectId, variant: "outlined" }}
+                            defaultValue={
+                              userProfile?.changeInit
+                                ? ""
+                                : userProfile?.category
+                            }
+                            inputRef={category}
+                            label="Kategorija"
+                          >
+                            <MenuItem value={null}>Nijedna</MenuItem>
+                            <MenuItem value={"products"}>Proizvodi</MenuItem>
+                            <MenuItem value={"services"}>Usluge</MenuItem>
+                          </Select>
+                        </FormControl>
+                        <Button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setCatChange(!catChange);
+                            if (catChange) openCatDialog();
                           }}
-                          InputProps={{ className: styles.inputStyle }}
-                        />
-                      </CustomDialog>
-                    </span>
+                          color={catChange ? "error" : "info"}
+                          variant="contained"
+                          disabled={userProfile?.changeInit}
+                        >
+                          {catChange ? "Potvrdi" : "Promeni"}
+                        </Button>
+
+                        <CustomDialog // *Dialog for changing category
+                          dialogOpen={catDialogOpen}
+                          dialogClose={closeCatDialog}
+                          dialogLoading={dialogLoading}
+                          title="Potvrdite delikatnu operaciju"
+                          contentText=" Ovom akcijom cete promeniti kategoriju ovog naloga. Ako nastavite saglasni ste da izgubite svu reputaciju, rejting i komentare. Morate uneti lozinku da biste nastavili:"
+                        >
+                          <TextField
+                            autoFocus
+                            margin="dense"
+                            id="passwordConfirmationDialog"
+                            label="Lozinka"
+                            type="password"
+                            fullWidth
+                            size="small"
+                            variant="outlined"
+                            inputRef={catDialogPassword}
+                            InputLabelProps={{
+                              className: styles.inputStyle,
+                            }}
+                            InputProps={{ className: styles.inputStyle }}
+                          />
+                        </CustomDialog>
+                      </span>
+                    )}
                   </AccordionDetails>
                 </Accordion>
               </>
