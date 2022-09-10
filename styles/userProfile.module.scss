@@ -171,3 +171,60 @@
   font-style: italic;
   font-size: larger;
 }
+
+.skeleton {
+  max-height: 75vh;
+  min-height: 50vh;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  gap: 2rem;
+  @media only screen and (max-width: 992px) {
+    flex-direction: column;
+  }
+  .userSkeleton {
+    flex: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    > span {
+      &:first-of-type {
+        width: 10rem;
+        height: 10rem;
+      }
+      width: 70%;
+    }
+  }
+  .economySkeleton {
+    @media only screen and (max-width: 767px) {
+      width: 100% !important;
+    }
+    flex: 7;
+    min-height: 50vh;
+    display: flex;
+    flex-direction: column;
+    .skeletonTabs {
+      > span {
+        width: 100%;
+        height: 5rem;
+      }
+    }
+    .skeletonTabDetails {
+      display: flex;
+      justify-content: center;
+      row-gap: 2rem;
+      flex-direction: column;
+      flex: 1;
+
+      > span {
+        width: 100%;
+        height: 40vh;
+        &:last-of-type {
+          height: 10vh;
+        }
+      }
+    }
+  }
+}
