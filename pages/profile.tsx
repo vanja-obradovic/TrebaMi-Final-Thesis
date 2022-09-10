@@ -141,11 +141,12 @@ const UserDashboard = () => {
       setSubCatEarnings(getSubcatStatistic(res));
     });
 
-    if (tabValue === 2 && userProfile?.isProvider || tabValue === 1)
+    if ((tabValue === 2 && userProfile?.isProvider) || tabValue === 1)
       getUserChats({
         uid: currUser?.uid,
         displayName: currUser?.displayName,
         photoURL: currUser?.photoURL,
+        isProvider: userProfile?.isProvider ?? false,
       }).then((res) => {
         console.log(res);
         setUserChats(res);

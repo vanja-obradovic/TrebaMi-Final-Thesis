@@ -210,48 +210,52 @@ const AdDetails = ({
   }, []);
 
   const startChat = () => {
-    const time = new Date().getTime();
-    const members = [
-      {
-        displayName: currUser.displayName,
-        uid: currUser.uid,
-        photoURL: currUser.photoURL,
-      },
-      {
-        displayName: ad.provider.displayName,
-        uid: router.query.prov as string,
-        photoURL: ad.provider.photoURL,
-      },
-    ];
-    newChat({
-      closed: false,
-      createdAt: time,
-      createdBy: currUser?.uid,
-      id: router.query.aID as string,
-      modifiedAt: time,
-      members: members,
-      offer: {
-        amount: -1,
-        // isAccepted: false, isRejected: false
-      },
-      recentMessage: {
-        messageText: null,
-        readBy: [],
-        sentAt: null,
-        sentBy: null,
-      },
-      subject: {
-        adTitle: ad.name,
-        aid: router.query.aID as string,
-        category: ad.category,
-        subcategory: ad.subcategory,
-      },
-    }).then((res) =>
-      router.push({
-        pathname: "chat",
-        query: { id: res.id },
-      })
-    );
+    getUser(currUser.uid).then((user) => {
+      const time = new Date().getTime();
+      const members = [
+        {
+          displayName: currUser.displayName,
+          uid: currUser.uid,
+          photoURL: currUser.photoURL,
+          isProvider: user.data().isProvider,
+        },
+        {
+          displayName: ad.provider.displayName,
+          uid: router.query.prov as string,
+          photoURL: ad.provider.photoURL,
+          isProvider: true,
+        },
+      ];
+      newChat({
+        closed: false,
+        createdAt: time,
+        createdBy: currUser?.uid,
+        id: router.query.aID as string,
+        modifiedAt: time,
+        members: members,
+        offer: {
+          amount: -1,
+          // isAccepted: false, isRejected: false
+        },
+        recentMessage: {
+          messageText: null,
+          readBy: [],
+          sentAt: null,
+          sentBy: null,
+        },
+        subject: {
+          adTitle: ad.name,
+          aid: router.query.aID as string,
+          category: ad.category,
+          subcategory: ad.subcategory,
+        },
+      }).then((res) =>
+        router.push({
+          pathname: "chat",
+          query: { id: res.id },
+        })
+      );
+    });
   };
 
   const handleEdit = (data: EditData) => {

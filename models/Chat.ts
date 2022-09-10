@@ -10,6 +10,7 @@ export const chatSchema = yup.object({
       displayName: yup.string(),
       photoURL: yup.string().url().nullable(),
       uid: yup.string(),
+      isProvider: yup.boolean(),
     })
   ),
   modifiedAt: yup.number(),

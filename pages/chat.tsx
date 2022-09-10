@@ -48,6 +48,7 @@ export const getServerSideProps = async ({ query, res }) => {
     map[user.uid] = {
       photoURL: user.photoURL,
       displayName: user.displayName,
+      isProvider: user.isProvider,
     };
   }
   const messages = await getChatMessages(chatID);
@@ -391,23 +392,35 @@ const ChatPage = ({
                       key={message.sentAt}
                       ref={lastMsgRef}
                     >
-                      <Link
-                        href={{
-                          pathname: "/user",
-                          query: { id: message.sentBy },
-                        }}
-                      >
+                      {userMap[message.sentBy].isProvider ? (
+                        <Link
+                          href={{
+                            pathname: "/user",
+                            query: { id: message.sentBy },
+                          }}
+                        >
+                          <Tooltip
+                            title={userMap[message.sentBy].displayName}
+                            placement="top"
+                            arrow
+                            style={{ cursor: "pointer" }}
+                          >
+                            <Avatar src={userMap[message.sentBy].photoURL}>
+                              {userMap[message.sentBy].displayName.charAt(0)}
+                            </Avatar>
+                          </Tooltip>
+                        </Link>
+                      ) : (
                         <Tooltip
                           title={userMap[message.sentBy].displayName}
                           placement="top"
                           arrow
-                          style={{ cursor: "pointer" }}
                         >
                           <Avatar src={userMap[message.sentBy].photoURL}>
                             {userMap[message.sentBy].displayName.charAt(0)}
                           </Avatar>
                         </Tooltip>
-                      </Link>
+                      )}
                       <Paper elevation={4} className={styles.message}>
                         <div>{message.messageText}</div>
                         <div className={styles.time}>
@@ -430,23 +443,35 @@ const ChatPage = ({
                       ].join(" ")}
                       key={message.sentAt}
                     >
-                      <Link
-                        href={{
-                          pathname: "/user",
-                          query: { id: message.sentBy },
-                        }}
-                      >
+                      {userMap[message.sentBy].isProvider ? (
+                        <Link
+                          href={{
+                            pathname: "/user",
+                            query: { id: message.sentBy },
+                          }}
+                        >
+                          <Tooltip
+                            title={userMap[message.sentBy].displayName}
+                            placement="top"
+                            arrow
+                            style={{ cursor: "pointer" }}
+                          >
+                            <Avatar src={userMap[message.sentBy].photoURL}>
+                              {userMap[message.sentBy].displayName.charAt(0)}
+                            </Avatar>
+                          </Tooltip>
+                        </Link>
+                      ) : (
                         <Tooltip
                           title={userMap[message.sentBy].displayName}
                           placement="top"
                           arrow
-                          style={{ cursor: "pointer" }}
                         >
                           <Avatar src={userMap[message.sentBy].photoURL}>
                             {userMap[message.sentBy].displayName.charAt(0)}
                           </Avatar>
                         </Tooltip>
-                      </Link>
+                      )}
                       <Paper elevation={4} className={styles.message}>
                         <div>{message.messageText}</div>
                         <div className={styles.time}>
