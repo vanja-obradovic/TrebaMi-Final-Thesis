@@ -366,8 +366,8 @@ const UserDashboard = () => {
     <AuthCheck>
       <Container component="div" maxWidth="xl" className={styles.container}>
         <Paper elevation={4} className={styles.wrapper}>
-          {!loading ? (
-            <>
+          {/* {!loading ? (
+            <> */}
               <UserDetails
                 displayName={currUser?.displayName}
                 membership={userProfile?.membership}
@@ -848,24 +848,24 @@ const UserDashboard = () => {
                 </Paper>
               </Box>
             </>
-          ) : (
-            <Box className={styles.skeleton}>
-              <Paper className={styles.userSkeleton}>
-                <Skeleton animation="wave" variant="circular"></Skeleton>
-                <Skeleton animation="wave" variant="text"></Skeleton>
-                <Skeleton animation="wave" variant="text"></Skeleton>
-              </Paper>
-              <Paper className={styles.economySkeleton}>
-                <Box className={styles.skeletonTabs}>
-                  <Skeleton animation="wave"></Skeleton>
-                </Box>
-                <Box className={styles.skeletonTabDetails}>
-                  <Skeleton animation="wave"></Skeleton>
-                  <Skeleton animation="wave"></Skeleton>
-                </Box>
-              </Paper>
-            </Box>
-          )}
+          // ) : (
+          //   <Box className={styles.skeleton}>
+          //     <Paper className={styles.userSkeleton}>
+          //       <Skeleton animation="wave" variant="circular"></Skeleton>
+          //       <Skeleton animation="wave" variant="text"></Skeleton>
+          //       <Skeleton animation="wave" variant="text"></Skeleton>
+          //     </Paper>
+          //     <Paper className={styles.economySkeleton}>
+          //       <Box className={styles.skeletonTabs}>
+          //         <Skeleton animation="wave"></Skeleton>
+          //       </Box>
+          //       <Box className={styles.skeletonTabDetails}>
+          //         <Skeleton animation="wave"></Skeleton>
+          //         <Skeleton animation="wave"></Skeleton>
+          //       </Box>
+          //     </Paper>
+          //   </Box>
+          // )}
         </Paper>
       </Container>
     </AuthCheck>
