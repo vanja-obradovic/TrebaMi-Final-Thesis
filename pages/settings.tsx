@@ -579,7 +579,7 @@ const Settings = ({ userData }) => {
                   </DialogContentText>
                 }
               >
-                <Stack direction="row" className={styles.cardStack}>
+                <Stack className={styles.cardStack}>
                   <Card
                     variant="outlined"
                     className={
