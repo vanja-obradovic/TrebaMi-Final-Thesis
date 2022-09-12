@@ -332,6 +332,7 @@ const Search = ({
                   markersWPopups={ads.map((ad) =>
                     adSchemaCard.cast(ad, { stripUnknown: true })
                   )}
+                  disabled={!isLoggedIn()}
                 ></Map>
               </>
             )}
@@ -432,6 +433,7 @@ const Search = ({
                   markersWPopups={ads.map((ad) =>
                     adSchemaCard.cast(ad, { stripUnknown: true })
                   )}
+                  disabled={!isLoggedIn()}
                 ></Map>
               </div>
             </ClickAwayListener>

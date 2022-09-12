@@ -130,7 +130,7 @@ const AdCard = (props: CardProps) => {
                 />
                 <div>
                   <div>
-                    {ad.price}
+                    {ad.price === -1 ? "Cena: Po dogovoru" : ad.price}{" "}
                     {ad.priceUnit}
                   </div>
                 </div>

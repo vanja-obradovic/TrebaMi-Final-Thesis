@@ -19,11 +19,18 @@ interface mapProps {
   popup?: React.ReactNode;
   markerCords?: Coords;
   markersWPopups?: AdvertisementCard[];
+  disabled?: boolean;
 }
 
 const Map = (props: mapProps) => {
-  const { locationMarker, setLocation, popup, markerCords, markersWPopups } =
-    props;
+  const {
+    locationMarker,
+    setLocation,
+    popup,
+    markerCords,
+    markersWPopups,
+    disabled,
+  } = props;
 
   const mapElement = useRef<HTMLDivElement>();
   const [map, setMap] = useState<Map>();
@@ -259,7 +266,9 @@ const Map = (props: mapProps) => {
             const popupDiv = document.createElement("div");
             popupDiv.className = styles.popup;
             const root = ReactDOM.createRoot(popupDiv);
-            root.render(<AdCard ad={marker} mapCard={true}></AdCard>);
+            root.render(
+              <AdCard ad={marker} mapCard={true} disabled={disabled}></AdCard>
+            );
             return popupDiv;
           });
           const customMarkers = markersWPopups.map((marker) => {
