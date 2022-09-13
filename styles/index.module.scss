@@ -293,7 +293,10 @@
   // }
   > div {
     height: 100%;
-    aspect-ratio: 1.5;
+    // aspect-ratio: 1.5;
+    img {
+      object-fit: cover;
+    }
     position: relative;
   }
   &::before {

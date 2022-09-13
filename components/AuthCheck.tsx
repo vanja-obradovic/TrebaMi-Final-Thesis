@@ -39,7 +39,7 @@ export default function AuthCheck({
             document.getElementById("loginPopup").click();
           }
         }, 500);
-      }
+      } else if (currUser?.displayName === null) Router.replace("/setup");
     }
   }, [currUser]);
 

@@ -31,6 +31,7 @@ import useArray from "../hooks/useArray";
 import useTimeout from "../hooks/useTimeout";
 import { Controller, useForm } from "react-hook-form";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 export const getServerSideProps = async ({ query, res }) => {
   res.setHeader(
@@ -88,6 +89,8 @@ const Search = ({
   priceRange: [number, number];
 }) => {
   const { control, getValues } = useForm(); //*for municipalities
+  const { currUser } = useAuth();
+  const router = useRouter();
   const {
     control: priceControl,
     getValues: getSliderValue,
@@ -112,6 +115,8 @@ const Search = ({
     useState<[number, number]>(priceRange);
 
   useEffect(() => {
+    if (currUser?.displayName === null) router.replace("/setup");
+
     if (window.innerWidth < 1280) setDrawerButton(true);
     const updateDrawer = () => {
       if (window.innerWidth > 1280) {
@@ -123,7 +128,7 @@ const Search = ({
     window.addEventListener("resize", updateDrawer);
 
     return () => window.removeEventListener("resize", updateDrawer);
-  }, []);
+  }, [currUser?.displayName]);
 
   const handleMunicipalityFilter = () => {
     if (Object.values(getValues()).every((val) => val === false)) {

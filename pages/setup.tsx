@@ -59,7 +59,7 @@ const Setup = () => {
   useEffect(() => {
     if (currUser !== undefined)
       if (!isLoggedIn()) router.replace("/");
-      else if (currUser?.displayName !== null) router.replace("/LogedIn");
+      else if (currUser?.displayName !== null) router.replace("/profile");
   }, [isLoggedIn, router, currUser]);
 
   const handleSetup = async (data: FormData) => {

@@ -93,6 +93,7 @@ export default function Home() {
   let loadingResults = fetching || active;
 
   useEffect(() => {
+    if (currUser?.displayName === null) router.replace("/setup");
     if (window.innerWidth > 1280) setInteractive(true);
     const updateInteractivity = () => {
       if (window.innerWidth > 1280) setInteractive(true);
@@ -106,7 +107,7 @@ export default function Home() {
     // }, 500);
 
     return () => window.removeEventListener("resize", updateInteractivity);
-  }, []);
+  }, [currUser?.displayName]);
 
   const { control, register, handleSubmit } = useForm<FormData>({
     shouldUnregister: true,
@@ -348,21 +349,17 @@ export default function Home() {
             <ClickAwayListener
               onClickAway={() => {
                 setFocusServices(false);
-                
               }}
             >
               <Box
                 className={styles.services}
                 onFocus={(e) => {
-                  
                   setFocusServices(true);
                 }}
                 onKeyDown={(e) => {
-                  
                   if (e.key === "Escape" && e.target.localName === "div") {
                     e.target.blur();
                     setFocusServices(false);
-                    
                   }
                 }}
                 tabIndex={-1}
