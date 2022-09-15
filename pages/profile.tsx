@@ -213,11 +213,9 @@ const UserDashboard = () => {
         })
         .then(async (docRef) => {
           setAdRef(docRef);
-          await firestore
-            .updateDoc(userDoc, {
-              "ad.count": firestore.increment(1),
-            })
-            .then(() => forceUpdate());
+          await firestore.updateDoc(userDoc, {
+            "ad.count": firestore.increment(1),
+          });
         }),
       {
         success: "Oglas uspesno dodat!",
@@ -301,8 +299,9 @@ const UserDashboard = () => {
 
       toast.promise(
         Promise.all(promises).then((urls) => {
-          firestore.updateDoc(adRef, { images: urls });
-          console.log(urls);
+          firestore
+            .updateDoc(adRef, { images: urls })
+            .then(() => forceUpdate());
           removeAllImages();
         }),
         {
@@ -312,7 +311,7 @@ const UserDashboard = () => {
         }
       );
     } else {
-      firestore.updateDoc(adRef, { images: [] });
+      firestore.updateDoc(adRef, { images: [] }).then(() => forceUpdate());
     }
   };
 

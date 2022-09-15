@@ -177,6 +177,14 @@ const Search = ({
         setAds(ads.sort((a, b) => b.price - a.price));
         break;
       }
+      case "ratingAsc": {
+        setAds(ads.sort((a, b) => a.rating - b.rating));
+        break;
+      }
+      case "ratingDesc": {
+        setAds(ads.sort((a, b) => b.rating - a.rating));
+        break;
+      }
     }
   };
 
@@ -222,8 +230,8 @@ const Search = ({
                       >
                         <MenuItem value="priceAsc">Ceni rastuce</MenuItem>
                         <MenuItem value="priceDesc">Ceni opadajuce</MenuItem>
-                        {/* <MenuItem value="priceDesc">Ceni opadajuce</MenuItem>
-                    <MenuItem value="priceDesc">Ceni opadajuce</MenuItem> */}
+                        <MenuItem value="ratingAsc">Oceni rastuce</MenuItem>
+                        <MenuItem value="ratingDesc">Oceni opadajuce</MenuItem>
                       </Select>
                     )}
                   />
@@ -323,8 +331,8 @@ const Search = ({
                       >
                         <MenuItem value="priceAsc">Ceni rastuce</MenuItem>
                         <MenuItem value="priceDesc">Ceni opadajuce</MenuItem>
-                        {/* <MenuItem value="priceDesc">Ceni opadajuce</MenuItem>
-                    <MenuItem value="priceDesc">Ceni opadajuce</MenuItem> */}
+                        <MenuItem value="ratingAsc">Oceni rastuce</MenuItem>
+                        <MenuItem value="ratingDesc">Oceni opadajuce</MenuItem>
                       </Select>
                     )}
                   />

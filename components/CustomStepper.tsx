@@ -115,23 +115,30 @@ const CustomStepper = (props: stepperProps) => {
       ) : ( */}
       <>
         {props.children[activeStep]}
-        <Box className={styles.actions}>
-          <Button onClick={handleBack} variant="outlined">
-            {isFirstStep() ? "Otkazi" : "Nazad"}
-          </Button>
-
-          {!isFinalStep() && isStepOptional(activeStep) && (
-            <Button color="secondary" onClick={handleSkip}>
-              Preskoci
+        {!isFinalStep() ? (
+          <Box className={styles.actions}>
+            <Button onClick={handleBack} variant="outlined">
+              Nazad
             </Button>
-          )}
 
-          <Button onClick={handleNext} variant="contained">
-            {isFinalStep() ? "Potvrdi" : "Dalje"}
-          </Button>
-        </Box>
+            {isStepOptional(activeStep) && (
+              <Button color="secondary" onClick={handleSkip}>
+                Preskoci
+              </Button>
+            )}
+
+            <Button onClick={handleNext} variant="contained">
+              Dalje
+            </Button>
+          </Box>
+        ) : (
+          <Box className={styles.finalAction}>
+            <Button onClick={handleNext} variant="contained">
+              Potvrdi
+            </Button>
+          </Box>
+        )}
       </>
-      {/* )} */}
     </>
   );
 };

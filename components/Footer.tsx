@@ -11,7 +11,9 @@ const Footer = () => {
   return (
     <footer>
       <div>
-        <h2 style={{ margin: "0" }}>Diplomski</h2>
+        <h2 style={{ margin: "0" }}>TrebaMi</h2>
+
+        <h4>-Diplomski rad-</h4>
         <div>
           <p>
             Napravljeno pomocu
