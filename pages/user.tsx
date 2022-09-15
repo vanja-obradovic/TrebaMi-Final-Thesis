@@ -27,7 +27,7 @@ export const getServerSideProps = async ({ query, res }) => {
     if (res.data() === undefined) return undefined;
     else return userSchema.cast(res.data());
   });
-  if (user === undefined)
+  if (user === undefined || !user.isProvider)
     return {
       notFound: true,
     };
