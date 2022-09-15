@@ -38,10 +38,10 @@
   max-height: 20vh;
   flex-wrap: nowrap !important;
   padding-left: 0.75rem;
-  overflow:auto
+  overflow: auto;
 }
 .formHelperText {
-  text-align: center;
+  text-align: center !important;
 }
 
 .filter {
