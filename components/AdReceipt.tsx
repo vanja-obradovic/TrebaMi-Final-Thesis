@@ -17,6 +17,7 @@ import CustomDialog from "./CustomDialog";
 import GalleryCropper from "./ImgCropperWGallery";
 import ClearOutlinedIcon from "@mui/icons-material/ClearOutlined";
 import { v4 as uuidv4 } from "uuid";
+import { adSchema } from "../models/Advertisement";
 
 type CommentData = {
   comment: string;
@@ -184,58 +185,71 @@ const AdReceipt = ({
       firestore.getFirestore(app),
       `users/${sellerID}`
     );
+    const adRef = firestore.doc(
+      firestore.getFirestore(app),
+      `users/${sellerID}/ads/${aid}`
+    );
 
     getDoc(sellerProfileRef).then((res) => {
       const userData = userSchema.cast(res.data());
-      const batch = firestore.writeBatch(firestore.getFirestore(app));
-      batch.update(buyerRef, {
-        receipts: firestore.arrayRemove({ ...props }),
-      });
-      batch.update(buyerRef, {
-        receipts: firestore.arrayUnion({ ...props, commented: true }),
-      });
-      batch.update(sellerRef, {
-        receipts: firestore.arrayRemove({ ...props }),
-      });
-      batch.update(sellerRef, {
-        receipts: firestore.arrayUnion({ ...props, commented: true }),
-      });
-      batch.set(
-        commentRef,
-        {
-          aid: aid,
-          commenter: {
-            displayName: displayName,
-            photoURL: currUser.photoURL,
-            uid: buyerID,
+      getDoc(adRef).then((result) => {
+        const adData = adSchema.cast(result.data);
+        const batch = firestore.writeBatch(firestore.getFirestore(app));
+        batch.update(buyerRef, {
+          receipts: firestore.arrayRemove({ ...props }),
+        });
+        batch.update(buyerRef, {
+          receipts: firestore.arrayUnion({ ...props, commented: true }),
+        });
+        batch.update(sellerRef, {
+          receipts: firestore.arrayRemove({ ...props }),
+        });
+        batch.update(sellerRef, {
+          receipts: firestore.arrayUnion({ ...props, commented: true }),
+        });
+        batch.set(
+          commentRef,
+          {
+            aid: aid,
+            commenter: {
+              displayName: displayName,
+              photoURL: currUser.photoURL,
+              uid: buyerID,
+            },
+            comments: firestore.arrayUnion({
+              comment: data.comment,
+              rating: +data.rating,
+              timestamp: new Date().getTime(),
+              title: data.title,
+            }),
           },
-          comments: firestore.arrayUnion({
-            comment: data.comment,
-            rating: +data.rating,
-            timestamp: new Date().getTime(),
-            title: data.title,
-          }),
-        },
-        { merge: true }
-      );
-      batch.update(sellerProfileRef, {
-        rating:
-          (userData.rating ?? 0 * userData.commentsNumber + data.rating) /
-          (userData.commentsNumber + 1),
-        reputation: firestore.increment(Math.floor(+data.rating)),
-        commentsNumber: firestore.increment(1),
+          { merge: true }
+        );
+        batch.update(sellerProfileRef, {
+          rating:
+            (userData.rating ?? 0 * userData.commentsNumber + data.rating) /
+            (userData.commentsNumber + 1),
+          reputation: firestore.increment(Math.floor(+data.rating)),
+          commentsNumber: firestore.increment(1),
+        });
+        batch.update(adRef, {
+          ratings: firestore.increment(1),
+          rating:
+            ((adData.rating ?? 0) * (adData.ratings ?? 0) + data.rating) /
+            (adData.ratings ?? 0 + 1),
+        });
+        toast.promise(
+          batch
+            .commit()
+            .then(() => refetch())
+            .catch(() => setLoading(false)),
+          {
+            pending: "U toku...",
+            error: "Greska, pokusajte ponovo",
+            success: "Uspeh!",
+          }
+        );
       });
-      toast.promise(
-        batch
-          .commit()
-          .then(() => refetch())
-          .catch(() => setLoading(false)),
-        {
-          pending: "U toku...",
-          error: "Greska, pokusajte ponovo",
-          success: "Uspeh!",
-        }
-      );
     });
   };
 

@@ -27,6 +27,7 @@ export const adSchema = yup.object({
   quantity: yup.number().notRequired().nullable(),
   images: yup.array(yup.string().url()).notRequired(),
   rating: yup.number().min(1).max(5).notRequired().nullable(),
+  ratings: yup.number().notRequired().nullable(),
   provider: yup.object({
     displayName: yup.string().required(),
     location: yup.object().shape(locationSchema.fields),
