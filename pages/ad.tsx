@@ -168,6 +168,7 @@ const AdDetails = ({
             amount: ad.price,
             quantity: formdata.quantity,
             displayName: currUser.displayName,
+            isProvider: user.data().isProvider,
             buyerID: currUser.uid,
             sellerID: router.query.prov as string,
             timestamp: time,
