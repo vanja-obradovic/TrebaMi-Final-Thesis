@@ -49,8 +49,8 @@ const ImageCropper = ({ aspect, image, setCroppedImage, setFile, setURL }) => {
       </div>
       <div>
         <p>
-          Use mouse scroll or touchpad to zoom. Box can be moved to achive
-          desired crop.
+          Koristite točkić miša za zumiranje. Mreža se može pomerati kako bi se
+          postiglo željeno odsecanje.
         </p>
       </div>
       <div>
