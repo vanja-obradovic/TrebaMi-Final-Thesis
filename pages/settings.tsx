@@ -518,112 +518,120 @@ const Settings = ({ userData }) => {
         <Box className={styles.photo}>
           <Paper elevation={4} className={styles.paper}>
             <Box className={styles.avatarWrapper}>
-              Membership
-              <Tooltip title="Promenite tip clanstva" arrow placement="left">
-                <span
-                  style={
-                    userProfile?.membership === "silver"
-                      ? { border: "solid silver 2px" }
-                      : userProfile?.membership === "gold"
-                      ? { border: "solid gold 2px" }
-                      : {
-                          border: "solid #1caffd 2px",
-                        }
-                  }
-                  onClick={openMembershipDialog}
-                >
-                  {userProfile?.membership}
-                </span>
-              </Tooltip>
-              <CustomDialog // *Dialog for membership
-                dialogOpen={membershipDialogOpen}
-                dialogClose={closeMembershipDialog}
-                dialogLoading={dialogLoading}
-                title="Promena tipa clanstva"
-                nativeContentText={
-                  <DialogContentText>
-                    {membership === "silver" && (
-                      <div>
-                        <div>Srebrni plan:</div>
-                        <div className={styles.membershipDetails}>
-                          <ul>
-                            <li>2 oglasa</li>
-                          </ul>
-                        </div>
-                      </div>
-                    )}
-                    {membership === "gold" && (
-                      <div>
-                        <div>Zlatni plan:</div>
-                        <div className={styles.membershipDetails}>
-                          <ul>
-                            <li>5 oglasa</li>
-                            {/* <li>1 besplatna promocija oglasa po mesecu</li>
+              {userProfile?.isProvider && (
+                <>
+                  Membership
+                  <Tooltip
+                    title="Promenite tip clanstva"
+                    arrow
+                    placement="left"
+                  >
+                    <span
+                      style={
+                        userProfile?.membership === "silver"
+                          ? { border: "solid silver 2px" }
+                          : userProfile?.membership === "gold"
+                          ? { border: "solid gold 2px" }
+                          : {
+                              border: "solid #1caffd 2px",
+                            }
+                      }
+                      onClick={openMembershipDialog}
+                    >
+                      {userProfile?.membership}
+                    </span>
+                  </Tooltip>
+                  <CustomDialog // *Dialog for membership
+                    dialogOpen={membershipDialogOpen}
+                    dialogClose={closeMembershipDialog}
+                    dialogLoading={dialogLoading}
+                    title="Promena tipa clanstva"
+                    nativeContentText={
+                      <DialogContentText>
+                        {membership === "silver" && (
+                          <div>
+                            <div>Srebrni plan:</div>
+                            <div className={styles.membershipDetails}>
+                              <ul>
+                                <li>2 oglasa</li>
+                              </ul>
+                            </div>
+                          </div>
+                        )}
+                        {membership === "gold" && (
+                          <div>
+                            <div>Zlatni plan:</div>
+                            <div className={styles.membershipDetails}>
+                              <ul>
+                                <li>5 oglasa</li>
+                                {/* <li>1 besplatna promocija oglasa po mesecu</li>
                             <li>200 bonus reputacije po mesecu</li> */}
-                          </ul>
-                        </div>
-                      </div>
-                    )}
-                    {membership === "diamond" && (
-                      <div>
-                        <div>Dijamantski plan:</div>
-                        <div className={styles.membershipDetails}>
-                          <ul>
-                            <li>10 oglasa</li>
-                            {/* <li>3 besplatne promocije oglasa po mesecu</li>
+                              </ul>
+                            </div>
+                          </div>
+                        )}
+                        {membership === "diamond" && (
+                          <div>
+                            <div>Dijamantski plan:</div>
+                            <div className={styles.membershipDetails}>
+                              <ul>
+                                <li>10 oglasa</li>
+                                {/* <li>3 besplatne promocije oglasa po mesecu</li>
                             <li>500 bonus reputacije po mesecu</li> */}
-                          </ul>
-                        </div>
-                      </div>
-                    )}
-                  </DialogContentText>
-                }
-              >
-                <Stack className={styles.cardStack}>
-                  <Card
-                    variant="outlined"
-                    className={
-                      userProfile?.membership === "silver"
-                        ? styles.card
-                        : styles.focusedCard
+                              </ul>
+                            </div>
+                          </div>
+                        )}
+                      </DialogContentText>
                     }
-                    onClick={() => setMembership("silver")}
                   >
-                    <CardActionArea>
-                      <CardHeader title="Srebrno"></CardHeader>
-                      <CardContent>0 rsd/mes</CardContent>
-                    </CardActionArea>
-                  </Card>
-                  <Card
-                    variant="outlined"
-                    className={
-                      userProfile?.membership === "gold"
-                        ? styles.card
-                        : styles.focusedCard
-                    }
-                    onClick={() => setMembership("gold")}
-                  >
-                    <CardActionArea>
-                      <CardHeader title="Zlatno"></CardHeader>
-                      <CardContent>500 rsd/mes</CardContent>
-                    </CardActionArea>
-                  </Card>
-                  <Card
-                    variant="outlined"
-                    className={
-                      userProfile?.membership === "diamond"
-                        ? styles.card
-                        : styles.focusedCard
-                    }
-                    onClick={() => setMembership("diamond")}
-                  >
-                    <CardActionArea>
-                      <CardHeader title="Dijamantsko"></CardHeader>
-                      <CardContent>1000 rsd/mes</CardContent>
-                    </CardActionArea>
-                  </Card>
-                </Stack>
-              </CustomDialog>
+                    <Stack className={styles.cardStack}>
+                      <Card
+                        variant="outlined"
+                        className={
+                          userProfile?.membership === "silver"
+                            ? styles.card
+                            : styles.focusedCard
+                        }
+                        onClick={() => setMembership("silver")}
+                      >
+                        <CardActionArea>
+                          <CardHeader title="Srebrno"></CardHeader>
+                          <CardContent>0 rsd/mes</CardContent>
+                        </CardActionArea>
+                      </Card>
+                      <Card
+                        variant="outlined"
+                        className={
+                          userProfile?.membership === "gold"
+                            ? styles.card
+                            : styles.focusedCard
+                        }
+                        onClick={() => setMembership("gold")}
+                      >
+                        <CardActionArea>
+                          <CardHeader title="Zlatno"></CardHeader>
+                          <CardContent>500 rsd/mes</CardContent>
+                        </CardActionArea>
+                      </Card>
+                      <Card
+                        variant="outlined"
+                        className={
+                          userProfile?.membership === "diamond"
+                            ? styles.card
+                            : styles.focusedCard
+                        }
+                        onClick={() => setMembership("diamond")}
+                      >
+                        <CardActionArea>
+                          <CardHeader title="Dijamantsko"></CardHeader>
+                          <CardContent>1000 rsd/mes</CardContent>
+                        </CardActionArea>
+                      </Card>
+                    </Stack>
+                  </CustomDialog>
+                </>
+              )}
               {!croppedImage ? (
                 <Tooltip title="Upload photo" arrow placement="top">
                   <Avatar
