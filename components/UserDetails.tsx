@@ -21,6 +21,7 @@ interface userDetailsProps {
   membership?: string;
   rootStyle?: string;
   userLink?: string;
+  number?: string;
 }
 
 const UserDetails = (props: userDetailsProps) => {
@@ -32,6 +33,7 @@ const UserDetails = (props: userDetailsProps) => {
     membership,
     rootStyle,
     userLink,
+    number,
   } = props;
 
   const router = useRouter();
@@ -66,7 +68,11 @@ const UserDetails = (props: userDetailsProps) => {
             <h2>{displayName}</h2>
             {dashboard && (
               <div className={styles.stats}>
-                 <div>
+                <div>
+                  <span>Broj telefona:</span>
+                  <span>{number ?? "N/A"}</span>
+                </div>
+                <div>
                   <span>Rating:</span>
                   <span>{rating ?? "N/A"}</span>
                 </div>

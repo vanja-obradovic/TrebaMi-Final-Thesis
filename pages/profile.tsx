@@ -373,6 +373,7 @@ const UserDashboard = () => {
             photoURL={currUser?.photoURL}
             rating={userProfile?.rating}
             reputation={userProfile?.reputation}
+            number={userProfile?.number}
           ></UserDetails>
           <Box className={styles.tabWrapper}>
             <Paper elevation={4} className={styles.paper}>

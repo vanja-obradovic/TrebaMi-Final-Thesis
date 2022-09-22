@@ -180,27 +180,27 @@ const ChatPage = ({
 
   const scrollRef = useRef<HTMLDivElement>();
   const messageContainerRef = useRef<HTMLDivElement>();
-  const obeserver = useRef<IntersectionObserver>();
+  const observer = useRef<IntersectionObserver>();
   const [hasMore, setHasMore] = useState(true);
 
   const lastMsgRef = useCallback(
     (node) => {
-      if (obeserver.current) {
-        obeserver.current.disconnect();
+      if (observer.current) {
+        observer.current.disconnect();
       }
-      obeserver.current = new IntersectionObserver(
+      observer.current = new IntersectionObserver(
         (entries) => {
           if (entries[0].isIntersecting && hasMore) {
             getChatMessages(chat.id, rtmessages[0]?.sentAt ?? 0).then((res) => {
               if (res.length < 10) setHasMore(false);
               setRtMessages((prev) => res.concat(prev));
             });
-            obeserver.current.unobserve(entries[0].target);
+            observer.current.unobserve(entries[0].target);
           }
         },
         { root: messageContainerRef.current, rootMargin: "250px" }
       );
-      if (node) setTimeout(() => obeserver.current.observe(node), 500);
+      if (node) setTimeout(() => observer.current.observe(node), 500);
     },
     [rtmessages]
   );

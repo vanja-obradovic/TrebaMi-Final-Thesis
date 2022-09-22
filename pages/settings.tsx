@@ -153,6 +153,12 @@ const Settings = ({ userData }) => {
           console.log(`Error while uploading, message: ${error.message}`);
         },
         () => {
+          const chatMember = {
+            displayName: currUser?.displayName,
+            photoURL: currUser?.photoURL,
+            uid: currUser?.uid,
+            isProvider: userProfile?.isProvider,
+          };
           storage.getDownloadURL(ref).then((url) => {
             auth
               .updateProfile(currUser, {
@@ -175,6 +181,13 @@ const Settings = ({ userData }) => {
             const batch = firestore.writeBatch(dbInstance);
 
             firestore.getDocs(adsRef).then((docs) => {
+              batch.update(
+                firestore.doc(
+                  firestore.getFirestore(app),
+                  `users/${currUser?.uid}`
+                ),
+                { photoURL: url }
+              );
               docs.forEach((doc) => {
                 batch.update(doc.ref, { "provider.photoURL": url });
               });
@@ -182,7 +195,31 @@ const Settings = ({ userData }) => {
                 docs.forEach((doc) => {
                   batch.update(doc.ref, { "commenter.photoURL": url });
                 });
-                batch.commit();
+
+                firestore
+                  .getDocs(
+                    firestore.query(
+                      firestore.collection(firestore.getFirestore(app), "chat"),
+                      firestore.where("members", "array-contains", chatMember)
+                    )
+                  )
+                  .then((result) => {
+                    console.log(
+                      result.docs.length + " " + JSON.stringify(chatMember)
+                    );
+                    result.forEach((doc) => {
+                      batch.update(doc.ref, {
+                        members: firestore.arrayRemove(chatMember),
+                      });
+                      batch.update(doc.ref, {
+                        members: firestore.arrayUnion({
+                          ...chatMember,
+                          photoURL: url,
+                        }),
+                      });
+                    });
+                    batch.commit();
+                  });
               });
             });
           });

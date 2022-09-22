@@ -19,6 +19,7 @@ export const userSchema = yup.object({
   surname: yup.string(),
   commentsNumber: yup.number(),
   photoURL: yup.string().url().nullable(),
+  number: yup.string(),
 });
 
 export type User = yup.InferType<typeof userSchema>;

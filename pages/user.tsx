@@ -38,6 +38,7 @@ export const getServerSideProps = async ({ query, res }) => {
         membership: user.membership,
         reputation: user.reputation,
         rating: user.rating,
+        number: user.number,
       },
     },
   };
@@ -60,6 +61,7 @@ const User = ({
             photoURL={userAds[0].provider.photoURL}
             rating={userDetails.rating}
             reputation={userDetails.reputation}
+            number={userDetails.number}
           ></UserDetails>
           <Box className={styles.cardWrapper}>
             {userAds.map((val, index) => {
