@@ -22,7 +22,7 @@ const ImageCropper = ({ aspect, image, setCroppedImage, setFile, setURL }) => {
       const croppedImage = await getCroppedImg(image, croppedAreaPixels);
       setURL("");
       window.URL.revokeObjectURL(image);
-      console.log("donee", { croppedImage });
+      // console.log("donee", { croppedImage });
       setCroppedImage(croppedImage);
       setFile(null);
     } catch (e) {

@@ -44,7 +44,7 @@ export const getServerSideProps = async ({ query, res }) => {
 
     return [minPrice, maxPrice];
   };
-  console.log(query);
+  // console.log(query);
   if (query.keyword !== undefined) {
     const prices: number[] = [];
     const keyword = query.keyword;

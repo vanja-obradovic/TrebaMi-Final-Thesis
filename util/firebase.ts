@@ -129,7 +129,7 @@ export const getAdsByKeyword = async (keyword: string) => {
   const allAds = await getDocs(refWhere).then((res) => {
     return res;
   });
-  console.log("vratio sa baze");
+  // console.log("vratio sa baze");
   return allAds;
 };
 export const getAdsAdvanced = async (
@@ -216,7 +216,7 @@ export const newChat = async (chatDetails: Chat) => {
 };
 
 export const getUserChats = async (member) => {
-  console.log(member);
+  // console.log(member);
   const ref = collection(getFirestore(app), `chat`);
   const refWhere = query(ref, where("members", "array-contains", member));
   const chats = await getDocs(refWhere);
@@ -232,7 +232,7 @@ export const getChatMessages = async (chatID: string, start?: number) => {
     limit(10)
   );
   const messages = await getDocs(start ? query(ref, startAfter(start)) : ref);
-  console.log("Dohvatio iz backa " + messages.docs.length);
+  // console.log("Dohvatio iz backa " + messages.docs.length);
   return messages.docs.reverse().map((doc) => {
     return messageSchema.cast(doc.data(), { stripUnknown: true });
   });

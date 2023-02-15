@@ -62,7 +62,7 @@ const Map = (props: mapProps) => {
 
   useEffect(() => {
     const initMap = async () => {
-      console.log(mapElement);
+      // console.log(mapElement);
       const tt = await import("@tomtom-international/web-sdk-maps");
       const { services } = await import(
         "@tomtom-international/web-sdk-services"
@@ -290,7 +290,7 @@ const Map = (props: mapProps) => {
                   new tt.Popup({ closeOnClick: true })
                     .setDOMContent(popUP)
                     .on("open", (e: any) => {
-                      console.log(e);
+                      // console.log(e);
                       map.panTo(e.target._lngLat, {
                         offset: [50, 0],
                       });

@@ -204,9 +204,9 @@ const Settings = ({ userData }) => {
                     )
                   )
                   .then((result) => {
-                    console.log(
-                      result.docs.length + " " + JSON.stringify(chatMember)
-                    );
+                    // console.log(
+                    //   result.docs.length + " " + JSON.stringify(chatMember)
+                    // );
                     result.forEach((doc) => {
                       batch.update(doc.ref, {
                         members: firestore.arrayRemove(chatMember),
@@ -236,7 +236,7 @@ const Settings = ({ userData }) => {
   };
 
   const updateUserData = async (data: basicFormData) => {
-    console.log(data);
+    // console.log(data);
     const docRef = firestore.doc(dbInstance, `users`, `${currUser?.uid}`);
     const adsRef = firestore.collection(
       dbInstance,

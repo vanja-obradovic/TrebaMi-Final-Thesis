@@ -50,9 +50,9 @@ const GalleryCropper = (props: CropperProps) => {
       );
       window.URL.revokeObjectURL(imagesToCrop[0]);
       setImagestoCrop((prev) => [...prev.slice(1)]);
-      console.log("donee", { croppedImage });
+      // console.log("donee", { croppedImage });
       setCroppedImage((prev) => [...prev, croppedImage]);
-      console.log(imagesToCrop);
+      // console.log(imagesToCrop);
     } catch (e) {
       console.error(e);
     }

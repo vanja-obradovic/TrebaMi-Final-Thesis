@@ -150,7 +150,7 @@ const UserDashboard = () => {
         photoURL: currUser?.photoURL,
         isProvider: userProfile?.isProvider ?? false,
       }).then((res) => {
-        console.log(res);
+        // console.log(res);
         setUserChats(res);
       });
   }, [tabValue, update, currUser?.uid]);
@@ -158,7 +158,7 @@ const UserDashboard = () => {
   useEffect(() => {
     if (userPurchases !== undefined && userSales !== undefined) {
       const joined = userPurchases?.concat(userSales);
-      console.log(joined);
+      // console.log(joined);
       if (joined?.length > 0) getFavourites(joined);
     }
   }, [userSales, userPurchases]);

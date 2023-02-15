@@ -216,7 +216,7 @@ const ChatPage = ({
         firestore.endBefore(rtmessages[rtmessages.length - 1]?.sentAt ?? 0)
       ),
       (res) => {
-        res.docChanges().map((item) => console.log(item.doc.data()));
+        // res.docChanges().map((item) => console.log(item.doc.data()));
         const rtMessages = res
           .docChanges()
           .reverse()
@@ -252,7 +252,7 @@ const ChatPage = ({
   useEffect(() => {
     const removeToast = () => {
       toast.dismiss(toastRef.current);
-      console.log("unload");
+      // console.log("unload");
     };
 
     router.events.on("routeChangeStart", removeToast);
