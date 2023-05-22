@@ -745,9 +745,21 @@ const UserDashboard = () => {
                   <TabPanel value={tabValue} index={2}>
                     <h3>Poruke</h3>
                     <Container maxWidth="md">
-                      {userChats?.map((chat) => {
-                        return <ChatCard {...chat} key={chat.id}></ChatCard>;
-                      })}
+                      {userChats?.length > 0 ? (
+                        userChats.map((chat) => {
+                          return <ChatCard {...chat} key={chat.id}></ChatCard>;
+                        })
+                      ) : (
+                        <span
+                          style={{
+                            display: "inline-flex",
+                            width: "100%",
+                            justifyContent: "center",
+                          }}
+                        >
+                          Nema poruka!
+                        </span>
+                      )}
                     </Container>
                   </TabPanel>
                   <TabPanel value={tabValue} index={3}>
