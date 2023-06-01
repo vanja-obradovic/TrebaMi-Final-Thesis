@@ -26,5 +26,5 @@ The `pages/api` directory is mapped to `/api/*`. Files in this directory are tre
  - User statistics
  - Ad ratings and comments, which reflect on user rating
 
-# Note - initial search has a delay beacause of serverless function warmup
+### Note - initial search has a delay beacause of serverless function warmup
 
